@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE structures SYSTEM "../doc/structures.dtd">
+<structures>
+	<structure id="taoMonitoring_main" name="tao-extension-monitoring" level="15" group="main">
+		<description />
+		<sections>
+			<section id="taoMonitoring_main" name="tao-extension-monitoring" url="/taoMonitoring/TaoMonitoring/index" />
+			<section id="taoMonitoring_other" name="Template" url="/taoMonitoring/TaoMonitoring/templateExample" />
+		</sections>
+	</structure>
+</structures>
