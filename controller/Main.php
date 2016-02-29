@@ -14,13 +14,25 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2016  (original work) Open Assessment Technologies SA;
- * 
- * @author Alexander Zagovorichev <zagovorichev@1pt.com>
+ * Copyright (c) 2016 (original work) Open Assessment Technologies SA;
+ *
+ *
  */
 
-require_once dirname(__FILE__). '/../tao/includes/class.Bootstrap.php';
+namespace oat\taoMonitoring\controller;
 
-$bootStrap = new BootStrap('taoMonitoring');
-$bootStrap->start();
-$bootStrap->dispatch();
+
+/**
+ * @author A. Zagovorichev <zagovorichev@1pt.com>
+ */
+class Main extends \tao_actions_CommonModule
+{
+    /**
+     * Logs
+     */
+    public function index()
+    {
+        $this->setData('content-template', ['Main\index.tpl', 'taoMonitoring']);
+        $this->setView('layout.tpl', 'tao');
+    }
+}

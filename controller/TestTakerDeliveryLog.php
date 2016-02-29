@@ -29,7 +29,7 @@ use oat\taoMonitoring\model\TestTakerDeliveryLogInterface;
  * @package oat\taoMonitoring\controller
  * @author A. Zagovorichev <zagovorichev@1pt.com>
  */
-class TestTakerDeliveryLog extends \tao_actions_CommonModule {
+class TestTakerDeliveryLog extends Main {
 
     /**
      * @var TestTakerDeliveryLogInterface
@@ -43,11 +43,9 @@ class TestTakerDeliveryLog extends \tao_actions_CommonModule {
         parent::__construct();
         $this->service = $this->getServiceManager()->get(TestTakerDeliveryLogInterface::SERVICE_ID);
     }
-
-    /**
-     * Logs
-     */
-    public function index() {
-        echo __("Hello World");
+    
+    public function data()
+    {
+        
     }
 }
