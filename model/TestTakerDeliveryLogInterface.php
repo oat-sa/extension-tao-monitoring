@@ -21,6 +21,7 @@
 
 namespace oat\taoMonitoring\model;
 
+
 /**
  * 
  * Interface TestTakerLogInterface
@@ -29,7 +30,7 @@ namespace oat\taoMonitoring\model;
  */
 interface TestTakerDeliveryLogInterface
 {
-    const SERVICE_ID = 'taoProctoring/DeliveryLog';
+    const SERVICE_ID = 'taoMonitoring/testTakerDeliveryLog';
 
     /** Fields */
     const TEST_TAKER_LOGIN = 'test_taker';
@@ -60,18 +61,4 @@ interface TestTakerDeliveryLogInterface
      * @return bool
      */
     public function upgrade();
-
-    /**
-     * Lock log DB, and write logs in FS
-     * 
-     * @return mixed
-     */
-    public function lock();
-
-    /**
-     * Unlock log DB, flush all data from FS in logDB
-     * 
-     * @return mixed
-     */
-    public function unlock();
 }

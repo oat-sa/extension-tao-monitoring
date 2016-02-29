@@ -23,8 +23,7 @@ namespace oat\taoMonitoring\scripts\uninstall\Delivery;
 
 
 use Doctrine\DBAL\Schema\SchemaException;
-use oat\taoMonitoring\model\Delivery\implementation\RdsTestTakerDeliveryLogService;
-use oat\taoMonitoring\model\Delivery\TestTakerDeliveryLogInterface;
+use oat\taoMonitoring\model\implementation\RdsTestTakerDeliveryLogService;
 
 class TestTakerLog extends \common_ext_action_InstallAction
 {
@@ -48,14 +47,10 @@ class TestTakerLog extends \common_ext_action_InstallAction
             $persistence->exec($query);
         }
 
-        if ($this->getServiceManager()->has(TestTakerDeliveryLogInterface::SERVICE_ID)) {
-            
+        if ($this->getServiceManager()->has(RdsTestTakerDeliveryLogService::SERVICE_ID)) {
+            $this->registerService(RdsTestTakerDeliveryLogService::SERVICE_ID, null);
         }
 
         return new \common_report_Report(\common_report_Report::TYPE_SUCCESS, __('Registered delivery log for test taker'));
-
     }
 }
-
-$log = new TestTakerLog();
-$log();

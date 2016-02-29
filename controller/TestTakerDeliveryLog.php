@@ -21,32 +21,33 @@
 
 namespace oat\taoMonitoring\controller;
 
-/**
- * Sample controller
- *
- * @author Open Assessment Technologies SA
- * @package taoMonitoring
- * @license GPL-2.0
- *
- */
-class TaoMonitoring extends \tao_actions_CommonModule {
 
+use oat\taoMonitoring\model\TestTakerDeliveryLogInterface;
+
+/**
+ * Class TestTakerDeliveryLog
+ * @package oat\taoMonitoring\controller
+ * @author A. Zagovorichev <zagovorichev@1pt.com>
+ */
+class TestTakerDeliveryLog extends \tao_actions_CommonModule {
+
+    /**
+     * @var TestTakerDeliveryLogInterface
+     */
+    protected $service;
+    
     /**
      * initialize the services
      */
     public function __construct(){
         parent::__construct();
+        $this->service = $this->getServiceManager()->get(TestTakerDeliveryLogInterface::SERVICE_ID);
     }
 
     /**
-     * A possible entry point to tao
+     * Logs
      */
     public function index() {
         echo __("Hello World");
-    }
-
-    public function templateExample() {
-        $this->setData('author', 'Open Assessment Technologies SA');
-        $this->setView('TaoMonitoring/templateExample.tpl');
     }
 }

@@ -38,11 +38,27 @@ class RdsTestTakerDeliveryLogServiceTest extends TaoPhpUnitTestRunner
         parent::setUp();
         TaoPhpUnitTestRunner::initTest();
         
-        $this->service = new RdsTestTakerDeliveryLogService();
+        $this->service = new RdsTestTakerDeliveryLogService(['persistence' => 'default']);
     }
-    
-    public function testService()
+
+    /**
+     * @expectedException \common_Exception
+     */
+    public function testLogEventWithoutLogin()
     {
         $this->service->logEvent();
+    }
+
+    /**
+     * @expectedException \common_Exception
+     */    
+    public function testLogEventWithoutNbField()
+    {
+        $this->service->logEvent('tt1');
+    }
+
+    public function testLogEvent()
+    {
+        $this->service->logEvent('tt1', RdsTestTakerDeliveryLogService::NB_ITEM);
     }
 }

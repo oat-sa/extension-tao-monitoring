@@ -23,7 +23,8 @@ namespace oat\taoMonitoring\scripts\install;
 
 
 use Doctrine\DBAL\Schema\SchemaException;
-use oat\taoMonitoring\model\Delivery\implementation\RdsTestTakerDeliveryLogService;
+use oat\taoMonitoring\model\TestTakerDeliveryLog\Service;
+use oat\taoMonitoring\model\TestTakerDeliveryLog\storage\RdsStorage;
 
 /**
  * 
@@ -31,7 +32,7 @@ use oat\taoMonitoring\model\Delivery\implementation\RdsTestTakerDeliveryLogServi
  * Class RegisterTestTakerLog
  * @package oat\taoMonitoring\scripts\install\Delivery
  */
-class RegisterTestTakerDeliveryLog extends \common_ext_action_InstallAction
+class RegisterRdsTestTakerDeliveryLog extends \common_ext_action_InstallAction
 {
     
     public function __invoke($params)
@@ -44,14 +45,14 @@ class RegisterTestTakerDeliveryLog extends \common_ext_action_InstallAction
         $fromSchema = clone $schema;
 
         try {
-            $tableLog = $schema->createTable(RdsTestTakerDeliveryLogService::TABLE_NAME);
+            $tableLog = $schema->createTable(RdsStorage::TABLE_NAME);
             $tableLog->addOption('engine', 'MyISAM');
-            $tableLog->addColumn(RdsTestTakerDeliveryLogService::TEST_TAKER_LOGIN, "string", array("notnull" => true, "length" => 255));
-            $tableLog->addColumn(RdsTestTakerDeliveryLogService::NB_ITEM, "integer");
-            $tableLog->addColumn(RdsTestTakerDeliveryLogService::NB_EXECUTIONS, "integer");
-            $tableLog->addColumn(RdsTestTakerDeliveryLogService::NB_FINISHED, "integer");
+            $tableLog->addColumn(Service::TEST_TAKER_LOGIN, "string", array("notnull" => true, "length" => 255));
+            $tableLog->addColumn(Service::NB_ITEM, "integer");
+            $tableLog->addColumn(Service::NB_EXECUTIONS, "integer");
+            $tableLog->addColumn(Service::NB_FINISHED, "integer");
 
-            $tableLog->setPrimaryKey(array(RdsTestTakerDeliveryLogService::TEST_TAKER_LOGIN));
+            $tableLog->setPrimaryKey(array(Service::TEST_TAKER_LOGIN));
             
         } catch(SchemaException $e) {
             \common_Logger::i('Database Schema for Delivery\TestTakerLog already up to date.');
@@ -63,8 +64,8 @@ class RegisterTestTakerDeliveryLog extends \common_ext_action_InstallAction
         }
 
         $this->registerService(
-            RdsTestTakerDeliveryLogService::SERVICE_ID,
-            new RdsTestTakerDeliveryLogService(array(RdsTestTakerDeliveryLogService::OPTION_PERSISTENCE => $persistenceId))
+            Service::SERVICE_ID,
+            new Service(array(Service::OPTION_PERSISTENCE => $persistenceId))
         );
         
         return new \common_report_Report(\common_report_Report::TYPE_SUCCESS, __('Registered delivery log for test taker'));

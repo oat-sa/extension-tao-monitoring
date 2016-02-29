@@ -35,12 +35,12 @@ return array(
     ),
     'install' => array(
         'php' => array(
-            'oat\\taoMonitoring\\scripts\\install\\RegisterTestTakerDeliveryLog',
+            'oat\\taoMonitoring\\scripts\\install\\RegisterRdsTestTakerDeliveryLog',
         )
     ),
     'uninstall' => array(
         'php' => array(
-            __DIR__.DIRECTORY_SEPARATOR.'scripts'.DIRECTORY_SEPARATOR.'uninstall'.DIRECTORY_SEPARATOR.'TestTakerDeliveryLog.php',
+            __DIR__.DIRECTORY_SEPARATOR.'scripts'.DIRECTORY_SEPARATOR.'uninstall'.DIRECTORY_SEPARATOR.'RdsTestTakerDeliveryLog.php',
             //'oat\\taoMonitoring\\scripts\\uninstall\\Delivery\\TestTakerLog',
         )
     ),
