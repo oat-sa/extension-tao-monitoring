@@ -19,35 +19,19 @@
  * @author Alexander Zagovorichev <zagovorichev@1pt.com>
  */
 
-namespace oat\taoMonitoring\model;
-use oat\taoMonitoring\model\TestTakerDeliveryLog\StorageInterface;
+namespace oat\taoMonitoring\model\TestTakerDeliveryLog;
 
 
 /**
+ * Update data in storage
  * 
- * Interface TestTakerLogInterface
- * @package oat\taoMonitoring\model\Delivery
- * @author Alexander Zagovorichev <zagovorichev@1pt.com>
+ * Interface UpgradeInterface
+ * @package oat\taoMonitoring\model\TestTakerDeliveryLog
  */
-interface TestTakerDeliveryLogInterface
+interface UpgradeInterface
 {
-    const SERVICE_ID = 'taoMonitoring/testTakerDeliveryLog';
-    
     /**
-     * Increment test taker event
-     * (create row if not exists)
-     *
-     * @param string $testTakerLogin
-     * @param string $nb_event
-     * @return bool
+     * @return 
      */
-    public function logEvent($testTakerLogin = '', $nb_event = '');
-
-    /**
-     * Set storage for service data
-     * 
-     * @param StorageInterface $storage
-     * @return mixed
-     */
-    public function setStorage(StorageInterface $storage);
+    public function execute();
 }

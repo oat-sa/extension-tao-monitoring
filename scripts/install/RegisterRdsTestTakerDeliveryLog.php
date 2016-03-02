@@ -22,7 +22,6 @@
 namespace oat\taoMonitoring\scripts\install;
 
 
-use Doctrine\DBAL\Schema\SchemaException;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\Service;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\storage\RdsStorage;
 
@@ -38,35 +37,13 @@ class RegisterRdsTestTakerDeliveryLog extends \common_ext_action_InstallAction
     public function __invoke($params)
     {
         $persistenceId = count($params) > 0 ? reset($params) : 'default';
-        $persistence = \common_persistence_Manager::getPersistence($persistenceId);
 
-        $schemaManager = $persistence->getDriver()->getSchemaManager();
-        $schema = $schemaManager->createSchema();
-        $fromSchema = clone $schema;
+        /** Register new service */
+        $this->registerService(Service::SERVICE_ID, new Service([RdsStorage::OPTION_PERSISTENCE => $persistenceId]));
 
-        try {
-            $tableLog = $schema->createTable(RdsStorage::TABLE_NAME);
-            $tableLog->addOption('engine', 'MyISAM');
-            $tableLog->addColumn(Service::TEST_TAKER_LOGIN, "string", array("notnull" => true, "length" => 255));
-            $tableLog->addColumn(Service::NB_ITEM, "integer");
-            $tableLog->addColumn(Service::NB_EXECUTIONS, "integer");
-            $tableLog->addColumn(Service::NB_FINISHED, "integer");
-
-            $tableLog->setPrimaryKey(array(Service::TEST_TAKER_LOGIN));
-            
-        } catch(SchemaException $e) {
-            \common_Logger::i('Database Schema for Delivery\TestTakerLog already up to date.');
-        }
-
-        $queries = $persistence->getPlatform()->getMigrateSchemaSql($fromSchema, $schema);
-        foreach ($queries as $query) {
-            $persistence->exec($query);
-        }
-
-        $this->registerService(
-            Service::SERVICE_ID,
-            new Service(array(Service::OPTION_PERSISTENCE => $persistenceId))
-        );
+        /** @var RdsStorage $storage */
+        $storage = new RdsStorage( $this->getServiceManager()->get(Service::SERVICE_ID) );
+        $storage->createStorage();
         
         return new \common_report_Report(\common_report_Report::TYPE_SUCCESS, __('Registered delivery log for test taker'));
     }

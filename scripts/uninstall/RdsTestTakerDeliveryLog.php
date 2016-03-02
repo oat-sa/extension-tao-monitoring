@@ -22,33 +22,21 @@
 namespace oat\taoMonitoring\scripts\uninstall\Delivery;
 
 
-use Doctrine\DBAL\Schema\SchemaException;
-use oat\taoMonitoring\model\implementation\RdsTestTakerDeliveryLogService;
+use oat\taoMonitoring\model\TestTakerDeliveryLog\storage\RdsStorage;
+use oat\taoMonitoring\model\TestTakerDeliveryLogInterface;
 
-class TestTakerLog extends \common_ext_action_InstallAction
+class RdsTestTakerDeliveryLog extends \common_ext_action_InstallAction
 {
     public function __invoke($params)
     {
-        $persistenceId = count($params) > 0 ? reset($params) : 'default';
-        $persistence = \common_persistence_Manager::getPersistence($persistenceId);
+        
+        if ($this->getServiceManager()->has(TestTakerDeliveryLogInterface::SERVICE_ID)) {
 
-        $schemaManager = $persistence->getDriver()->getSchemaManager();
-        $schema = $schemaManager->createSchema();
-        $fromSchema = clone $schema;
+            /** Uninstall rds storage */
+            $storage = new RdsStorage( $this->getServiceManager()->get(TestTakerDeliveryLogInterface::SERVICE_ID) );
+            $storage->dropStorage();
 
-        try {
-            $schema->dropTable(RdsTestTakerDeliveryLogService::TABLE_NAME);
-        } catch(SchemaException $e) {
-            \common_Logger::i('Database Schema for Delivery\TestTakerLog can\'t be dropped.');
-        }
-
-        $queries = $persistence->getPlatform()->getMigrateSchemaSql($fromSchema, $schema);
-        foreach ($queries as $query) {
-            $persistence->exec($query);
-        }
-
-        if ($this->getServiceManager()->has(RdsTestTakerDeliveryLogService::SERVICE_ID)) {
-            $this->registerService(RdsTestTakerDeliveryLogService::SERVICE_ID, null);
+            $this->registerService(TestTakerDeliveryLogInterface::SERVICE_ID, null);
         }
 
         return new \common_report_Report(\common_report_Report::TYPE_SUCCESS, __('Registered delivery log for test taker'));

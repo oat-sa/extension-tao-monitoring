@@ -19,35 +19,12 @@
  * @author Alexander Zagovorichev <zagovorichev@1pt.com>
  */
 
-namespace oat\taoMonitoring\model;
-use oat\taoMonitoring\model\TestTakerDeliveryLog\StorageInterface;
+namespace oat\taoMonitoring\test\TestTakerDeliveryLog;
 
 
-/**
- * 
- * Interface TestTakerLogInterface
- * @package oat\taoMonitoring\model\Delivery
- * @author Alexander Zagovorichev <zagovorichev@1pt.com>
- */
-interface TestTakerDeliveryLogInterface
+use oat\tao\test\TaoPhpUnitTestRunner;
+
+class EventTest extends TaoPhpUnitTestRunner
 {
-    const SERVICE_ID = 'taoMonitoring/testTakerDeliveryLog';
-    
-    /**
-     * Increment test taker event
-     * (create row if not exists)
-     *
-     * @param string $testTakerLogin
-     * @param string $nb_event
-     * @return bool
-     */
-    public function logEvent($testTakerLogin = '', $nb_event = '');
-
-    /**
-     * Set storage for service data
-     * 
-     * @param StorageInterface $storage
-     * @return mixed
-     */
-    public function setStorage(StorageInterface $storage);
+    public function testEvent(){}
 }

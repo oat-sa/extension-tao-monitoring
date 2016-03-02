@@ -19,35 +19,30 @@
  * @author Alexander Zagovorichev <zagovorichev@1pt.com>
  */
 
-namespace oat\taoMonitoring\model;
-use oat\taoMonitoring\model\TestTakerDeliveryLog\StorageInterface;
+namespace oat\taoMonitoring\model\TestTakerDeliveryLog;
 
 
-/**
- * 
- * Interface TestTakerLogInterface
- * @package oat\taoMonitoring\model\Delivery
- * @author Alexander Zagovorichev <zagovorichev@1pt.com>
- */
-interface TestTakerDeliveryLogInterface
+interface DataAggregatorInterface
 {
-    const SERVICE_ID = 'taoMonitoring/testTakerDeliveryLog';
-    
     /**
-     * Increment test taker event
-     * (create row if not exists)
-     *
-     * @param string $testTakerLogin
-     * @param string $nb_event
-     * @return bool
+     * @return int Number of all deliveries in system
      */
-    public function logEvent($testTakerLogin = '', $nb_event = '');
+    public function countAllDeliveries();
 
     /**
-     * Set storage for service data
-     * 
-     * @param StorageInterface $storage
-     * @return mixed
+     * Get slice of the executions for deliveries (with pagination by deliveries)
+     * @param int $page
+     * @param int $inPage
+     * @return array of \oat\taoDelivery\model\execution\DeliveryExecution[]
      */
-    public function setStorage(StorageInterface $storage);
+    public function getSlice($page = 0, $inPage = 500);
+
+    /**
+     * Get executions for test center or for delivery in test center
+     * 
+     * @param \core_kernel_classes_Resource|null $testCenter
+     * @param \core_kernel_classes_Resource|null $delivery
+     * @return array of \oat\taoDelivery\model\execution\DeliveryExecution[]
+     */
+    public function getData(\core_kernel_classes_Resource $testCenter = null, \core_kernel_classes_Resource $delivery = null);
 }

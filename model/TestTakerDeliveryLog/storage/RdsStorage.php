@@ -22,29 +22,32 @@
 namespace oat\taoMonitoring\model\TestTakerDeliveryLog\storage;
 
 
+use Doctrine\DBAL\Schema\SchemaException;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\StorageInterface;
+use oat\taoMonitoring\model\TestTakerDeliveryLogInterface;
 
 class RdsStorage implements StorageInterface
 {
 
     const TABLE_NAME = 'monitoring_testtaker_deliveries';
+    const OPTION_PERSISTENCE = 'persistence';
 
     /**
-     * @var
+     * @var TestTakerDeliveryLogInterface
      */
-    private $persistence;
-    
-    public function __construct($persistence)
+    private $service;
+
+    public function __construct(TestTakerDeliveryLogInterface $service)
     {
-        $this->persistence = $persistence;
+        $this->service = $service;
     }
-    
+
     /**
      * Create new test takers log
      * @param string $login
      * @return bool
      */
-    public function create($login = '')
+    public function createRow($login = '')
     {
         $result = $this->getPersistence()->insert(self::TABLE_NAME, [
             self::TEST_TAKER_LOGIN => $login,
@@ -57,16 +60,26 @@ class RdsStorage implements StorageInterface
     }
 
     /**
+     * @return \common_persistence_SqlPersistence
+     */
+    private function getPersistence()
+    {
+        return \common_persistence_Manager::getPersistence($this->service->getOption(self::OPTION_PERSISTENCE));
+    }
+
+    /**
      * Increment one of the field
      * @param string $login
      * @param string $field
+     * @return bool
      */
-    public function increment($login = '', $field = '')
+    public function incrementField($login = '', $field = '')
     {
         $sql = "UPDATE " . self::TABLE_NAME . " SET " . $field . " = " . $field . "+1 WHERE " . self::TEST_TAKER_LOGIN . "=?";
         $parameters = [$login];
-        $this->getPersistence()
-            ->exec($sql, $parameters);
+        $r = $this->getPersistence()->exec($sql, $parameters);
+
+        return $r === 1;
     }
 
     /**
@@ -74,7 +87,7 @@ class RdsStorage implements StorageInterface
      * @return mixed
      * @throws \common_Exception
      */
-    public function get($login = '')
+    public function getRow($login = '')
     {
         if (!$login) {
             throw new \common_Exception('TestTakerDeliveryLogService should have test taker login');
@@ -90,10 +103,81 @@ class RdsStorage implements StorageInterface
     }
 
     /**
-     * @return \common_persistence_SqlPersistence
+     * @return bool
      */
-    private function getPersistence()
+    public function createStorage()
     {
-        return \common_persistence_Manager::getPersistence($this->persistence);
+        $persistence = $this->getPersistence();
+
+        $schemaManager = $persistence->getDriver()->getSchemaManager();
+        $schema = $schemaManager->createSchema();
+        $fromSchema = clone $schema;
+
+        try {
+            $tableLog = $schema->createTable(self::TABLE_NAME);
+            $tableLog->addOption('engine', 'MyISAM');
+            $tableLog->addColumn(self::TEST_TAKER_LOGIN, "string", array("notnull" => true, "length" => 255));
+            $tableLog->addColumn(self::NB_ITEM, "integer");
+            $tableLog->addColumn(self::NB_EXECUTIONS, "integer");
+            $tableLog->addColumn(self::NB_FINISHED, "integer");
+
+            $tableLog->setPrimaryKey(array(self::TEST_TAKER_LOGIN));
+
+        } catch (SchemaException $e) {
+            \common_Logger::i('Database Schema for Delivery\TestTakerLog already up to date.');
+            return false;
+        }
+
+        $queries = $persistence->getPlatform()->getMigrateSchemaSql($fromSchema, $schema);
+        foreach ($queries as $query) {
+            $persistence->exec($query);
+        }
+
+        return true;
+    }
+
+    public function dropStorage()
+    {
+        $persistence = $this->getPersistence();
+
+        $schemaManager = $persistence->getDriver()->getSchemaManager();
+        $schema = $schemaManager->createSchema();
+        $fromSchema = clone $schema;
+
+        try {
+            $schema->dropTable(self::TABLE_NAME);
+        } catch (SchemaException $e) {
+            \common_Logger::i('Database Schema for Delivery\TestTakerLog can\'t be dropped.');
+        }
+
+        $queries = $persistence->getPlatform()->getMigrateSchemaSql($fromSchema, $schema);
+        foreach ($queries as $query) {
+            $persistence->exec($query);
+        }
+    }
+
+    public function flushArray(array $data)
+    {
+        $queries = [];
+        foreach ($data as $row) {
+            $queries[] = $this->getSqlUpdateOrCreate($row);
+        }
+        var_dump($queries);
+    }
+
+    private function getSqlUpdateOrCreate(array $data)
+    {
+        return "INSERT INTO " . self::TABLE_NAME
+        . " (`"
+        . self::TEST_TAKER_LOGIN . "`,`" . self::NB_ITEM . "`, `" . self::NB_EXECUTIONS . "`,`" . self::NB_FINISHED
+        . "`) VALUES ('"
+        . $data[self::TEST_TAKER_LOGIN] . "','"
+        . $data[self::NB_ITEM] . "','"
+        . $data[self::NB_EXECUTIONS] . "','"
+        . $data[self::NB_FINISHED]
+        . "') ON DUPLICATE KEY UPDATE "
+        . "`" . self::NB_ITEM . "`=`". self::NB_ITEM . "`+" . $data[self::NB_ITEM] . ","
+        . "`" . self::NB_EXECUTIONS . "`=`". self::NB_EXECUTIONS . "`+" . $data[self::NB_EXECUTIONS] . ","
+        . "`" . self::NB_FINISHED . "`=`". self::NB_FINISHED . "`+" . $data[self::NB_FINISHED];
     }
 }

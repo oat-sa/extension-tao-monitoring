@@ -32,8 +32,6 @@ class Service extends ConfigurableService
     implements TestTakerDeliveryLogInterface
 {
 
-    const OPTION_PERSISTENCE = 'persistence';
-
     /**
      * @var StorageInterface
      */
@@ -52,12 +50,12 @@ class Service extends ConfigurableService
             throw new \common_Exception('TestTakerDeliveryLogService should have test taker login');
         }
 
-        $testTakerLog = $this->storage()->get($testTakerLogin);
+        $testTakerLog = $this->storage()->getRow($testTakerLogin);
 
         if (!$testTakerLog || !count($testTakerLog)) {
             //create record
-            $this->storage()->create($testTakerLogin);
-            $testTakerLog = $this->storage()->get($testTakerLogin);
+            $this->storage()->createRow($testTakerLogin);
+            $testTakerLog = $this->storage()->getRow($testTakerLogin);
         }
 
         if (!isset($testTakerLog[$nb_event])) {
@@ -66,9 +64,14 @@ class Service extends ConfigurableService
 
         $testTakerLog[$nb_event]++;
 
-        $this->storage()->increment($testTakerLogin, $nb_event);
+        $this->storage()->incrementField($testTakerLogin, $nb_event);
 
         return true;
+    }
+    
+    public function setStorage(StorageInterface $storage)
+    {
+        $this->storage = $storage;
     }
 
     private function storage()
@@ -76,44 +79,9 @@ class Service extends ConfigurableService
         if (!isset($this->storage)) {
             $this->storage = $this->isLocked() 
                 ? new TmpStorage($this->getOption('tmpPath')) 
-                : new RdsStorage($this->getOptions(self::OPTION_PERSISTENCE));
+                : new RdsStorage($this->getOptions());
         }
 
         return $this->storage;
-    }
-
-    public function isLocked()
-    {
-        return $this->hasOption('locked');
-    }
-
-    public function upgrade()
-    {
-        $this->lock();
-
-        $this->generateStats();
-        $this->fillTmpToDb();
-
-        $this->unlock();
-    }
-
-    /**
-     * For upgrade we need switch one storage to another
-     */
-    private function lock()
-    {
-        if ($this->isLocked()) {
-            throw new \common_Exception('Upgrade is running');
-        }
-
-        $this->setOption('locked', true);
-    }
-
-    private function unlock()
-    {
-        $options = $this->getOptions();
-        unlink($options['tmpPath']);
-        unset($options['locked'], $options['tmpPath']);
-        $this->setOptions($options);
     }
 }
