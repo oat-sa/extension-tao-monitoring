@@ -71,11 +71,13 @@ class Events implements EventInterface
     
     public static function qtiMoveEvent(QtiMoveEvent $event)
     {
-        // todo find login
+        $user = $event->getSession()->getUser();
+        $login = UserHelper::getUserLogin($user);
+        
         // reload all statistic for test taker
         if ($event->getContext() === QtiMoveEvent::CONTEXT_AFTER) {
             $event->getSession();
-            self::service()->updateTestTaker('login');
+            self::service()->updateTestTaker($login);
         }
     }
 
