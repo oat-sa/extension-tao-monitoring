@@ -71,12 +71,11 @@ class ServiceTest extends TaoPhpUnitTestRunner
     public function testLogEvent()
     {
         $login = 'tt1';
-        
         $this->assertFalse($this->storage->getRow($login));
         
         $this->service->logEvent($login, StorageInterface::NB_ITEM);
         
-        $this->assertEquals(['test_taker' => $login,'nb_item' => 1,'nb_executions' => 0,'nb_finished' => 0], $this->storage->getRow($login));
+        $this->assertEquals([StorageInterface::TEST_TAKER_LOGIN => $login,StorageInterface::NB_ITEM => 1,StorageInterface::NB_EXECUTIONS => 0,StorageInterface::NB_FINISHED => 0], $this->storage->getRow($login));
 
         $this->service->logEvent($login, StorageInterface::NB_ITEM);
         $this->service->logEvent($login, StorageInterface::NB_ITEM);
@@ -87,6 +86,22 @@ class ServiceTest extends TaoPhpUnitTestRunner
 
         $this->service->logEvent($login, StorageInterface::NB_FINISHED);
         
-        $this->assertEquals(['test_taker' => $login,'nb_item' => 4,'nb_executions' => 2,'nb_finished' => 1], $this->storage->getRow($login));
+        $this->assertEquals([StorageInterface::TEST_TAKER_LOGIN => $login,StorageInterface::NB_ITEM => 4,StorageInterface::NB_EXECUTIONS => 2,StorageInterface::NB_FINISHED => 1], $this->storage->getRow($login));
+    }
+    
+    public function testUpdateTestTaker()
+    {
+        $login = 'tt1';
+        $this->assertFalse($this->storage->getRow($login));
+        
+        $testData = [StorageInterface::TEST_TAKER_LOGIN => $login, StorageInterface::NB_ITEM => 4, StorageInterface::NB_EXECUTIONS => 34, StorageInterface::NB_FINISHED => 2];
+        
+        $aggregator = $this->prophesize('\oat\taoMonitoring\model\TestTakerDeliveryLog\DataAggregatorInterface');
+        $aggregator->getSlice()
+            ->shouldBeCalledTimes(1)
+            ->willReturn([$testData]);
+        
+        $this->service->updateTestTaker($login, $aggregator->reveal());
+        $this->assertEquals($testData, $this->storage->getRow($login));
     }
 }

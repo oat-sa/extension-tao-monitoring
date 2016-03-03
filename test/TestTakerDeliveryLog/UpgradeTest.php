@@ -62,7 +62,7 @@ class UpgradeTest extends TaoPhpUnitTestRunner
         
         /** @var \oat\taoMonitoring\model\TestTakerDeliveryLog\DataAggregatorInterface $dataAggregator */
         $this->dataAggregator = $this->prophesize('\oat\taoMonitoring\model\TestTakerDeliveryLog\DataAggregatorInterface');
-        $this->dataAggregator->countAllDeliveries()
+        $this->dataAggregator->countAllData()
             ->shouldBeCalledTimes($shouldBeCalledTimes['dataAggregator->countAllDeliveries'])
             ->willReturn(600);
         $this->dataAggregator->getSlice(Argument::type('integer'), Argument::type('integer'))
@@ -78,24 +78,51 @@ class UpgradeTest extends TaoPhpUnitTestRunner
             'dataAggregator->getSlice' => 2
         ]);
 
+        $login = '499 Tt';
+        
         $tmpStorage = new TestStorage($this->service->reveal());
         $regularStorage = new TestStorage($this->service->reveal());
 
         $tmpStorage->createStorage();
+
+        $this->assertFalse($tmpStorage->getRow($login));
+
+        // push data in $tmpStorage for check move data to another storage
+        $tmpStorage->createRow($login);
+        $tmpStorage->incrementField($login, StorageInterface::NB_EXECUTIONS);
+        $tmpStorage->incrementField($login, StorageInterface::NB_EXECUTIONS);
+        $tmpStorage->incrementField($login, StorageInterface::NB_ITEM);
+
+        $login2 = 'test';
+        $tmpStorage->createRow($login2);
+        $tmpStorage->incrementField($login2, StorageInterface::NB_EXECUTIONS);
+
+        $this->assertEquals([
+            'test_taker' => $login,
+            'nb_item' => 1,
+            'nb_executions' => 2,
+            'nb_finished' => 0,
+        ], $tmpStorage->getRow($login));
+
+        //
         $regularStorage->createStorage();
-        
-        $this->assertFalse($tmpStorage->getRow('499 Tt'));
-        
         
         $this->updater = new Updater($this->service->reveal(), $tmpStorage, $regularStorage, $this->dataAggregator->reveal());
         $this->updater->execute();
 
-        $row = $regularStorage->getRow('499 Tt');
+        $row = $regularStorage->getRow($login);
         $this->assertEquals([
-            StorageInterface::NB_ITEM => 24,
-            StorageInterface::NB_EXECUTIONS => 8,
+            StorageInterface::NB_ITEM => 25,
+            StorageInterface::NB_EXECUTIONS => 10,
             StorageInterface::NB_FINISHED => 6, 
-            StorageInterface::TEST_TAKER_LOGIN => '499 Tt'], $row);
+            StorageInterface::TEST_TAKER_LOGIN => $login], $row);
+
+        $row = $regularStorage->getRow($login2);
+        $this->assertEquals([
+            StorageInterface::NB_ITEM => 0,
+            StorageInterface::NB_EXECUTIONS => 1,
+            StorageInterface::NB_FINISHED => 0,
+            StorageInterface::TEST_TAKER_LOGIN => $login2], $row);
 
     }
 }

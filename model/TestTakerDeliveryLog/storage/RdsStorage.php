@@ -165,6 +165,31 @@ class RdsStorage implements StorageInterface
         var_dump($queries);
     }
 
+    public function countAllData()
+    {
+        $sql = "SELECT COUNT(`" . self::TEST_TAKER_LOGIN . "`) FROM " . self::TABLE_NAME;
+        $stmt = $this->getPersistence()->query($sql);
+        return current($stmt->fetchAll(\PDO::FETCH_ASSOC));
+    }
+    
+    public function replace(array $data)
+    {
+        $sql = "REPLACE INTO " . self::TABLE_NAME . " VALUES (?, ?, ?, ?)";
+        $parameters = [$data[self::TEST_TAKER_LOGIN], $data[self::NB_ITEM], $data[self::NB_EXECUTIONS], $data[self::NB_FINISHED]];
+        $stmt = $this->getPersistence()->query($sql, $parameters);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+    
+    public function getSlice($page = 0, $inPage = 500)
+    {
+        $sql = "SELECT * FROM " . self::TABLE_NAME . " LIMIT " . $inPage . " OFFSET " . ($page*$inPage);
+
+        $parameters = [$page, $inPage];
+        
+        $stmt = $this->getPersistence()->query($sql, $parameters);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
     private function getSqlUpdateOrCreate(array $data)
     {
         return "INSERT INTO " . self::TABLE_NAME

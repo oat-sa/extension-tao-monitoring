@@ -4,6 +4,7 @@
 namespace oat\taoMonitoring\test\TestTakerDeliveryLog\Mock;
 
 
+use oat\taoMonitoring\model\TestTakerDeliveryLog\DataAggregatorInterface;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\StorageInterface;
 use oat\taoMonitoring\model\TestTakerDeliveryLogInterface;
 
@@ -96,5 +97,27 @@ class TestStorage implements StorageInterface
             //if still here - new record
             array_push($this->storage, $dRow);
         }
+    }
+    
+    public function countAllData()
+    {
+        return count($this->storage);
+    }
+    
+    public function getSlice($page = 0, $inPage = 500)
+    {
+        return array_slice($this->storage, $page*$inPage, $inPage);
+    }
+    
+    public function replace(array $data)
+    {
+        foreach ($this->storage as $key => $row) {
+            if ($row[StorageInterface::TEST_TAKER_LOGIN] === $data[StorageInterface::TEST_TAKER_LOGIN]) {
+                $this->storage[$key] = $row;
+                return;
+            }
+        }
+        
+        array_push($this->storage, $data);
     }
 }

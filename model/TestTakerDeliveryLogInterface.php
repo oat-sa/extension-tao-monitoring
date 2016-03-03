@@ -20,6 +20,7 @@
  */
 
 namespace oat\taoMonitoring\model;
+use oat\taoMonitoring\model\TestTakerDeliveryLog\DataAggregatorInterface;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\StorageInterface;
 
 
@@ -43,6 +44,16 @@ interface TestTakerDeliveryLogInterface
      */
     public function logEvent($testTakerLogin = '', $nb_event = '');
 
+    /**
+     * Update all statistics for test taker
+     * [We have aggregated statistics only (count of  the items), so I don't know how many times test taker complete one item]
+     *
+     * @param string $login
+     * @param DataAggregatorInterface $aggregator
+     * @return mixed
+     */
+    public function updateTestTaker($login = '', DataAggregatorInterface $aggregator);
+    
     /**
      * Set storage for service data
      * 

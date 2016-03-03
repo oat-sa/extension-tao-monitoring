@@ -22,19 +22,30 @@
 namespace oat\taoMonitoring\model\TestTakerDeliveryLog;
 
 
-interface DataAggregatorInterface
+use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionCreated;
+use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionState;
+use oat\taoQtiTest\models\event\QtiMoveEvent;
+
+interface EventInterface
 {
     /**
-     * @return int Number of all deliveries in system
+     * execution started
+     * @param DeliveryExecutionCreated $event
+     * @return mixed
      */
-    public function countAllData();
+    public static function deliveryExecutionCreated(DeliveryExecutionCreated $event);
+    
+    /**
+     * for Delivery status (Finished)
+     * @param DeliveryExecutionState $event
+     * @return mixed
+     */
+    public static function deliveryExecutionState(DeliveryExecutionState $event);
 
     /**
-     * Get slice of the executions for deliveries (with pagination by deliveries)
-     * @param int $page
-     * @param int $inPage
-     * @return array of \oat\taoDelivery\model\execution\DeliveryExecution[]
+     * for count of the finished items
+     * @param QtiMoveEvent $event
+     * @return mixed
      */
-    public function getSlice($page = 0, $inPage = 500);
-    
+    public static function qtiMoveEvent(QtiMoveEvent $event);
 }

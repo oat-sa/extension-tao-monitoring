@@ -92,21 +92,27 @@ class Updater implements UpgradeInterface
 
     private function generateStatistic(StorageInterface $storage)
     {
-        $total = $this->dataAggregator->countAllDeliveries();
-        $page = 0; 
+        $total = $this->dataAggregator->countAllData();
         $inPage = 500;
-        
-        while ($page * $inPage < $total) {
+
+        for ($page = 0; $page*$inPage < $total; $page++) {
             $statistics = $this->dataAggregator->getSlice($page, $inPage);
             if (count($statistics)) {
                 $storage->flushArray($statistics);
             }
-            $page++;
         }
     }
 
     private function moveData(StorageInterface $fromStorage, StorageInterface $toStorage)
     {
+        $total = $fromStorage->countAllData();
+        $inPage = 500;
 
+        for ($page = 0; $page*$inPage < $total; $page++) {
+            $statistics = $fromStorage->getSlice($page, $inPage);
+            if (count($statistics)) {
+                $toStorage->flushArray($statistics);
+            }
+        }
     }
 }

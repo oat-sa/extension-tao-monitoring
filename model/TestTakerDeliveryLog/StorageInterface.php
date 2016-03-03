@@ -6,7 +6,7 @@ namespace oat\taoMonitoring\model\TestTakerDeliveryLog;
 
 use oat\taoMonitoring\model\TestTakerDeliveryLogInterface;
 
-interface StorageInterface
+interface StorageInterface extends DataAggregatorInterface
 {
     /** Fields */
     // test taker login
@@ -60,7 +60,8 @@ interface StorageInterface
     public function dropStorage();
 
     /**
-     * Write array to storage
+     * Add Or Create data in storage
+     * # If test taker exists - add data to storage
      *  [
      *    'test_taker' => int,
      *    'nb_item' => int,
@@ -70,4 +71,11 @@ interface StorageInterface
      * @param array $data
      */
     public function flushArray(array $data);
+
+    /**
+     * Replace or Create data in storage
+     * @param array $data
+     * @return mixed
+     */
+    public function replace(array $data);
 }

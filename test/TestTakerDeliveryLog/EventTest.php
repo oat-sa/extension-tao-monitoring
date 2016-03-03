@@ -23,8 +23,55 @@ namespace oat\taoMonitoring\test\TestTakerDeliveryLog;
 
 
 use oat\tao\test\TaoPhpUnitTestRunner;
+use oat\taoMonitoring\model\TestTakerDeliveryLog\event\Events;
+use oat\taoMonitoring\model\TestTakerDeliveryLog\Service;
+use oat\taoMonitoring\test\TestTakerDeliveryLog\Mock\TestStorage;
 
 class EventTest extends TaoPhpUnitTestRunner
 {
-    public function testEvent(){}
+    /** @var  Service */
+    private $service;
+    
+    /** @var  TestStorage */
+    private $storage;
+    
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->service = new Service(['persistence' => 'default']);
+
+        $this->storage = new TestStorage($this->service);
+        $this->storage->createStorage();
+        $this->service->setStorage($this->storage);
+    }
+
+    public function testDeliveryExecutionCreated()
+    {
+        /*
+         * TODO How can I tested UserHelper::getUser?
+         * Events::setService($this->service);
+        
+        $deliveryExecution = $this->prophesize('\oat\taoDelivery\model\execution\DeliveryExecution');
+        $deliveryExecution->getUserIdentifier()
+            ->shouldBeCalledTimes(1)
+            ->willReturn('#idUser');
+        
+        $event = $this->prophesize('\oat\taoDelivery\models\classes\execution\event\DeliveryExecutionCreated');
+        $event->getDeliveryExecution()
+            ->shouldBeCalledTimes(1)
+            ->willReturn($deliveryExecution);
+        
+        Events::deliveryExecutionCreated($event->reveal());*/
+    }
+    
+    public function testDeliveryExecutionState()
+    {
+        
+    }
+    
+    public function testQtiMoveEvent()
+    {
+        
+    }
 }

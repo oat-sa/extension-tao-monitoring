@@ -62,13 +62,18 @@ class Service extends ConfigurableService
             throw new \common_Exception('TestTakerDeliveryLogService has incorrect $nb_event');
         }
 
-        $testTakerLog[$nb_event]++;
-
         $this->storage()->incrementField($testTakerLogin, $nb_event);
 
         return true;
     }
     
+    public function updateTestTaker($login = '', DataAggregatorInterface $aggregator)
+    {
+        // recount statistics for test taker
+        $statistics = current($aggregator->getSlice());
+        $this->storage()->replace($statistics);
+    }
+
     public function setStorage(StorageInterface $storage)
     {
         $this->storage = $storage;
