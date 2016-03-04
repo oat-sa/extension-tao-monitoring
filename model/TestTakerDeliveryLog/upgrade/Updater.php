@@ -22,10 +22,11 @@
 namespace oat\taoMonitoring\model\TestTakerDeliveryLog\upgrade;
 
 
+use oat\taoMonitoring\model\TestTakerDeliveryLog\aggregator\TestTakerDataAggregator;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\DataAggregatorInterface;
+use oat\taoMonitoring\model\TestTakerDeliveryLog\Service;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\StorageInterface;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\UpgradeInterface;
-use oat\taoMonitoring\model\TestTakerDeliveryLogInterface;
 
 /**
  * 1. change storage to tmp
@@ -40,7 +41,7 @@ use oat\taoMonitoring\model\TestTakerDeliveryLogInterface;
 class Updater implements UpgradeInterface
 {
     /**
-     * @var TestTakerDeliveryLogInterface
+     * @var Service
      */
     private $service;
 
@@ -61,13 +62,13 @@ class Updater implements UpgradeInterface
 
     /**
      * Updater constructor.
-     * @param TestTakerDeliveryLogInterface $service
+     * @param Service $service
      * @param StorageInterface $tmpStorage
      * @param StorageInterface $regularStorage
      * @param DataAggregatorInterface $dataAggregator
      */
     public function __construct(
-        TestTakerDeliveryLogInterface $service,
+        Service $service,
         StorageInterface $tmpStorage,
         StorageInterface $regularStorage,
         DataAggregatorInterface $dataAggregator
@@ -81,12 +82,16 @@ class Updater implements UpgradeInterface
 
     public function execute()
     {
+        if ($this->service->hasOption('tmpPath')) {
+            throw new \common_Exception('Updating for test takers delivery log is running, wait for complete');
+        }
+
         $this->service->setStorage($this->tmpStorage);
         $this->regularStorage->dropStorage();
         $this->regularStorage->createStorage();
         $this->generateStatistic($this->regularStorage);
         $this->service->setStorage($this->regularStorage);
-        $this->moveData($this->tmpStorage, $this->regularStorage);
+        $this->updateAffectedData();
         $this->tmpStorage->dropStorage();
     }
 
@@ -95,7 +100,7 @@ class Updater implements UpgradeInterface
         $total = $this->dataAggregator->countAllData();
         $inPage = 500;
 
-        for ($page = 0; $page*$inPage < $total; $page++) {
+        for ($page = 0; $page * $inPage < $total; $page++) {
             $statistics = $this->dataAggregator->getSlice($page, $inPage);
             if (count($statistics)) {
                 $storage->flushArray($statistics);
@@ -103,16 +108,22 @@ class Updater implements UpgradeInterface
         }
     }
 
-    private function moveData(StorageInterface $fromStorage, StorageInterface $toStorage)
+    private function updateAffectedData()
     {
-        $total = $fromStorage->countAllData();
-        $inPage = 500;
-
-        for ($page = 0; $page*$inPage < $total; $page++) {
-            $statistics = $fromStorage->getSlice($page, $inPage);
-            if (count($statistics)) {
-                $toStorage->flushArray($statistics);
+        if ($this->tmpStorage->countAllData()) {
+            $data = [];
+            foreach($this->tmpStorage->getSlice() as $row) {
+                $data[] = $row[StorageInterface::TEST_TAKER_LOGIN];
+            }
+            $data = array_unique($data);
+            
+            foreach ($data as $login) {
+                $aggregator = TestTakerDataAggregator::factory( $login );
+                if ($aggregator) {
+                    $this->service->updateTestTaker($aggregator);
+                }
             }
         }
     }
+    
 }

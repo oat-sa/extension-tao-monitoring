@@ -22,6 +22,7 @@
 namespace oat\taoMonitoring\model\TestTakerDeliveryLog\aggregator;
 
 
+use core_kernel_classes_Class;
 use oat\taoDelivery\model\execution\DeliveryExecution;
 use oat\taoOutcomeUi\model\ResultsService;
 
@@ -35,33 +36,44 @@ class TestTakerDataAggregator extends AbstractDataAggregator
 {
 
     /**
-     * @var \core_kernel_classes_Resource
+     * @var string
      */
-    private $testTaker;
-
+    private $testTakerUri;
+    
     /**
      * @var \taoDelivery_models_classes_execution_ServiceProxy
      */
     private $executionService;
     
-    /**
-     * @var string
-     */
-    private $login = '';
+    public static function factory( $login = '' ) {
+        
+        $class = new core_kernel_classes_Class(CLASS_GENERIS_USER);
+        $users = $class->searchInstances(
+            array(PROPERTY_USER_LOGIN => $login),
+            array('like' => false, 'recursive' => true)
+        );
+
+        if (!count($users)) {
+            return false;
+        }
+
+        $testTakerUri = current($users)->getUri();
+
+        return new TestTakerDataAggregator (
+            ResultsService::singleton(),
+            \taoDelivery_models_classes_execution_ServiceProxy::singleton(),
+            $testTakerUri
+        );
+    }
     
     public function __construct(
         ResultsService $resultsService,
         \taoDelivery_models_classes_execution_ServiceProxy $executionService,
-        \core_kernel_classes_Resource $testTaker
+        $testTakerUri = ''
     ) {
         parent::__construct($resultsService);
 
-        $this->testTaker = $testTaker;
-        $this->login =  $testTaker->getOnePropertyValue(new \core_kernel_classes_Property(PROPERTY_USER_LOGIN));
-        if (!$this->login) {
-            throw new \common_Exception('Test taker should be correct user resource');
-        }
-        
+        $this->testTakerUri = $testTakerUri;
         $this->executionService = $executionService;
     }
 
@@ -74,7 +86,7 @@ class TestTakerDataAggregator extends AbstractDataAggregator
         
         // all executions
         foreach ([DeliveryExecution::STATE_ACTIVE, DeliveryExecution::STATE_FINISHIED, DeliveryExecution::STATE_PAUSED] as $state) {
-            $res = $this->executionService->getDeliveryExecutionsByStatus($this->testTaker->getUri(), $state);
+            $res = $this->executionService->getDeliveryExecutionsByStatus($this->testTakerUri, $state);
             if (is_array($res)) {
                 $count += count($res);
             }
@@ -87,13 +99,14 @@ class TestTakerDataAggregator extends AbstractDataAggregator
     {
         $executions = [];
         foreach ([DeliveryExecution::STATE_ACTIVE, DeliveryExecution::STATE_FINISHIED, DeliveryExecution::STATE_PAUSED] as $state) {
-            $res = $this->executionService->getDeliveryExecutionsByStatus($this->testTaker->getUri(), $state);
+            $res = $this->executionService->getDeliveryExecutionsByStatus($this->testTakerUri, $state);
             if (is_array($res)) {
                 foreach ($res as $row) {
                     array_push($executions, $row);
                 }
             }
         }
+        
         return $this->aggregation($executions);
     }
 }

@@ -40,7 +40,6 @@ return array(
     ),
     'uninstall' => array(
         'php' => array(
-            //
 			//doesn't work for now
             //__DIR__.DIRECTORY_SEPARATOR.'scripts'.DIRECTORY_SEPARATOR.'uninstall'.DIRECTORY_SEPARATOR.'RdsTestTakerDeliveryLog.php',
             //'oat\\taoMonitoring\\scripts\\uninstall\\Delivery\\TestTakerLog',

@@ -26,6 +26,7 @@ use oat\tao\test\TaoPhpUnitTestRunner;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\Service;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\StorageInterface;
 use oat\taoMonitoring\test\TestTakerDeliveryLog\Mock\TestStorage;
+use Prophecy\Argument;
 
 /**
  * Class ServiceTest
@@ -101,7 +102,7 @@ class ServiceTest extends TaoPhpUnitTestRunner
             ->shouldBeCalledTimes(1)
             ->willReturn([$testData]);
         
-        $this->service->updateTestTaker($login, $aggregator->reveal());
+        $this->service->updateTestTaker($aggregator->reveal());
         $this->assertEquals($testData, $this->storage->getRow($login));
     }
 }

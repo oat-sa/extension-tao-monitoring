@@ -55,10 +55,13 @@ class UpgradeTest extends TaoPhpUnitTestRunner
         }
         
         /** @var \oat\taoMonitoring\model\TestTakerDeliveryLog\Service $service */
-        $this->service = $this->prophesize('\oat\taoMonitoring\model\TestTakerDeliveryLogInterface');
+        $this->service = $this->prophesize('\oat\taoMonitoring\model\TestTakerDeliveryLog\Service');
         $this->service->setStorage(Argument::type('\oat\taoMonitoring\model\TestTakerDeliveryLog\StorageInterface'))
             ->shouldBeCalledTimes($shouldBeCalledTimes['service->setStorage'])
             ->willReturn(true);
+        $this->service->hasOption(Argument::type('string'))
+            ->shouldBeCalledTimes($shouldBeCalledTimes['service->hasOption'])
+            ->willReturn(false);
         
         /** @var \oat\taoMonitoring\model\TestTakerDeliveryLog\DataAggregatorInterface $dataAggregator */
         $this->dataAggregator = $this->prophesize('\oat\taoMonitoring\model\TestTakerDeliveryLog\DataAggregatorInterface');
@@ -75,54 +78,28 @@ class UpgradeTest extends TaoPhpUnitTestRunner
         $this->prepare([
             'service->setStorage' => 2,
             'dataAggregator->countAllDeliveries' => 1,
-            'dataAggregator->getSlice' => 2
+            'dataAggregator->getSlice' => 2,
+            'service->hasOption' => 1,
         ]);
 
         $login = '499 Tt';
+
+        $regularStorage = new TestStorage($this->service->reveal());
+        $regularStorage->createStorage();
         
         $tmpStorage = new TestStorage($this->service->reveal());
-        $regularStorage = new TestStorage($this->service->reveal());
-
         $tmpStorage->createStorage();
-
         $this->assertFalse($tmpStorage->getRow($login));
 
-        // push data in $tmpStorage for check move data to another storage
-        $tmpStorage->createRow($login);
-        $tmpStorage->incrementField($login, StorageInterface::NB_EXECUTIONS);
-        $tmpStorage->incrementField($login, StorageInterface::NB_EXECUTIONS);
-        $tmpStorage->incrementField($login, StorageInterface::NB_ITEM);
-
-        $login2 = 'test';
-        $tmpStorage->createRow($login2);
-        $tmpStorage->incrementField($login2, StorageInterface::NB_EXECUTIONS);
-
-        $this->assertEquals([
-            'test_taker' => $login,
-            'nb_item' => 1,
-            'nb_executions' => 2,
-            'nb_finished' => 0,
-        ], $tmpStorage->getRow($login));
-
-        //
-        $regularStorage->createStorage();
         
         $this->updater = new Updater($this->service->reveal(), $tmpStorage, $regularStorage, $this->dataAggregator->reveal());
         $this->updater->execute();
 
         $row = $regularStorage->getRow($login);
         $this->assertEquals([
-            StorageInterface::NB_ITEM => 25,
-            StorageInterface::NB_EXECUTIONS => 10,
+            StorageInterface::NB_ITEM => 24,
+            StorageInterface::NB_EXECUTIONS => 8,
             StorageInterface::NB_FINISHED => 6, 
             StorageInterface::TEST_TAKER_LOGIN => $login], $row);
-
-        $row = $regularStorage->getRow($login2);
-        $this->assertEquals([
-            StorageInterface::NB_ITEM => 0,
-            StorageInterface::NB_EXECUTIONS => 1,
-            StorageInterface::NB_FINISHED => 0,
-            StorageInterface::TEST_TAKER_LOGIN => $login2], $row);
-
     }
 }
