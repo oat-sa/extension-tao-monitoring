@@ -67,7 +67,7 @@ class Service extends ConfigurableService
         return true;
     }
     
-    public function updateTestTaker($login = '', DataAggregatorInterface $aggregator)
+    public function updateTestTaker(DataAggregatorInterface $aggregator)
     {
         // recount statistics for test taker
         $statistics = current($aggregator->getSlice());
@@ -82,9 +82,9 @@ class Service extends ConfigurableService
     private function storage()
     {
         if (!isset($this->storage)) {
-            $this->storage = $this->isLocked() 
-                ? new TmpStorage($this->getOption('tmpPath')) 
-                : new RdsStorage($this->getOptions());
+            $this->storage = $this->hasOption('tmpPath') 
+                ? new TmpStorage($this) 
+                : new RdsStorage($this);
         }
 
         return $this->storage;

@@ -27,10 +27,14 @@ use oat\tao\helpers\UserHelper;
 use oat\taoDelivery\model\execution\DeliveryExecution;
 use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionCreated;
 use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionState;
+use oat\taoDeliveryRdf\model\DeliveryAssemblyService;
+use oat\taoMonitoring\model\TestTakerDeliveryLog\aggregator\TestTakerDataAggregator;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\EventInterface;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\StorageInterface;
 use oat\taoMonitoring\model\TestTakerDeliveryLogInterface;
+use oat\taoOutcomeUi\model\ResultsService;
 use oat\taoQtiTest\models\event\QtiMoveEvent;
+use taoDelivery_models_classes_execution_ServiceProxy;
 
 class Events implements EventInterface
 {
@@ -71,13 +75,18 @@ class Events implements EventInterface
     
     public static function qtiMoveEvent(QtiMoveEvent $event)
     {
-        $user = $event->getSession()->getUser();
-        $login = UserHelper::getUserLogin($user);
-        
         // reload all statistic for test taker
         if ($event->getContext() === QtiMoveEvent::CONTEXT_AFTER) {
-            $event->getSession();
-            self::service()->updateTestTaker($login);
+            
+            $user = new \core_kernel_classes_Resource(\common_session_SessionManager::getSession()->getUser()->getIdentifier());
+            
+            $aggregator = new TestTakerDataAggregator(
+                ResultsService::singleton(), 
+                taoDelivery_models_classes_execution_ServiceProxy::singleton(),
+                $user
+            );
+            
+            self::service()->updateTestTaker($aggregator);
         }
     }
 

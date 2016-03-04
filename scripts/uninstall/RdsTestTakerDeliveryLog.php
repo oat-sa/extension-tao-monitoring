@@ -39,6 +39,9 @@ class RdsTestTakerDeliveryLog extends \common_ext_action_InstallAction
             $this->registerService(TestTakerDeliveryLogInterface::SERVICE_ID, null);
         }
 
-        return new \common_report_Report(\common_report_Report::TYPE_SUCCESS, __('Registered delivery log for test taker'));
+        return new \common_report_Report(\common_report_Report::TYPE_SUCCESS, __('Unregistered delivery log for test taker'));
     }
 }
+
+$uninstal = new RdsTestTakerDeliveryLog();
+$uninstal();

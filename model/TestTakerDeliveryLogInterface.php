@@ -48,11 +48,10 @@ interface TestTakerDeliveryLogInterface
      * Update all statistics for test taker
      * [We have aggregated statistics only (count of  the items), so I don't know how many times test taker complete one item]
      *
-     * @param string $login
      * @param DataAggregatorInterface $aggregator
      * @return mixed
      */
-    public function updateTestTaker($login = '', DataAggregatorInterface $aggregator);
+    public function updateTestTaker(DataAggregatorInterface $aggregator);
     
     /**
      * Set storage for service data

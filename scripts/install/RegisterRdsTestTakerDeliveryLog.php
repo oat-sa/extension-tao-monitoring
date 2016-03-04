@@ -22,6 +22,7 @@
 namespace oat\taoMonitoring\scripts\install;
 
 
+use oat\oatbox\event\EventManager;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\Service;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\storage\RdsStorage;
 
@@ -45,6 +46,33 @@ class RegisterRdsTestTakerDeliveryLog extends \common_ext_action_InstallAction
         $storage = new RdsStorage( $this->getServiceManager()->get(Service::SERVICE_ID) );
         $storage->createStorage();
         
+        $this->appendEvents();
+        
         return new \common_report_Report(\common_report_Report::TYPE_SUCCESS, __('Registered delivery log for test taker'));
+    }
+    
+    private function appendEvents()
+    {
+        $eventManager = $this->getServiceManager()->get(EventManager::CONFIG_ID);
+
+        // count executions
+        $eventManager->attach(
+            'oat\\taoDelivery\\models\\classes\\execution\\event\\DeliveryExecutionCreated',
+            array('\\oat\\taoMonitoring\\model\\TestTakerDeliveryLog\\event\\Events', 'deliveryExecutionCreated')
+        );
+
+        // finished executions
+        $eventManager->attach(
+            'oat\\taoDelivery\\models\\classes\\execution\\event\\DeliveryExecutionState',
+            array('\\oat\\taoMonitoring\\model\\TestTakerDeliveryLog\\event\\Events', 'deliveryExecutionState')
+        );
+
+        // catch switch items - on switching recount all statistic for testtaker
+        $eventManager->attach(
+            'oat\\taoQtiTest\\models\\event\\QtiMoveEvent',
+            array('\\oat\\taoMonitoring\\model\\TestTakerDeliveryLog\\event\\Events', 'qtiMoveEvent')
+        );
+
+        $this->getServiceManager()->register(EventManager::CONFIG_ID, $eventManager);
     }
 }
