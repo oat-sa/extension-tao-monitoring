@@ -23,52 +23,79 @@ namespace oat\taoMonitoring\model\TestTakerDeliveryLog\storage;
 
 
 use oat\taoMonitoring\model\TestTakerDeliveryLog\StorageInterface;
+use oat\taoMonitoring\model\TestTakerDeliveryLogInterface;
 
 /**
  * Class TmpStorage
+ * 
+ * // At the moment update doesn't work "on fly" (just for initialization)
+ * 
+ * ToDo Create tmp file, where will be saved sql queries
+ * todo In update script add time of the update starting and check, that all executions less then update time
+ * 
  * @package oat\taoMonitoring\model\TestTakerDeliveryLog\storage
  */
 class TmpStorage implements StorageInterface
 {
 
+    const TMP_STORAGE_FILE_PATH = 'tmpFile';
+    
     /**
-     * @var string Tmp storage
+     * @var TestTakerDeliveryLogInterface
      */
-    private $tmpFilePath;
-    
-    public function __construct($filePath = '')
+    private $service;
+
+    public function __construct(TestTakerDeliveryLogInterface $service)
     {
-        if (!$filePath || !file_exists($filePath)) {
-            throw new \common_exception_Error('Tmp file could not be found');
-        }
-        
-        $this->tmpFilePath = $filePath;
+        $this->service = $service;
     }
 
-    public function create($login = '')
+    public function createStorage()
     {
-        
-    }
-
-    public function increment($login = '', $field = '')
-    {
-        if (!is_writable($this->tmpFilePath)) {
-            throw new \common_exception_Error('Tmp file is not writable');
-        }
-        
-        
+        // create file
     }
     
-    public function get($login = '')
+    public function dropStorage()
     {
-        
+        //drop file
+    }
 
-        $sql = "SELECT * FROM " . self::TABLE_NAME . PHP_EOL;
-        $sql .= "WHERE " . self::TEST_TAKER_LOGIN . "=? ";
-
-        $parameters = [$login];
-
-        $stmt = $this->getPersistence()->query($sql, $parameters);
-        return current($stmt->fetchAll(\PDO::FETCH_ASSOC));
+    private function getPath()
+    {
+        return $this->service->getOption(self::TMP_STORAGE_FILE_PATH);
+    }
+    
+    public function createRow($login = '')
+    {
+    }
+    
+    public function countAllData()
+    {
+        // TODO: Implement countAllData() method.
+    }
+    
+    public function flushArray(array $data)
+    {
+        // TODO: Implement flushArray() method.
+    }
+    
+    public function getRow($login = '')
+    {
+        // TODO: Implement getRow() method.
+    }
+    
+    public function getSlice($page = 0, $inPage = 500)
+    {
+        // TODO: Implement getSlice() method.
+    }
+    
+    public function incrementField($login = '', $field = '')
+    {
+        // TODO: Implement incrementField() method.
+    }
+    
+    public function replace(array $data)
+    {
+        // TODO: Implement replace() method.
     }
 }

@@ -4,7 +4,6 @@
 namespace oat\taoMonitoring\test\TestTakerDeliveryLog\Mock;
 
 
-use oat\taoMonitoring\model\TestTakerDeliveryLog\DataAggregatorInterface;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\StorageInterface;
 use oat\taoMonitoring\model\TestTakerDeliveryLogInterface;
 

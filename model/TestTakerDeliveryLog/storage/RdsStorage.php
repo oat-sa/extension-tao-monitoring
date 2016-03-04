@@ -162,7 +162,11 @@ class RdsStorage implements StorageInterface
         foreach ($data as $row) {
             $queries[] = $this->getSqlUpdateOrCreate($row);
         }
-        var_dump($queries);
+        
+        if (count($queries)) {
+            $sql = implode(';', $queries);
+            $this->getPersistence()->query($sql);
+        }
     }
 
     public function countAllData()
