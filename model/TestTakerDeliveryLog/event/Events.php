@@ -27,7 +27,6 @@ use oat\tao\helpers\UserHelper;
 use oat\taoDelivery\model\execution\DeliveryExecution;
 use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionCreated;
 use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionState;
-use oat\taoDeliveryRdf\model\DeliveryAssemblyService;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\aggregator\TestTakerDataAggregator;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\EventInterface;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\StorageInterface;

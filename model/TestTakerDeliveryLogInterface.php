@@ -20,9 +20,10 @@
  */
 
 namespace oat\taoMonitoring\model;
+
+
 use oat\taoMonitoring\model\TestTakerDeliveryLog\DataAggregatorInterface;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\StorageInterface;
-
 
 /**
  * 
