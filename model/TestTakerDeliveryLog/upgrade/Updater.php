@@ -108,8 +108,9 @@ class Updater implements UpgradeInterface
         }
     }
 
-    private function updateAffectedData()
+    protected function updateAffectedData()
     {
+        $count = 0;
         if ($this->tmpStorage->countAllData()) {
             $data = [];
             foreach($this->tmpStorage->getSlice() as $row) {
@@ -118,12 +119,19 @@ class Updater implements UpgradeInterface
             $data = array_unique($data);
             
             foreach ($data as $login) {
-                $aggregator = TestTakerDataAggregator::factory( $login );
+                $aggregator = $this->getAggregator($login);
                 if ($aggregator) {
                     $this->service->updateTestTaker($aggregator);
+                    $count++;
                 }
             }
         }
+        return $count;
+    }
+    
+    protected function getAggregator($login)
+    {
+        return TestTakerDataAggregator::factory( $login );
     }
     
 }
