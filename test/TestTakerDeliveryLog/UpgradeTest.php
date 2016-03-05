@@ -90,7 +90,6 @@ class UpgradeTest extends TaoPhpUnitTestRunner
         $tmpStorage = new TestStorage($this->service->reveal());
         $tmpStorage->createStorage();
         $this->assertFalse($tmpStorage->getRow($login));
-
         
         $this->updater = new Updater($this->service->reveal(), $tmpStorage, $regularStorage, $this->dataAggregator->reveal());
         $this->updater->execute();

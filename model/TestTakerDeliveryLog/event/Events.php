@@ -76,7 +76,7 @@ class Events implements EventInterface
     public static function qtiMoveEvent(QtiMoveEvent $event)
     {
         // reload all statistic for test taker
-        if ($event->getContext() === QtiMoveEvent::CONTEXT_AFTER) {
+        if ($event->getContext() === QtiMoveEvent::CONTEXT_BEFORE) {
             
             $user = new \core_kernel_classes_Resource(\common_session_SessionManager::getSession()->getUser()->getIdentifier());
             
