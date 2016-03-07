@@ -95,6 +95,14 @@ class Updater implements UpgradeInterface
         $this->tmpStorage->dropStorage();
     }
 
+    private function setTmpStorage()
+    {
+        $this->tmpStorage->dropStorage();
+        $path = $this->tmpStorage->createStorage();
+
+        $this->service->setStorage($this->tmpStorage);
+    }
+    
     private function generateStatistic(StorageInterface $storage)
     {
         $total = $this->dataAggregator->countAllData();

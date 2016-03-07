@@ -15,8 +15,8 @@ require_once dirname(__FILE__). '/../../tao/includes/class.Bootstrap.php';
 $bootStrap = new BootStrap('taoMonitoring');
 $bootStrap->start();
 
-define('CLASS_COMPILEDDELIVERY', 'http://www.tao.lu/Ontologies/TAODelivery.rdf#AssembledDelivery');
-define('TAO_DELIVERY_RESULTSERVER_PROP', 'http://www.tao.lu/Ontologies/TAODelivery.rdf#DeliveryResultServer');
+//define('CLASS_COMPILEDDELIVERY', 'http://www.tao.lu/Ontologies/TAODelivery.rdf#AssembledDelivery');
+//define('TAO_DELIVERY_RESULTSERVER_PROP', 'http://www.tao.lu/Ontologies/TAODelivery.rdf#DeliveryResultServer');
 
 use oat\taoMonitoring\model\TestTakerDeliveryLog\aggregator\DeliveryDataAggregator;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\Service;

@@ -33,13 +33,14 @@ class RdsStorage implements StorageInterface
     const OPTION_PERSISTENCE = 'persistence';
 
     /**
-     * @var TestTakerDeliveryLogInterface
+     * Persistence for DB
+     * @var string
      */
-    private $service;
-
-    public function __construct(TestTakerDeliveryLogInterface $service)
+    private $persistence;
+    
+    public function __construct($persistence = '')
     {
-        $this->service = $service;
+        $this->persistence = $persistence;
     }
 
     /**
@@ -49,7 +50,7 @@ class RdsStorage implements StorageInterface
      */
     public function createRow($login = '')
     {
-        $result = $this->getPersistence()->insert(self::TABLE_NAME, [
+        $result = $this->getPersistence()->insert(RdsStorage::TABLE_NAME, [
             self::TEST_TAKER_LOGIN => $login,
             self::NB_ITEM => 0,
             self::NB_EXECUTIONS => 0,
@@ -64,7 +65,7 @@ class RdsStorage implements StorageInterface
      */
     private function getPersistence()
     {
-        return \common_persistence_Manager::getPersistence($this->service->getOption(self::OPTION_PERSISTENCE));
+        return \common_persistence_Manager::getPersistence($this->persistence);
     }
 
     /**

@@ -36,9 +36,9 @@ interface StorageInterface extends DataAggregatorInterface
 
     /**
      * StorageInterface constructor.
-     * @param TestTakerDeliveryLogInterface $service
+     * @param string
      */
-    public function __construct(TestTakerDeliveryLogInterface $service);
+    public function __construct($param = '');
     
     /**
      * Create new log record
@@ -67,7 +67,7 @@ interface StorageInterface extends DataAggregatorInterface
 
     /**
      * Create storage
-     * @return bool
+     * @return string (table name or file path)
      */
     public function createStorage();
     
