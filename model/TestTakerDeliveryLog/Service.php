@@ -82,9 +82,9 @@ class Service extends ConfigurableService
     private function storage()
     {
         if (!isset($this->storage)) {
-            $this->storage = $this->hasOption('tmpPath') 
-                ? new TmpStorage($this) 
-                : new RdsStorage($this);
+            $this->storage = $this->hasOption(TmpStorage::OPTION_TMP_FILE) 
+                ? new TmpStorage($this->getOption(TmpStorage::OPTION_TMP_FILE)) 
+                : new RdsStorage($this->getOption(RdsStorage::OPTION_PERSISTENCE));
         }
 
         return $this->storage;

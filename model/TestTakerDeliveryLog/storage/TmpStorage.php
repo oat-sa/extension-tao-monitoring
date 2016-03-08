@@ -43,11 +43,7 @@ class TmpStorage extends LocalStorage
             if (!is_writable($this->path)) {
                 throw new \common_Exception("Storage file should be writable");
             } else {
-                $aLogin = file($this->path);
-                parent::createStorage();
-                foreach ($aLogin as $login) {
-                    $this->createRow(trim($login));
-                }
+                $this->readStorage();
             }
         }
     }
@@ -79,6 +75,15 @@ class TmpStorage extends LocalStorage
         $this->saveStorageInFile();
     }
 
+    private function readStorage()
+    {
+        $aLogin = file($this->path);
+        parent::createStorage();
+        foreach ($aLogin as $login) {
+            $this->createRow(trim($login));
+        }
+    }
+    
     private function saveStorageInFile()
     {
         $login = [];
@@ -110,5 +115,23 @@ class TmpStorage extends LocalStorage
     {
         parent::flushArray($data);
         $this->saveStorageInFile();
+    }
+    
+    public function countAllData()
+    {
+        $this->readStorage();
+        return parent::countAllData();
+    }
+    
+    public function getRow($login = '')
+    {
+        $this->readStorage();
+        return parent::getRow($login);
+    }
+    
+    public function getSlice($page = 0, $inPage = 500)
+    {
+        $this->readStorage();
+        return parent::getSlice($page, $inPage);
     }
 }
