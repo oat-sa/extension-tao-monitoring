@@ -23,19 +23,8 @@ namespace oat\taoMonitoring\model\TestTakerDeliveryLog\storage;
 
 
 use oat\taoMonitoring\model\TestTakerDeliveryLog\StorageInterface;
-use oat\taoMonitoring\model\TestTakerDeliveryLogInterface;
 
-/**
- * Class TmpStorage
- *
- * // At the moment update doesn't work "on fly" (just for initialization)
- *
- * ToDo Create tmp file, where will be saved sql queries
- * todo In update script add time of the update starting and check, that all executions less then update time
- *
- * @package oat\taoMonitoring\model\TestTakerDeliveryLog\storage
- */
-class TmpStorage implements StorageInterface
+class TmpStorage extends LocalStorage
 {
 
     const OPTION_TMP_FILE = 'tmpFile';
@@ -46,20 +35,19 @@ class TmpStorage implements StorageInterface
      */
     private $path;
 
-    /**
-     * @var array
-     */
-    private $storage = [];
-    
     public function __construct($path = '')
     {
         $this->path = $path;
-        
+
         if (!empty($this->path)) {
             if (!is_writable($this->path)) {
                 throw new \common_Exception("Storage file should be writable");
             } else {
-                $this->storage = file($this->path);
+                $aLogin = file($this->path);
+                parent::createStorage();
+                foreach ($aLogin as $login) {
+                    $this->createRow(trim($login));
+                }
             }
         }
     }
@@ -69,7 +57,8 @@ class TmpStorage implements StorageInterface
      */
     public function createStorage()
     {
-        if (!isset($this->path)) {
+        if (!file_exists($this->path)) {
+            parent::createStorage();
             $this->path = tempnam(sys_get_temp_dir(), TmpStorage::OPTION_TMP_FILE);
         }
 
@@ -78,41 +67,48 @@ class TmpStorage implements StorageInterface
 
     public function dropStorage()
     {
-        unlink($this->path);
+        parent::dropStorage();
+        if (file_exists($this->path)) {
+            unlink($this->path);
+        }
     }
-    
+
     public function createRow($login = '')
     {
-        
+        parent::createRow($login);
+        $this->saveStorageInFile();
     }
 
-    public function countAllData()
+    private function saveStorageInFile()
     {
-        return count($this->storage);
-    }
+        $login = [];
+        foreach ($this->storage as $key => $row) {
+            $login[] = $row[StorageInterface::TEST_TAKER_LOGIN];
+        }
 
-    public function flushArray(array $data)
-    {
-        // TODO: Implement flushArray() method.
-    }
-
-    public function getRow($login = '')
-    {
-        // TODO: Implement getRow() method.
-    }
-
-    public function getSlice($page = 0, $inPage = 500)
-    {
-        // TODO: Implement getSlice() method.
+        if (empty($this->path) || !is_writable($this->path)) {
+            throw new \common_Exception('Storage path not found: ' . $this->path);
+        } else {
+            $login = array_unique($login);
+            file_put_contents($this->path, implode("\n", $login));
+        }
     }
 
     public function incrementField($login = '', $field = '')
     {
-        // TODO: Implement incrementField() method.
+        parent::incrementField($login, $field);
+        $this->saveStorageInFile();
     }
 
     public function replace(array $data)
     {
-        // TODO: Implement replace() method.
+        parent::replace($data);
+        $this->saveStorageInFile();
+    }
+    
+    public function flushArray(array $data)
+    {
+        parent::flushArray($data);
+        $this->saveStorageInFile();
     }
 }

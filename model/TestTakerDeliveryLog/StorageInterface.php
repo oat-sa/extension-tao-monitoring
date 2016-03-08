@@ -52,7 +52,7 @@ interface StorageInterface extends DataAggregatorInterface
      * Get row
      * 
      * @param string $login
-     * @return array
+     * @return array|bool
      */
     public function getRow($login = '');
 
@@ -78,6 +78,8 @@ interface StorageInterface extends DataAggregatorInterface
     public function dropStorage();
 
     /**
+     * Need for upgrade data script
+     * Updating data by delivery
      * Add Or Create data in storage
      * # If test taker exists - add data to storage
      *  [

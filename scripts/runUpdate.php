@@ -40,7 +40,7 @@ $aggregator = new DeliveryDataAggregator(
 
 (new Updater(
    $service,
-    new TmpStorage($service),
-    new RdsStorage($service),
+    new TmpStorage(),
+    new RdsStorage('default'),
     $aggregator
 ))->execute();

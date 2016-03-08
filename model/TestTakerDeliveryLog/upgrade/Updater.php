@@ -22,9 +22,11 @@
 namespace oat\taoMonitoring\model\TestTakerDeliveryLog\upgrade;
 
 
+use oat\oatbox\service\ServiceManager;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\aggregator\TestTakerDataAggregator;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\DataAggregatorInterface;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\Service;
+use oat\taoMonitoring\model\TestTakerDeliveryLog\storage\TmpStorage;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\StorageInterface;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\UpgradeInterface;
 
@@ -35,8 +37,9 @@ use oat\taoMonitoring\model\TestTakerDeliveryLog\UpgradeInterface;
  * 4. change storage to rds
  * 5. move data from tmp to rds
  * 6. drop tmp
+ * 
  * Class Updater
- * @package oat\taoMonitoring\model\TestTakerDeliveryLog
+ * @package oat\taoMonitoring\model\TestTakerDeliveryLog\upgrade
  */
 class Updater implements UpgradeInterface
 {
@@ -82,25 +85,53 @@ class Updater implements UpgradeInterface
 
     public function execute()
     {
-        if ($this->service->hasOption('tmpPath')) {
+        if ($this->service->hasOption(TmpStorage::OPTION_TMP_FILE)) {
             throw new \common_Exception('Updating for test takers delivery log is running, wait for complete');
         }
 
-        $this->service->setStorage($this->tmpStorage);
+        $this->switchToTmpStorage();
+        
         $this->regularStorage->dropStorage();
         $this->regularStorage->createStorage();
         $this->generateStatistic($this->regularStorage);
-        $this->service->setStorage($this->regularStorage);
+        
+        $this->switchToRegularStorage();
         $this->updateAffectedData();
         $this->tmpStorage->dropStorage();
     }
 
-    private function setTmpStorage()
+    private function switchToTmpStorage()
     {
         $this->tmpStorage->dropStorage();
-        $path = $this->tmpStorage->createStorage();
+        
+        $config = $this->service->getOptions();
+        $config[TmpStorage::OPTION_TMP_FILE] = $this->tmpStorage->createStorage();
+        
+        $service = new Service($config);
+        $serviceManager = ServiceManager::getServiceManager();
+        $service->setServiceManager($serviceManager);
 
+        $serviceManager->register(Service::SERVICE_ID, $service);
+        
+        $this->service->setOptions($config);
         $this->service->setStorage($this->tmpStorage);
+    }
+    
+    private function switchToRegularStorage()
+    {
+        $config = $this->service->getOptions();
+        if (isset($config[TmpStorage::OPTION_TMP_FILE])) {
+            unset($config[TmpStorage::OPTION_TMP_FILE]);
+        }
+
+        $service = new Service($config);
+        $serviceManager = ServiceManager::getServiceManager();
+        $service->setServiceManager($serviceManager);
+
+        $serviceManager->register(Service::SERVICE_ID, $service);
+
+        $this->service->setOptions($config);
+        $this->service->setStorage($this->regularStorage);
     }
     
     private function generateStatistic(StorageInterface $storage)
@@ -127,7 +158,7 @@ class Updater implements UpgradeInterface
             $data = array_unique($data);
             
             foreach ($data as $login) {
-                $aggregator = $this->getAggregator($login);
+                $aggregator = $this->getTestTakerAggregator($login);
                 if ($aggregator) {
                     $this->service->updateTestTaker($aggregator);
                     $count++;
@@ -137,7 +168,7 @@ class Updater implements UpgradeInterface
         return $count;
     }
     
-    protected function getAggregator($login)
+    protected function getTestTakerAggregator($login)
     {
         return TestTakerDataAggregator::factory( $login );
     }

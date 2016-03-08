@@ -23,9 +23,9 @@ namespace oat\taoMonitoring\test\TestTakerDeliveryLog;
 
 
 use oat\tao\test\TaoPhpUnitTestRunner;
+use oat\taoMonitoring\model\TestTakerDeliveryLog\storage\LocalStorage;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\StorageInterface;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\upgrade\Updater;
-use oat\taoMonitoring\test\TestTakerDeliveryLog\Mock\TestStorage;
 use Prophecy\Argument;
 
 class UpgradeTest extends TaoPhpUnitTestRunner
@@ -90,10 +90,10 @@ class UpgradeTest extends TaoPhpUnitTestRunner
 
         $login = '499 Tt';
 
-        $regularStorage = new TestStorage($this->service->reveal());
+        $regularStorage = new LocalStorage($this->service->reveal());
         $regularStorage->createStorage();
 
-        $tmpStorage = new TestStorage($this->service->reveal());
+        $tmpStorage = new LocalStorage($this->service->reveal());
         $tmpStorage->createStorage();
         $this->assertFalse($tmpStorage->getRow($login));
 
@@ -120,7 +120,7 @@ class UpgradeTest extends TaoPhpUnitTestRunner
 
         $login = '499 Tt';
 
-        $regularStorage = new TestStorage($this->service->reveal());
+        $regularStorage = new LocalStorage($this->service->reveal());
         $regularStorage->createStorage();
         $regularStorage->createRow($login);
         $regularStorage->incrementField($login, StorageInterface::NB_EXECUTIONS);
@@ -136,7 +136,7 @@ class UpgradeTest extends TaoPhpUnitTestRunner
         ], $regularStorage->getRow($login));
 
 
-        $tmpStorage = new TestStorage($this->service->reveal());
+        $tmpStorage = new LocalStorage($this->service->reveal());
         $tmpStorage->createStorage();
         $tmpStorage->createRow($login);
         $tmpStorage->incrementField($login, StorageInterface::NB_EXECUTIONS);

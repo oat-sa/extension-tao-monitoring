@@ -24,8 +24,8 @@ namespace oat\taoMonitoring\test\TestTakerDeliveryLog;
 
 use oat\tao\test\TaoPhpUnitTestRunner;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\Service;
+use oat\taoMonitoring\model\TestTakerDeliveryLog\storage\LocalStorage;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\StorageInterface;
-use oat\taoMonitoring\test\TestTakerDeliveryLog\Mock\TestStorage;
 use Prophecy\Argument;
 
 /**
@@ -48,7 +48,7 @@ class ServiceTest extends TaoPhpUnitTestRunner
 
         $this->service = new Service(['persistence' => 'default']);
         
-        $this->storage = new TestStorage($this->service);
+        $this->storage = new LocalStorage($this->service);
         $this->storage->createStorage();
         $this->service->setStorage($this->storage);
     }
