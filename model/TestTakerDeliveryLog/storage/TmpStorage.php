@@ -23,79 +23,115 @@ namespace oat\taoMonitoring\model\TestTakerDeliveryLog\storage;
 
 
 use oat\taoMonitoring\model\TestTakerDeliveryLog\StorageInterface;
-use oat\taoMonitoring\model\TestTakerDeliveryLogInterface;
 
-/**
- * Class TmpStorage
- * 
- * // At the moment update doesn't work "on fly" (just for initialization)
- * 
- * ToDo Create tmp file, where will be saved sql queries
- * todo In update script add time of the update starting and check, that all executions less then update time
- * 
- * @package oat\taoMonitoring\model\TestTakerDeliveryLog\storage
- */
-class TmpStorage implements StorageInterface
+class TmpStorage extends LocalStorage
 {
 
-    const TMP_STORAGE_FILE_PATH = 'tmpFile';
-    
-    /**
-     * @var TestTakerDeliveryLogInterface
-     */
-    private $service;
+    const OPTION_TMP_FILE = 'tmpFile';
 
-    public function __construct(TestTakerDeliveryLogInterface $service)
+    /**
+     * Path to file
+     * @var string
+     */
+    private $path;
+
+    public function __construct($path = '')
     {
-        $this->service = $service;
+        $this->path = $path;
+
+        if (!empty($this->path)) {
+            if (!is_writable($this->path)) {
+                throw new \common_Exception("Storage file should be writable");
+            } else {
+                $this->readStorage();
+            }
+        }
     }
 
+    /**
+     * Return filePath
+     */
     public function createStorage()
     {
-        // create file
-    }
-    
-    public function dropStorage()
-    {
-        //drop file
+        if (!file_exists($this->path)) {
+            parent::createStorage();
+            $this->path = tempnam(sys_get_temp_dir(), TmpStorage::OPTION_TMP_FILE);
+        }
+
+        return $this->path;
     }
 
-    private function getPath()
+    public function dropStorage()
     {
-        return $this->service->getOption(self::TMP_STORAGE_FILE_PATH);
+        parent::dropStorage();
+        if (file_exists($this->path)) {
+            unlink($this->path);
+        }
     }
-    
+
     public function createRow($login = '')
     {
+        parent::createRow($login);
+        $this->saveStorageInFile();
+    }
+
+    private function readStorage()
+    {
+        $aLogin = file($this->path);
+        parent::createStorage();
+        foreach ($aLogin as $login) {
+            $this->createRow(trim($login));
+        }
     }
     
-    public function countAllData()
+    private function saveStorageInFile()
     {
-        // TODO: Implement countAllData() method.
+        $login = [];
+        foreach ($this->storage as $key => $row) {
+            $login[] = $row[StorageInterface::TEST_TAKER_LOGIN];
+        }
+
+        if (empty($this->path) || !is_writable($this->path)) {
+            throw new \common_Exception('Storage path not found: ' . $this->path);
+        } else {
+            $login = array_unique($login);
+            file_put_contents($this->path, implode("\n", $login));
+        }
+    }
+
+    public function incrementField($login = '', $field = '')
+    {
+        parent::incrementField($login, $field);
+        $this->saveStorageInFile();
+    }
+
+    public function replace(array $data)
+    {
+        parent::replace($data);
+        $this->saveStorageInFile();
     }
     
     public function flushArray(array $data)
     {
-        // TODO: Implement flushArray() method.
+        parent::flushArray($data);
+        $this->saveStorageInFile();
+    }
+    
+    public function countAllData()
+    {
+        $this->readStorage();
+        return parent::countAllData();
     }
     
     public function getRow($login = '')
     {
-        // TODO: Implement getRow() method.
+        $this->readStorage();
+        return parent::getRow($login);
     }
     
     public function getSlice($page = 0, $inPage = 500)
     {
-        // TODO: Implement getSlice() method.
-    }
-    
-    public function incrementField($login = '', $field = '')
-    {
-        // TODO: Implement incrementField() method.
-    }
-    
-    public function replace(array $data)
-    {
-        // TODO: Implement replace() method.
+        $this->readStorage();
+        return parent::getSlice($page, $inPage);
     }
 }

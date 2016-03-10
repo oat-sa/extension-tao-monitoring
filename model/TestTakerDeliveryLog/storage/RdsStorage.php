@@ -33,13 +33,14 @@ class RdsStorage implements StorageInterface
     const OPTION_PERSISTENCE = 'persistence';
 
     /**
-     * @var TestTakerDeliveryLogInterface
+     * Persistence for DB
+     * @var string
      */
-    private $service;
-
-    public function __construct(TestTakerDeliveryLogInterface $service)
+    private $persistence;
+    
+    public function __construct($persistence = '')
     {
-        $this->service = $service;
+        $this->persistence = $persistence;
     }
 
     /**
@@ -49,7 +50,7 @@ class RdsStorage implements StorageInterface
      */
     public function createRow($login = '')
     {
-        $result = $this->getPersistence()->insert(self::TABLE_NAME, [
+        $result = $this->getPersistence()->insert(RdsStorage::TABLE_NAME, [
             self::TEST_TAKER_LOGIN => $login,
             self::NB_ITEM => 0,
             self::NB_EXECUTIONS => 0,
@@ -64,7 +65,7 @@ class RdsStorage implements StorageInterface
      */
     private function getPersistence()
     {
-        return \common_persistence_Manager::getPersistence($this->service->getOption(self::OPTION_PERSISTENCE));
+        return \common_persistence_Manager::getPersistence($this->persistence);
     }
 
     /**
@@ -108,7 +109,6 @@ class RdsStorage implements StorageInterface
     public function createStorage()
     {
         $persistence = $this->getPersistence();
-
         $schemaManager = $persistence->getDriver()->getSchemaManager();
         $schema = $schemaManager->createSchema();
         $fromSchema = clone $schema;
@@ -164,8 +164,8 @@ class RdsStorage implements StorageInterface
         }
         
         if (count($queries)) {
-            $sql = implode(';', $queries);
-            $this->getPersistence()->query($sql);
+            $sql = implode(';', $queries) . ';';
+            $this->getPersistence()->exec($sql);
         }
     }
 
@@ -173,7 +173,7 @@ class RdsStorage implements StorageInterface
     {
         $sql = "SELECT COUNT(`" . self::TEST_TAKER_LOGIN . "`) FROM " . self::TABLE_NAME;
         $stmt = $this->getPersistence()->query($sql);
-        return current($stmt->fetchAll(\PDO::FETCH_ASSOC));
+        return current(current($stmt->fetchAll(\PDO::FETCH_ASSOC)));
     }
     
     public function replace(array $data)
@@ -186,10 +186,9 @@ class RdsStorage implements StorageInterface
     
     public function getSlice($page = 0, $inPage = 500)
     {
-        $sql = "SELECT * FROM " . self::TABLE_NAME . " LIMIT " . $inPage . " OFFSET " . ($page*$inPage);
+        $sql = "SELECT * FROM " . self::TABLE_NAME . " ORDER BY " . self::TEST_TAKER_LOGIN . " LIMIT ? OFFSET ?";
 
-        $parameters = [$page, $inPage];
-        
+        $parameters = [$inPage, $inPage*$page];
         $stmt = $this->getPersistence()->query($sql, $parameters);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }

@@ -43,7 +43,7 @@ class RegisterRdsTestTakerDeliveryLog extends \common_ext_action_InstallAction
         $this->registerService(Service::SERVICE_ID, new Service([RdsStorage::OPTION_PERSISTENCE => $persistenceId]));
 
         /** @var RdsStorage $storage */
-        $storage = new RdsStorage( $this->getServiceManager()->get(Service::SERVICE_ID) );
+        $storage = new RdsStorage( $persistenceId );
         $storage->createStorage();
         
         $this->appendEvents();
