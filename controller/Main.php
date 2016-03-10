@@ -14,35 +14,25 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2016  (original work) Open Assessment Technologies SA;
- * 
- * @author Alexander Zagovorichev <zagovorichev@1pt.com>
+ * Copyright (c) 2016 (original work) Open Assessment Technologies SA;
+ *
+ *
  */
 
-namespace oat\taoMonitoring\test;
+namespace oat\taoMonitoring\controller;
 
 
-use oat\tao\test\TaoPhpUnitTestRunner;
-use oat\taoMonitoring\model\implementation\RdsTestTakerDeliveryLogService;
-
-class RdsTestTakerDeliveryLogServiceTest extends TaoPhpUnitTestRunner
+/**
+ * @author A. Zagovorichev <zagovorichev@1pt.com>
+ */
+class Main extends \tao_actions_CommonModule
 {
-
     /**
-     * @var RdsTestTakerDeliveryLogService
+     * Logs
      */
-    private $service;
-    
-    public function setUp()
+    public function index()
     {
-        parent::setUp();
-        TaoPhpUnitTestRunner::initTest();
-        
-        $this->service = new RdsTestTakerDeliveryLogService();
-    }
-    
-    public function testService()
-    {
-        $this->service->logEvent();
+        $this->setData('content-template', ['Main\index.tpl', 'taoMonitoring']);
+        $this->setView('layout.tpl', 'tao');
     }
 }

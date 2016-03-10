@@ -19,6 +19,15 @@
  * @author Alexander Zagovorichev <zagovorichev@1pt.com>
  */
 
-use oat\taoMonitoring\model\implementation\RdsTestTakerDeliveryLogService;
+namespace oat\taoMonitoring\test\TestTakerDeliveryLog\Mock;
 
-return new RdsTestTakerDeliveryLogService();
+
+use oat\taoMonitoring\model\TestTakerDeliveryLog\upgrade\Updater;
+
+class StubUpdater extends Updater
+{
+    public function stubUpdateAffectedData()
+    {
+        return $this->updateAffectedData();
+    }
+}

@@ -19,36 +19,8 @@
  * @author Alexander Zagovorichev <zagovorichev@1pt.com>
  */
 
-namespace oat\taoMonitoring\model\implementation;
+require_once dirname(__FILE__). '/../tao/includes/class.Bootstrap.php';
 
-
-use oat\oatbox\service\ConfigurableService;
-//use oat\taoMonitoring\model\TestTakerDeliveryLogInterface;
-
-class RdsTestTakerDeliveryLogService extends ConfigurableService 
-    //implements TestTakerDeliveryLogInterface
-{
-    
-    const TABLE_NAME = 'monitoring_testtaker_deliveries';
-    const OPTION_PERSISTENCE = 'persistence';
-
-    public function logEvent($testTakerLogin = '', $nb_event = '')
-    {
-        
-    }
-
-    public function lock()
-    {
-        // TODO: Implement lock() method.
-    }
-
-    public function unlock()
-    {
-        // TODO: Implement unlock() method.
-    }
-
-    public function upgrade()
-    {
-        // TODO: Implement upgrade() method.
-    }
-}
+$bootStrap = new BootStrap('taoMonitoring');
+$bootStrap->start();
+$bootStrap->dispatch();

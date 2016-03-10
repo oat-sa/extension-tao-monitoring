@@ -21,6 +21,10 @@
 
 namespace oat\taoMonitoring\model;
 
+
+use oat\taoMonitoring\model\TestTakerDeliveryLog\DataAggregatorInterface;
+use oat\taoMonitoring\model\TestTakerDeliveryLog\StorageInterface;
+
 /**
  * 
  * Interface TestTakerLogInterface
@@ -29,15 +33,8 @@ namespace oat\taoMonitoring\model;
  */
 interface TestTakerDeliveryLogInterface
 {
-    const SERVICE_ID = 'taoProctoring/DeliveryLog';
-
-    /** Fields */
-    const TEST_TAKER_LOGIN = 'test_taker';
-    // events
-    const NB_ITEM = 'nb_item';
-    const NB_EXECUTIONS = 'nb_executions';
-    const NB_FINISHED = 'nb_finished';
-
+    const SERVICE_ID = 'taoMonitoring/testTakerDeliveryLog';
+    
     /**
      * Increment test taker event
      * (create row if not exists)
@@ -48,30 +45,20 @@ interface TestTakerDeliveryLogInterface
      */
     public function logEvent($testTakerLogin = '', $nb_event = '');
 
+    /**
+     * Update all statistics for test taker
+     * [We have aggregated statistics only (count of  the items), so I don't know how many times test taker complete one item]
+     *
+     * @param DataAggregatorInterface $aggregator
+     * @return mixed
+     */
+    public function updateTestTaker(DataAggregatorInterface $aggregator);
     
     /**
-     * Recount all log data
+     * Set storage for service data
      * 
-     * # lock log DB
-     * # truncate log DB
-     * # recount all data from sources
-     * # unlock DB 
-     * 
-     * @return bool
-     */
-    public function upgrade();
-
-    /**
-     * Lock log DB, and write logs in FS
-     * 
+     * @param StorageInterface $storage
      * @return mixed
      */
-    public function lock();
-
-    /**
-     * Unlock log DB, flush all data from FS in logDB
-     * 
-     * @return mixed
-     */
-    public function unlock();
+    public function setStorage(StorageInterface $storage);
 }

@@ -27,7 +27,13 @@ return array(
     'version' => '0.0.1',
 	'author' => 'Open Assessment Technologies SA',
 	'requires' => array(
-        'tao' => '>=2.19.0'
+        'generis' => '>=2.15.0',
+		'tao' => '>=2.15.0',
+        'taoDelivery' => '>=3.0.0',
+        'taoDeliveryRdf' => '>=1.1.0',
+        'taoOutcomeUi' => '>=2.7.2',
+        'taoQtiTest' => '>=2.16.2',
+        
     ),
 	'managementRole' => 'http://www.tao.lu/Ontologies/generis.rdf#taoMonitoringManager',
     'acl' => array(
@@ -35,12 +41,13 @@ return array(
     ),
     'install' => array(
         'php' => array(
-            'oat\\taoMonitoring\\scripts\\install\\RegisterTestTakerDeliveryLog',
+            'oat\\taoMonitoring\\scripts\\install\\RegisterRdsTestTakerDeliveryLog',
         )
     ),
     'uninstall' => array(
         'php' => array(
-            __DIR__.DIRECTORY_SEPARATOR.'scripts'.DIRECTORY_SEPARATOR.'uninstall'.DIRECTORY_SEPARATOR.'TestTakerDeliveryLog.php',
+			//doesn't work for now
+            //__DIR__.DIRECTORY_SEPARATOR.'scripts'.DIRECTORY_SEPARATOR.'uninstall'.DIRECTORY_SEPARATOR.'RdsTestTakerDeliveryLog.php',
             //'oat\\taoMonitoring\\scripts\\uninstall\\Delivery\\TestTakerLog',
         )
     ),
