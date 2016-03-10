@@ -40,7 +40,7 @@ class RegisterRdsTestTakerDeliveryLog extends \common_ext_action_InstallAction
         $persistenceId = count($params) > 0 ? reset($params) : 'default';
 
         /** Register new service */
-        $this->registerService(Service::SERVICE_ID, new Service([RdsStorage::OPTION_PERSISTENCE => $persistenceId]));
+        $this->getServiceManager()->register(Service::SERVICE_ID, new Service([RdsStorage::OPTION_PERSISTENCE => $persistenceId]));
 
         /** @var RdsStorage $storage */
         $storage = new RdsStorage( $persistenceId );
