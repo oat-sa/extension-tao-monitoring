@@ -32,7 +32,7 @@ return array(
         'taoDelivery' => '>=3.0.0',
         'taoDeliveryRdf' => '>=1.1.0',
         'taoOutcomeUi' => '>=2.7.2',
-        'taoQtiTest' => '>=2.16.3',
+        'taoQtiTest' => '>=2.16.2',
         
     ),
 	'managementRole' => 'http://www.tao.lu/Ontologies/generis.rdf#taoMonitoringManager',
