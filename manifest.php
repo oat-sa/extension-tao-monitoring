@@ -28,11 +28,11 @@ return array(
 	'author' => 'Open Assessment Technologies SA',
 	'requires' => array(
         'generis' => '>=2.15.0',
-        'tao' => '>=2.19.0',
-        'taoDelivery' => '>=3.3.0',
+		'tao' => '>=2.15.0',
+        'taoDelivery' => '>=3.0.0',
         'taoDeliveryRdf' => '>=1.1.0',
         'taoOutcomeUi' => '>=2.7.2',
-        'taoQtiTest' => '>=2.20.0',
+        'taoQtiTest' => '>=2.16.3',
         
     ),
 	'managementRole' => 'http://www.tao.lu/Ontologies/generis.rdf#taoMonitoringManager',
