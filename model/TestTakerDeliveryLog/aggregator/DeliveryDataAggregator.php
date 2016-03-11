@@ -80,12 +80,21 @@ class DeliveryDataAggregator extends AbstractDataAggregator
     {
         $slice = $this->deliveryAssemblyService->getRootClass()->searchInstances([], ['limit' => $inPage, 'offset' => $page * $inPage]);
         $executions = [];
+
+        $monitor = $this->executionService->implementsMonitoring();
         foreach ($slice as $delivery) {
-            foreach ($this->executionService->getExecutionsByDelivery($delivery) as $execution) {
-                array_push($executions, $execution);
+            if($monitor){
+                foreach ($this->executionService->getExecutionsByDelivery($delivery) as $execution) {
+                    array_push($executions, $execution);
+                }
+            } else{
+                $implementation = $this->resultsService->getReadableImplementation($delivery);
+                foreach ($implementation->getResultByDelivery(array($delivery->getUri())) as $res) {
+                    $execution = $this->executionService->getDeliveryExecution($res['deliveryResultIdentifier']);
+                    array_push($executions, $execution);
+                }
             }
         }
-
         return $this->aggregation($executions);
     }
 }
