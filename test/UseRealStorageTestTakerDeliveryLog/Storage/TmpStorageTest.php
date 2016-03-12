@@ -17,17 +17,20 @@ class TmpStorageTest extends AbstractStorage
         
         $this->assertFileExists($path);
 
-        $this->checkStorage($storage);
-        
+        $this->assertFalse($storage->getRow($this->login));
+
+        $storage->createRow($this->login);
+        $storage->incrementField($this->login, StorageInterface::NB_ITEM);
+
         // check file storage
         $storage2 = new TmpStorage($path);
-        $this->assertEquals(4, $storage2->countAllData());
+        $this->assertEquals(1, $storage2->countAllData());
 
         $this->assertEquals([[
-            StorageInterface::TEST_TAKER_LOGIN => $this->login2,
+            StorageInterface::TEST_TAKER_LOGIN => $this->login,
             StorageInterface::NB_ITEM => 0,
             StorageInterface::NB_EXECUTIONS => 0,
-            StorageInterface::NB_FINISHED => 0]], $storage2->getSlice(1,1));        
+            StorageInterface::NB_FINISHED => 0]], $storage2->getSlice());
         
         $storage->dropStorage();
         $this->assertFileNotExists($path);
