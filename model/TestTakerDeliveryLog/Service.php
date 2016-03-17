@@ -36,36 +36,6 @@ class Service extends ConfigurableService
      * @var StorageInterface
      */
     private $storage;
-
-    /**
-     * @param string $testTakerLogin
-     * @param string $nb_event
-     * @throws \common_Exception
-     * @return bool
-     */
-    public function logEvent($testTakerLogin = '', $nb_event = '')
-    {
-
-        if (!isset($testTakerLogin) || empty($testTakerLogin)) {
-            throw new \common_Exception('TestTakerDeliveryLogService should have test taker login');
-        }
-
-        $testTakerLog = $this->storage()->getRow($testTakerLogin);
-
-        if (!$testTakerLog || !count($testTakerLog)) {
-            //create record
-            $this->storage()->createRow($testTakerLogin);
-            $testTakerLog = $this->storage()->getRow($testTakerLogin);
-        }
-
-        if (!isset($testTakerLog[$nb_event])) {
-            throw new \common_Exception('TestTakerDeliveryLogService has incorrect $nb_event');
-        }
-
-        $this->storage()->incrementField($testTakerLogin, $nb_event);
-
-        return true;
-    }
     
     public function updateTestTaker(DataAggregatorInterface $aggregator)
     {

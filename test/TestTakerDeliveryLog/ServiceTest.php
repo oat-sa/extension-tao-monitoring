@@ -53,43 +53,6 @@ class ServiceTest extends TaoPhpUnitTestRunner
         $this->service->setStorage($this->storage);
     }
     
-    /**
-     * @expectedException \common_Exception
-     */
-    public function testLogEventWithoutLogin()
-    {
-        $this->service->logEvent();
-    }
-
-    /**
-     * @expectedException \common_Exception
-     */
-    public function testLogEventWithoutNbField()
-    {
-        $this->service->logEvent('tt1');
-    }
-    
-    public function testLogEvent()
-    {
-        $login = 'tt1';
-        $this->assertFalse($this->storage->getRow($login));
-        
-        $this->service->logEvent($login, StorageInterface::NB_ITEM);
-        
-        $this->assertEquals([StorageInterface::TEST_TAKER_LOGIN => $login,StorageInterface::NB_ITEM => 1,StorageInterface::NB_EXECUTIONS => 0,StorageInterface::NB_FINISHED => 0], $this->storage->getRow($login));
-
-        $this->service->logEvent($login, StorageInterface::NB_ITEM);
-        $this->service->logEvent($login, StorageInterface::NB_ITEM);
-        $this->service->logEvent($login, StorageInterface::NB_ITEM);
-
-        $this->service->logEvent($login, StorageInterface::NB_EXECUTIONS);
-        $this->service->logEvent($login, StorageInterface::NB_EXECUTIONS);
-
-        $this->service->logEvent($login, StorageInterface::NB_FINISHED);
-        
-        $this->assertEquals([StorageInterface::TEST_TAKER_LOGIN => $login,StorageInterface::NB_ITEM => 4,StorageInterface::NB_EXECUTIONS => 2,StorageInterface::NB_FINISHED => 1], $this->storage->getRow($login));
-    }
-    
     public function testUpdateTestTaker()
     {
         $login = 'tt1';
