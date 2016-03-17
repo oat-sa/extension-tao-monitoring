@@ -56,6 +56,9 @@ class ByDeliveryTest extends AbstractAggregator
                 $this->deliveryExecution->reveal(),
                 $this->deliveryExecution2->reveal(),
             ]);
+        $this->executionService->implementsMonitoring()
+            ->shouldBeCalledTimes($shouldBeCalledTimes['executionService->implementsMonitoring'])
+            ->willReturn(true);
         
         /** @var \core_kernel_classes_Class $class */
         $class = $this->prophesize('\core_kernel_classes_Class');
@@ -99,6 +102,7 @@ class ByDeliveryTest extends AbstractAggregator
             'class->searchInstances' => 1,
             'deliveryAssemblyService->getRootClass' => 2,
             'executionService->getExecutionsByDelivery' => 4,
+            'executionService->implementsMonitoring' => 1,
         ]);
 
         $aggregator = new DeliveryDataAggregator(

@@ -45,7 +45,7 @@ class ForTestTaker extends AbstractAggregator
     {
         parent::prepare($shouldBeCalledTimes);
 
-        $this->executionService->getDeliveryExecutionsByStatus(Argument::type('string'), Argument::type('string'))
+        $this->executionService->getDeliveryExecutionsByStatus(Argument::any(), Argument::type('string'))
             ->shouldBeCalledTimes($shouldBeCalledTimes['executionService->getDeliveryExecutionsByStatus'])
             ->willReturn([
                 $this->deliveryExecution->reveal(),
@@ -53,15 +53,6 @@ class ForTestTaker extends AbstractAggregator
                 $this->deliveryExecution->reveal(),
                 $this->deliveryExecution2->reveal(),
             ]);
-        
-        /** @var \core_kernel_classes_Resource testTaker */
-        $this->testTaker = $this->prophesize('\core_kernel_classes_Resource');
-        $this->testTaker->getOnePropertyValue(Argument::type('\core_kernel_classes_Property'))
-            ->shouldBeCalledTimes($shouldBeCalledTimes['testTaker->getOnePropertyValue'])
-            ->willReturn('TtLogin');
-        $this->testTaker->getUri()
-            ->shouldBeCalledTimes($shouldBeCalledTimes['testTaker->getUri'])
-            ->willReturn('#uriTtLogin');
     }
 
     public function testGetAllData()
@@ -80,14 +71,11 @@ class ForTestTaker extends AbstractAggregator
             'resultsService->getItemResultsFromDeliveryResult' => 12,
             'executionService->getExecutionsByDelivery' => 1,
             'executionService->getDeliveryExecutionsByStatus' => 6,
-            'testTaker->getOnePropertyValue' => 1,
-            'testTaker->getUri' => 6,
         ]);
         
         $aggregator = new TestTakerDataAggregator(
             $this->resultsService->reveal(),
-            $this->executionService->reveal(),
-            $this->testTaker->reveal()
+            $this->executionService->reveal()
         );
 
         $count = $aggregator->countAllData();
