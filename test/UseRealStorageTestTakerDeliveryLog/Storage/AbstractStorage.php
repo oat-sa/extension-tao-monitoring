@@ -25,10 +25,11 @@ class AbstractStorage extends TaoPhpUnitTestRunner
         $storage->incrementField($this->login, StorageInterface::NB_ITEM);
 
         $this->assertEquals([
-        StorageInterface::TEST_TAKER_LOGIN => $this->login,
-        StorageInterface::NB_ITEM => 1,
-        StorageInterface::NB_EXECUTIONS => 0,
-        StorageInterface::NB_FINISHED => 0], $storage->getRow($this->login));
+            StorageInterface::TEST_TAKER_LOGIN => $this->login,
+            StorageInterface::NB_ITEM => 1,
+            StorageInterface::NB_EXECUTIONS => 0,
+            StorageInterface::NB_FINISHED => 0
+        ], $storage->getRow($this->login));
 
         $storage->incrementField($this->login, StorageInterface::NB_ITEM);
         $storage->incrementField($this->login, StorageInterface::NB_ITEM);
@@ -40,12 +41,11 @@ class AbstractStorage extends TaoPhpUnitTestRunner
         $storage->incrementField($this->login, StorageInterface::NB_FINISHED);
 
         $this->assertEquals([
-        StorageInterface::TEST_TAKER_LOGIN => $this->login,
-        StorageInterface::NB_ITEM => 4,
-        StorageInterface::NB_EXECUTIONS => 2,
-        StorageInterface::NB_FINISHED => 1], $storage->getRow($this->login));
-
-        $this->assertEquals(1, $storage->countAllData());
+            StorageInterface::TEST_TAKER_LOGIN => $this->login,
+            StorageInterface::NB_ITEM => 4,
+            StorageInterface::NB_EXECUTIONS => 2,
+            StorageInterface::NB_FINISHED => 1
+        ], $storage->getRow($this->login));
 
         $forReplace = [
             StorageInterface::TEST_TAKER_LOGIN => $this->login,
@@ -57,17 +57,16 @@ class AbstractStorage extends TaoPhpUnitTestRunner
         $this->assertEquals($forReplace, $storage->getRow($this->login));
 
         $storage->createRow($this->login2);
-        $this->assertEquals(2, $storage->countAllData());
 
-        $this->assertEquals([[
-        StorageInterface::TEST_TAKER_LOGIN => $this->login2,
-        StorageInterface::NB_ITEM => 0,
-        StorageInterface::NB_EXECUTIONS => 0,
-        StorageInterface::NB_FINISHED => 0]], $storage->getSlice(1, 1));
+        $this->assertEquals([
+            StorageInterface::TEST_TAKER_LOGIN => $this->login2,
+            StorageInterface::NB_ITEM => 0,
+            StorageInterface::NB_EXECUTIONS => 0,
+            StorageInterface::NB_FINISHED => 0
+        ], $storage->getRow($this->login2));
         
         // check add data by rows (for updating data by deliveries)
-        $newData = [
-            [
+        $newData = [[
                 StorageInterface::TEST_TAKER_LOGIN => $this->login2,
                 StorageInterface::NB_ITEM => 3,
                 StorageInterface::NB_EXECUTIONS => 2,
@@ -94,26 +93,32 @@ class AbstractStorage extends TaoPhpUnitTestRunner
         ];
         $storage->flushArray($newData);
 
-        $this->assertEquals([[
+        $this->assertEquals([
             StorageInterface::TEST_TAKER_LOGIN => $this->login,
-            StorageInterface::NB_ITEM => 1032,
-            StorageInterface::NB_EXECUTIONS => 60,
-            StorageInterface::NB_FINISHED => 52,
-        ],[
+            StorageInterface::NB_ITEM => 1030,
+            StorageInterface::NB_EXECUTIONS => 59,
+            StorageInterface::NB_FINISHED => 47
+        ], $storage->getRow($this->login));
+        
+        $this->assertEquals([
             StorageInterface::TEST_TAKER_LOGIN => $this->login2,
             StorageInterface::NB_ITEM => 3,
             StorageInterface::NB_EXECUTIONS => 2,
-            StorageInterface::NB_FINISHED => 200,
-        ],[
+            StorageInterface::NB_FINISHED => 200
+        ], $storage->getRow($this->login2));
+
+        $this->assertEquals([
             StorageInterface::TEST_TAKER_LOGIN => $this->login3,
             StorageInterface::NB_ITEM => 10,
             StorageInterface::NB_EXECUTIONS => 5,
-            StorageInterface::NB_FINISHED => 4,
-        ],[
+            StorageInterface::NB_FINISHED => 4
+        ], $storage->getRow($this->login3));
+
+        $this->assertEquals([
             StorageInterface::TEST_TAKER_LOGIN => $this->login4,
             StorageInterface::NB_ITEM => 0,
             StorageInterface::NB_EXECUTIONS => 0,
-            StorageInterface::NB_FINISHED => 0,
-        ]], $storage->getSlice());
+            StorageInterface::NB_FINISHED => 0
+        ], $storage->getRow($this->login4));
     }
 }
