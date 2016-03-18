@@ -26,6 +26,7 @@ use oat\tao\test\TaoPhpUnitTestRunner;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\storage\LocalStorage;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\StorageInterface;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\upgrade\Updater;
+use oat\taoMonitoring\test\TestTakerDeliveryLog\Mock\StubUpdater;
 use Prophecy\Argument;
 
 class UpgradeTest extends TaoPhpUnitTestRunner
@@ -66,6 +67,12 @@ class UpgradeTest extends TaoPhpUnitTestRunner
         $this->service->updateTestTaker(Argument::type('\oat\taoMonitoring\model\TestTakerDeliveryLog\DataAggregatorInterface'))
             ->shouldBeCalledTimes($shouldBeCalledTimes['service->updateTestTaker'])
             ->willReturn(true);
+        $this->service->getOptions()
+            ->shouldBeCalledTimes($shouldBeCalledTimes['service->getOptions'])
+            ->willReturn(['persistence' => 'default']);
+        $this->service->setOptions(Argument::type('array'))
+            ->shouldBeCalledTimes($shouldBeCalledTimes['service->setOptions'])
+            ->willReturn(['persistence' => 'default']);
 
         /** @var \oat\taoMonitoring\model\TestTakerDeliveryLog\DataAggregatorInterface $dataAggregator */
         $this->dataAggregator = $this->prophesize('\oat\taoMonitoring\model\TestTakerDeliveryLog\DataAggregatorInterface');
@@ -83,6 +90,8 @@ class UpgradeTest extends TaoPhpUnitTestRunner
         $this->prepare([
             'service->setStorage' => 2,
             'service->hasOption' => 1,
+            'service->getOptions' => 2,
+            'service->setOptions' => 2,
             'service->updateTestTaker' => 0,
             'dataAggregator->countAllDeliveries' => 1,
             'dataAggregator->getSlice' => 2,
@@ -113,6 +122,8 @@ class UpgradeTest extends TaoPhpUnitTestRunner
         $this->prepare([
             'service->setStorage' => 0,
             'service->hasOption' => 0,
+            'service->getOptions' => 0,
+            'service->setOptions' => 0,
             'service->updateTestTaker' => 2,
             'dataAggregator->countAllDeliveries' => 0,
             'dataAggregator->getSlice' => 0,
@@ -129,10 +140,10 @@ class UpgradeTest extends TaoPhpUnitTestRunner
         $regularStorage->incrementField($login, StorageInterface::NB_ITEM);
         $regularStorage->incrementField($login, StorageInterface::NB_ITEM);
         $this->assertEquals([
-            'test_taker' => '499 Tt',
-            'nb_item' => 2,
-            'nb_executions' => 3,
-            'nb_finished' => 0,
+            StorageInterface::TEST_TAKER_LOGIN => '499 Tt',
+            StorageInterface::NB_ITEM => 2,
+            StorageInterface::NB_EXECUTIONS => 3,
+            StorageInterface::NB_FINISHED => 0,
         ], $regularStorage->getRow($login));
 
 
@@ -144,33 +155,20 @@ class UpgradeTest extends TaoPhpUnitTestRunner
         $tmpStorage->incrementField($login, StorageInterface::NB_FINISHED);
         $tmpStorage->createRow('another user');
         $this->assertEquals([
-            'test_taker' => '499 Tt',
-            'nb_item' => 1,
-            'nb_executions' => 1,
-            'nb_finished' => 1,
+            StorageInterface::TEST_TAKER_LOGIN => '499 Tt',
+            StorageInterface::NB_ITEM => 1,
+            StorageInterface::NB_EXECUTIONS => 1,
+            StorageInterface::NB_FINISHED => 1,
         ], $tmpStorage->getRow($login));
 
-        /** @var \oat\taoMonitoring\model\TestTakerDeliveryLog\upgrade\Updater $stub */
-        $stub = $this->getMockBuilder('\oat\taoMonitoring\test\TestTakerDeliveryLog\Mock\StubUpdater')
-            ->setMethods([
-                'getAggregator'
-            ])
-            ->setConstructorArgs([
-                $this->service->reveal(),
-                $tmpStorage,
-                $regularStorage,
-                $this->dataAggregator->reveal()
-            ])
-            ->getMock();
-        
-        $stub->method('getAggregator')
-            ->willReturn($this->dataAggregator->reveal());
+        $stub = new StubUpdater(
+            $this->service->reveal(),
+            $tmpStorage,
+            $regularStorage,
+            $this->dataAggregator->reveal()
+        );
+        $stub->setAggregator($this->dataAggregator->reveal());
 
-        $stub->expects($this->any())
-            ->method('getAggregator')
-            ->willReturn($this->dataAggregator);
-        
         $this->assertEquals(2, $stub->stubUpdateAffectedData());
     }
-    
 }

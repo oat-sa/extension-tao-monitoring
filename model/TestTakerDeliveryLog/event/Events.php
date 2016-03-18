@@ -60,15 +60,13 @@ class Events implements EventInterface
     
     public static function deliveryExecutionCreated(DeliveryExecutionCreated $event)
     {
-        $login = self::userLoginFromDeliveryExecution( $event->getDeliveryExecution() );
-        self::service()->logEvent($login, StorageInterface::NB_EXECUTIONS);
+        self::updateTestTaker($event->getDeliveryExecution()->getUserIdentifier());
     }
 
     public static function deliveryExecutionState(DeliveryExecutionState $event)
     {
         if ($event->getState() === DeliveryExecution::STATE_FINISHIED) {
-            $login = self::userLoginFromDeliveryExecution( $event->getDeliveryExecution() );
-            self::service()->logEvent($login, StorageInterface::NB_FINISHED);
+            self::updateTestTaker($event->getDeliveryExecution()->getUserIdentifier());
         }
     }
     
@@ -76,28 +74,18 @@ class Events implements EventInterface
     {
         // reload all statistic for test taker
         if ($event->getContext() === QtiMoveEvent::CONTEXT_BEFORE) {
-            
-            $user = new \core_kernel_classes_Resource(\common_session_SessionManager::getSession()->getUser()->getIdentifier());
-            
-            $aggregator = new TestTakerDataAggregator(
-                ResultsService::singleton(), 
-                taoDelivery_models_classes_execution_ServiceProxy::singleton(),
-                $user
-            );
-            
-            self::service()->updateTestTaker($aggregator);
+            $userUri = new \core_kernel_classes_Resource(\common_session_SessionManager::getSession()->getUser()->getIdentifier());
+            self::updateTestTaker($userUri);
         }
     }
 
-    /**
-     * @param DeliveryExecution $deliveryExecution
-     * @return string
-     */
-    private static function userLoginFromDeliveryExecution(DeliveryExecution $deliveryExecution)
-    {
-        $userId = $deliveryExecution->getUserIdentifier();
-        $user = UserHelper::getUser($userId);
-        $login = UserHelper::getUserLogin($user);
-        return $login;
+    private static function updateTestTaker($userUri = '') {
+        $aggregator = new TestTakerDataAggregator(
+            ResultsService::singleton(),
+            taoDelivery_models_classes_execution_ServiceProxy::singleton(),
+            $userUri
+        );
+
+        self::service()->updateTestTaker($aggregator);
     }
 }

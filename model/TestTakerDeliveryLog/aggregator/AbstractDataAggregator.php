@@ -32,7 +32,7 @@ abstract class AbstractDataAggregator implements DataAggregatorInterface
     /**
      * @var ResultsService
      */
-    private $resultsService;
+    protected $resultsService;
 
     public function __construct(ResultsService $resultsService)
     {
@@ -49,6 +49,7 @@ abstract class AbstractDataAggregator implements DataAggregatorInterface
     protected function aggregation($deliveryExecutions)
     {
         $aggregateData = [];
+        /** @var \taoDelivery_models_classes_execution_DeliveryExecution $deliveryExecution */
         foreach ($deliveryExecutions as $deliveryExecution) {
 
             $userId = $deliveryExecution->getUserIdentifier();

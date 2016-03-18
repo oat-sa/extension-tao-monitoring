@@ -22,12 +22,26 @@
 namespace oat\taoMonitoring\test\TestTakerDeliveryLog\Mock;
 
 
+use oat\taoMonitoring\model\TestTakerDeliveryLog\DataAggregatorInterface;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\upgrade\Updater;
 
 class StubUpdater extends Updater
 {
+
+    private $aggregator;
+
+    public function setAggregator(DataAggregatorInterface $aggregator)
+    {
+        $this->aggregator = $aggregator;
+    }
+
     public function stubUpdateAffectedData()
     {
         return $this->updateAffectedData();
+    }
+
+    protected function getTestTakerAggregator($login)
+    {
+        return $this->aggregator;
     }
 }
