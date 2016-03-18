@@ -24,7 +24,6 @@ namespace oat\taoMonitoring\model\TestTakerDeliveryLog\storage;
 
 use Doctrine\DBAL\Schema\SchemaException;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\StorageInterface;
-use oat\taoMonitoring\model\TestTakerDeliveryLogInterface;
 
 class RdsStorage implements StorageInterface
 {
@@ -94,11 +93,9 @@ class RdsStorage implements StorageInterface
             throw new \common_Exception('TestTakerDeliveryLogService should have test taker login');
         }
 
-        $sql = "SELECT * FROM " . self::TABLE_NAME . PHP_EOL;
-        $sql .= "WHERE " . self::TEST_TAKER_LOGIN . "=? ";
+        $sql = "SELECT * FROM " . self::TABLE_NAME ." WHERE " . self::TEST_TAKER_LOGIN . "=? ";
 
         $parameters = [$login];
-
         $stmt = $this->getPersistence()->query($sql, $parameters);
         return current($stmt->fetchAll(\PDO::FETCH_ASSOC));
     }
@@ -158,30 +155,39 @@ class RdsStorage implements StorageInterface
 
     public function flushArray(array $data)
     {
-        $queries = [];
         foreach ($data as $row) {
-            $queries[] = $this->getSqlUpdateOrCreate($row);
-        }
-        
-        if (count($queries)) {
-            $sql = implode(';', $queries) . ';';
-            $this->getPersistence()->exec($sql);
+            $this->replace($row);
         }
     }
 
     public function countAllData()
     {
-        $sql = "SELECT COUNT(`" . self::TEST_TAKER_LOGIN . "`) FROM " . self::TABLE_NAME;
+        $sql = "SELECT COUNT(" . self::TEST_TAKER_LOGIN . ") FROM " . self::TABLE_NAME;
         $stmt = $this->getPersistence()->query($sql);
         return current(current($stmt->fetchAll(\PDO::FETCH_ASSOC)));
     }
     
     public function replace(array $data)
     {
-        $sql = "REPLACE INTO " . self::TABLE_NAME . " VALUES (?, ?, ?, ?)";
-        $parameters = [$data[self::TEST_TAKER_LOGIN], $data[self::NB_ITEM], $data[self::NB_EXECUTIONS], $data[self::NB_FINISHED]];
+        $sql = "UPDATE " . self::TABLE_NAME . " SET "
+            . self::NB_ITEM . " = ?, "
+            . self::NB_EXECUTIONS . " = ?, "
+            . self::NB_FINISHED . " = ? "
+            . "WHERE " . self::TEST_TAKER_LOGIN . "= ?"
+        ;
+
+        $parameters = [$data[self::NB_ITEM], $data[self::NB_EXECUTIONS], $data[self::NB_FINISHED], $data[self::TEST_TAKER_LOGIN]];
         $stmt = $this->getPersistence()->query($sql, $parameters);
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        if (!$stmt || !($res = $stmt->rowCount())) {
+            $res = $this->getPersistence()->insert(self::TABLE_NAME, [
+                self::TEST_TAKER_LOGIN => $data[self::TEST_TAKER_LOGIN],
+                self::NB_ITEM => $data[self::NB_ITEM],
+                self::NB_EXECUTIONS => $data[self::NB_EXECUTIONS],
+                self::NB_FINISHED => $data[self::NB_FINISHED],
+            ]);
+        }
+
+        return $res;
     }
     
     public function getSlice($page = 0, $inPage = 500)
@@ -191,21 +197,5 @@ class RdsStorage implements StorageInterface
         $parameters = [$inPage, $inPage*$page];
         $stmt = $this->getPersistence()->query($sql, $parameters);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-    }
-
-    private function getSqlUpdateOrCreate(array $data)
-    {
-        return "INSERT INTO " . self::TABLE_NAME
-        . " (`"
-        . self::TEST_TAKER_LOGIN . "`,`" . self::NB_ITEM . "`, `" . self::NB_EXECUTIONS . "`,`" . self::NB_FINISHED
-        . "`) VALUES ('"
-        . $data[self::TEST_TAKER_LOGIN] . "','"
-        . $data[self::NB_ITEM] . "','"
-        . $data[self::NB_EXECUTIONS] . "','"
-        . $data[self::NB_FINISHED]
-        . "') ON DUPLICATE KEY UPDATE "
-        . "`" . self::NB_ITEM . "`=`". self::NB_ITEM . "`+" . $data[self::NB_ITEM] . ","
-        . "`" . self::NB_EXECUTIONS . "`=`". self::NB_EXECUTIONS . "`+" . $data[self::NB_EXECUTIONS] . ","
-        . "`" . self::NB_FINISHED . "`=`". self::NB_FINISHED . "`+" . $data[self::NB_FINISHED];
     }
 }
