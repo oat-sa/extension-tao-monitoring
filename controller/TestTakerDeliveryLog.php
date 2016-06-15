@@ -29,7 +29,7 @@ use oat\taoMonitoring\model\TestTakerDeliveryLogInterface;
  * @package oat\taoMonitoring\controller
  * @author A. Zagovorichev <zagovorichev@1pt.com>
  */
-class TestTakerDeliveryLog extends Main {
+class TestTakerDeliveryLog extends Monitoring {
 
     /**
      * @var TestTakerDeliveryLogInterface

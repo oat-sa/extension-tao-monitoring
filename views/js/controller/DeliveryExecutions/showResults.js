@@ -18,14 +18,34 @@
  * @author Alexander Zagovorichev <zagovorichev@1pt.com>
  */
 
-define(function(){
+define([
+    'jquery',
+    'ui/progressbar'
+], function($) {
     'use strict';
 
+    //The district controller
     return {
-        'DeliveryExecutions': {
-            'actions': {
-                'index' : 'controller/DeliveryExecutions/showResults'
+
+        /**
+         * Controller entry point
+         */
+        start : function start(){
+            
+/*            var progressBar = $( ".progressbar.submitted-tests" );
+            
+            var possible = parseInt(progressBar.data('possible'));
+            var executions = parseInt(progressBar.data('executions'));
+            
+            if (!possible) {
+                possible = executions*2;
             }
+            console.log(possible, executions);
+            progressBar.progressbar({
+                max: possible,
+                value: executions,
+                showProgress: true
+            });*/
         }
     };
 });

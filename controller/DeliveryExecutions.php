@@ -1,0 +1,296 @@
+<?php
+/**
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; under version 2
+ * of the License (non-upgradable).
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * Copyright (c) 2016  (original work) Open Assessment Technologies SA;
+ * 
+ * @author Alexander Zagovorichev <zagovorichev@1pt.com>
+ */
+
+namespace oat\taoMonitoring\controller;
+
+
+use common_exception_IsAjaxAction;
+use core_kernel_classes_Resource;
+use oat\taoDelivery\model\AssignmentService;
+use oat\taoDeliveryRdf\model\DeliveryAssemblyService;
+use oat\taoFrontOffice\model\interfaces\DeliveryExecution;
+use oat\taoOutcomeUi\model\ResultsService;
+use qtism\runtime\storage\binary\BinaryAssessmentTestSeeker;
+use tao_actions_SaSModule;
+use tao_helpers_Request;
+use tao_helpers_Uri;
+
+class DeliveryExecutions extends tao_actions_SaSModule
+{
+
+    /**
+     * @var DeliveryAssemblyService
+     */
+    private $deliveryService;
+
+    /**
+     * @var AssignmentService
+     */
+    private $assignmentService;
+
+    /**
+     * @var \taoDelivery_models_classes_execution_ServiceProxy
+     */
+    private $executionService;
+    
+    /**
+     * constructor: initialize the service and the default data
+     */
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->service = ResultsService::singleton();
+        $this->deliveryService = DeliveryAssemblyService::singleton();
+        $this->assignmentService = $this->getServiceManager()->get(AssignmentService::CONFIG_ID);
+        $this->executionService = \taoDelivery_models_classes_execution_ServiceProxy::singleton();
+        $this->defaultData();
+    }
+
+    /**
+     * @return ResultsService
+     */
+    protected function getClassService()
+    {
+        return $this->service;
+    }
+    
+    /**
+     * Ontology data for deliveries (not results, so use deliveryService->getRootClass)
+     * @throws common_exception_IsAjaxAction
+     */
+    public function getOntologyData()
+    {
+        if (!tao_helpers_Request::isAjax()) {
+            throw new common_exception_IsAjaxAction(__FUNCTION__);
+        }
+
+        $options = array(
+            'subclasses' => true,
+            'instances' => true,
+            'highlightUri' => '',
+            'chunk' => false,
+            'offset' => 0,
+            'limit' => 0
+        );
+
+        if ($this->hasRequestParameter('loadNode')) {
+            $options['uniqueNode'] = $this->getRequestParameter('loadNode');
+        }
+
+        if ($this->hasRequestParameter("selected")) {
+            $options['browse'] = array($this->getRequestParameter("selected"));
+        }
+
+        if ($this->hasRequestParameter('hideInstances')) {
+            if((bool) $this->getRequestParameter('hideInstances')) {
+                $options['instances'] = false;
+            }
+        }
+        if ($this->hasRequestParameter('classUri')) {
+            $clazz = $this->getCurrentClass();
+            $options['chunk'] = !$clazz->equals($this->deliveryService->getRootClass());
+        } else {
+            $clazz = $this->deliveryService->getRootClass();
+        }
+
+        if ($this->hasRequestParameter('offset')) {
+            $options['offset'] = $this->getRequestParameter('offset');
+        }
+
+        if ($this->hasRequestParameter('limit')) {
+            $options['limit'] = $this->getRequestParameter('limit');
+        }
+
+        //generate the tree from the given parameters
+        $tree = $this->getClassService()->toTree($clazz, $options);
+
+        $tree = $this->addPermissions($tree);
+
+        function sortTree(&$tree) {
+            usort($tree, function($a, $b) {
+                if (isset($a['data']) && isset($b['data'])) {
+                    if ($a['type'] != $b['type']) {
+                        return ($a['type'] == 'class') ? -1 : 1;
+                    } else {
+                        return strcasecmp($a['data'], $b['data']);
+                    }
+                }
+                return 0;
+            });
+        }
+
+        if (isset($tree['children'])) {
+            sortTree($tree['children']);
+        } elseif(array_values($tree) === $tree) {//is indexed array
+            sortTree($tree);
+        }
+
+        //expose the tree
+        $this->returnJson($tree);
+    }
+    
+    /**
+     * Action called on click on a delivery (class) construct and call the view to see the table of
+     * all delivery execution for a specific delivery
+     */
+    public function index()
+    {
+        $model = array(
+            array(
+                'id'       => 'ttaker',
+                'label'    => __('Test Taker'),
+                'sortable' => false
+            ),
+            array(
+                'id'       => 'time',
+                'label'    => __('Start Time'),
+                'sortable' => false
+            )
+        );
+
+        $deliveryService = DeliveryAssemblyService::singleton();
+        $delivery = new core_kernel_classes_Resource($this->getRequestParameter('id'));
+        if($delivery->getUri() !== $deliveryService->getRootClass()->getUri()){
+
+            try{
+                // display delivery
+                $implementation = $this->getClassService()->getReadableImplementation($delivery);
+
+                $this->getClassService()->setImplementation($implementation);
+
+
+                $this->setData('uri', tao_helpers_Uri::encode($delivery->getUri()));
+                $this->setData('title',$delivery->getLabel());
+
+
+                $deliveryProps = $delivery->getPropertiesValues(array(
+                    new \core_kernel_classes_Property(TAO_DELIVERY_MAXEXEC_PROP),
+                    new \core_kernel_classes_Property(TAO_DELIVERY_START_PROP),
+                    new \core_kernel_classes_Property(TAO_DELIVERY_END_PROP),
+                ));
+
+                $propMaxExec = current($deliveryProps[TAO_DELIVERY_MAXEXEC_PROP]);
+                $propStartExec = current($deliveryProps[TAO_DELIVERY_START_PROP]);
+                $propEndExec = current($deliveryProps[TAO_DELIVERY_END_PROP]);
+
+                $allowedExecutions = (!(is_object($propMaxExec)) or ($propMaxExec=="")) ? 0 : (int)$propMaxExec->literal;
+                
+                $startDate = (!(is_object($propStartExec)) or ($propStartExec=="")) ? null : $propStartExec->literal;
+                $endDate = (!(is_object($propEndExec)) or ($propEndExec=="")) ? null : $propEndExec->literal;
+                
+                // status
+                $status = __('Open');
+                
+                if ($startDate && $endDate) {
+                    
+                    $startDate  =    date_create('@'.$startDate);
+                    $endDate    =    date_create('@'.$endDate);
+                    
+                    if (date_create() <= $startDate || date_create() >= $endDate) {
+                        $status = __('Closed');
+                    }
+                }
+
+                $this->setData('status', $status);
+                
+                // date range
+                $this->setData('startDate', $startDate);
+                $this->setData('endDate', $endDate);
+                
+                // possible execution count
+                $possibleExecutions = 0;
+                if ($allowedExecutions) {
+                    // test takers * allowed
+                    $assignedUsers = count($this->assignmentService->getAssignedUsers($delivery->getUri()));
+                    $possibleExecutions = $allowedExecutions*$assignedUsers;
+                }
+
+                $this->setData('possibleExecutionsCount', $possibleExecutions);
+                
+                // current execution count
+                $deliveryExecutions = $this->executionService->getExecutionsByDelivery($delivery);
+                $this->setData('countExecutions', count($deliveryExecutions));
+                
+                // todo connected users
+                //$this->setData('connectedUsers', $this->countConnectedUsers($delivery, $deliveryExecutions));
+                $this->setData('connectedUsers', 'Undefined');
+                
+                $this->setData('model',$model);
+
+                $this->setView('DeliveryExecutions'.DIRECTORY_SEPARATOR.'index.tpl');
+            }
+            catch(\common_exception_Error $e){
+                $this->setData('type', 'error');
+                $this->setData('error', $e->getMessage());
+                $this->setView('index.tpl');
+            }
+
+        }
+        else{
+            $this->setData('type', 'info');
+            $this->setData('error',__('No tests have been taken yet. As soon as a test-taker will take a test his results will be displayed here.'));
+            $this->setView('index.tpl');
+        }
+    }
+    
+    private function countConnectedUsers($delivery, $deliveryExecutions) {
+        
+        $activeUsers = [];
+
+        $runtime = DeliveryAssemblyService::singleton()->getRuntime($delivery);
+        $inputParameters = \tao_models_classes_service_ServiceCallHelper::getInputValues($runtime, array());
+        $testDefinition = \taoQtiTest_helpers_Utils::getTestDefinition($inputParameters['QtiTestCompilation']);
+        $testResource = new \core_kernel_classes_Resource($inputParameters['QtiTestDefinition']);
+        
+        if (count($deliveryExecutions)) {
+            foreach ($deliveryExecutions as $deliveryExecution) {
+
+                $resultServer = \taoResultServer_models_classes_ResultServerStateFull::singleton();
+                $resultServerUri = $delivery->getOnePropertyValue(new \core_kernel_classes_Property(TAO_DELIVERY_RESULTSERVER_PROP));
+                $resultServerObject = new \taoResultServer_models_classes_ResultServer($resultServerUri, array());
+                $resultServer->setValue('resultServerUri', $resultServerUri->getUri());
+                $resultServer->setValue('resultServerObject', array($resultServerUri->getUri() => $resultServerObject));
+                $resultServer->setValue('resultServer_deliveryResultIdentifier', $deliveryExecution->getIdentifier());
+
+                $sessionManager = new \taoQtiTest_helpers_SessionManager($resultServer, $testResource);
+                $qtiStorage = new \taoQtiTest_helpers_TestSessionStorage(
+                    $sessionManager,
+                    new BinaryAssessmentTestSeeker($testDefinition), $deliveryExecution->getUserIdentifier()
+                );
+                $storage = $this->getServiceManager()->get('tao/stateStorage');
+
+                $state = $storage->get($deliveryExecution->getUserIdentifier(), $deliveryExecution->getIdentifier());
+                if ($state !== null) {
+                    $session = $qtiStorage->retrieve($testDefinition, $deliveryExecution->getIdentifier());
+                }
+                var_dump($state, $session->getState());
+                
+                if ($deliveryExecution->getState()->getUri() === DeliveryExecution::STATE_ACTIVE) {
+                    // todo before that i can check for available test session!!!
+                    $activeUsers[] = $deliveryExecution->getUserIdentifier();
+                }
+            }
+        }
+        
+        return count(array_unique($activeUsers));
+    }
+}

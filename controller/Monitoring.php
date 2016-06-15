@@ -25,7 +25,7 @@ namespace oat\taoMonitoring\controller;
 /**
  * @author A. Zagovorichev <zagovorichev@1pt.com>
  */
-class Main extends \tao_actions_CommonModule
+class Monitoring extends \tao_actions_CommonModule
 {
     /**
      * Logs
