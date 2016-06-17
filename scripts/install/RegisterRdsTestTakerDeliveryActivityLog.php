@@ -23,14 +23,14 @@ namespace oat\taoMonitoring\scripts\install;
 
 
 use oat\oatbox\event\EventManager;
-use oat\taoMonitoring\model\TestTakerDeliveryLog\Service;
-use oat\taoMonitoring\model\TestTakerDeliveryLog\storage\RdsStorage;
+use oat\taoMonitoring\model\TestTakerDeliveryActivityLog\Service;
+use oat\taoMonitoring\model\TestTakerDeliveryActivityLog\storage\RdsStorage;
 
 /**
- * Class RegisterRdsTestTakerDeliveryLog
+ * Class RegisterRdsTestTakerDeliveryActivityLog
  * @package oat\taoMonitoring\scripts\install
  */
-class RegisterRdsTestTakerDeliveryLog extends \common_ext_action_InstallAction
+class RegisterRdsTestTakerDeliveryActivityLog extends \common_ext_action_InstallAction
 {
     
     public function __invoke($params)
@@ -46,7 +46,7 @@ class RegisterRdsTestTakerDeliveryLog extends \common_ext_action_InstallAction
         
         $this->appendEvents();
         
-        return new \common_report_Report(\common_report_Report::TYPE_SUCCESS, __('Registered delivery log for test taker'));
+        return new \common_report_Report(\common_report_Report::TYPE_SUCCESS, __('Registered delivery activity log for test taker'));
     }
     
     private function appendEvents()
@@ -56,19 +56,19 @@ class RegisterRdsTestTakerDeliveryLog extends \common_ext_action_InstallAction
         // count executions
         $eventManager->attach(
             'oat\\taoDelivery\\models\\classes\\execution\\event\\DeliveryExecutionCreated',
-            array('\\oat\\taoMonitoring\\model\\TestTakerDeliveryLog\\event\\Events', 'deliveryExecutionCreated')
+            array('\\oat\\taoMonitoring\\model\\TestTakerDeliveryActivityLog\\event\\Events', 'deliveryExecutionCreated')
         );
 
         // finished executions
         $eventManager->attach(
             'oat\\taoDelivery\\models\\classes\\execution\\event\\DeliveryExecutionState',
-            array('\\oat\\taoMonitoring\\model\\TestTakerDeliveryLog\\event\\Events', 'deliveryExecutionState')
+            array('\\oat\\taoMonitoring\\model\\TestTakerDeliveryActivityLog\\event\\Events', 'deliveryExecutionState')
         );
 
-        // catch switch items - on switching recount all statistic for testtaker
+        // catch switch items
         $eventManager->attach(
             'oat\\taoQtiTest\\models\\event\\QtiMoveEvent',
-            array('\\oat\\taoMonitoring\\model\\TestTakerDeliveryLog\\event\\Events', 'qtiMoveEvent')
+            array('\\oat\\taoMonitoring\\model\\TestTakerDeliveryActivityLog\\event\\Events', 'qtiMoveEvent')
         );
 
         $this->getServiceManager()->register(EventManager::CONFIG_ID, $eventManager);

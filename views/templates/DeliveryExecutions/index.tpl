@@ -52,7 +52,10 @@ use oat\tao\helpers\Template;
         
     </div>
     
-    <!--<p>Connected Users: <?/*= get_data("connectedUsers") */?>;</p>-->
+    <div class="connected-users">
+        <b><?= get_data("connectedUsers") ?></b><br>
+        <span><?= __('Connected Users') ?></span>
+    </div>
 </div>
 
 <?php
