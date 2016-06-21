@@ -58,4 +58,15 @@ interface TestTakerDeliveryActivityLogInterface
      * @return array
      */
     public function getLastActivity($deliveryUri = '', $dateRange = '-1 day', $onlyActive = false);
+
+    /**
+     * Write event to storage 
+     * 
+     * @param string $testTaker
+     * @param string $delivery
+     * @param string $deliveryExecution
+     * @param string $event
+     * @return mixed
+     */
+    public function event($testTaker='', $delivery='', $deliveryExecution='', $event='');
 }

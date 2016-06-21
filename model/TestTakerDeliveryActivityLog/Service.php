@@ -41,9 +41,9 @@ class Service extends ConfigurableService
         $this->storage = $storage;
     }
     
-    public function event($testTaker='', $delivery='', $event='')
+    public function event($testTaker='', $delivery='', $deliveryExecution='', $event='')
     {
-        $this->storage()->event($testTaker, $delivery, $event);
+        $this->storage()->event($testTaker, $delivery, $deliveryExecution, $event);
     }
 
     private function storage()

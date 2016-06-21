@@ -46,14 +46,16 @@ class RdsStorage implements StorageInterface
      * Write event to db
      * @param string $testTaker
      * @param string $delivery
+     * @param string $deliveryExecution
      * @param string $event
      * @return bool
      */
-    public function event($testTaker = '', $delivery = '', $event = '')
+    public function event($testTaker = '', $delivery = '', $deliveryExecution = '', $event = '')
     {
         $result = $this->getPersistence()->insert(self::TABLE_NAME, [
             self::TEST_TAKER => $testTaker,
             self::DELIVERY => $delivery,
+            self::DELIVERY_EXECUTION => $deliveryExecution,
             self::EVENT => $event,
             self::TIME => date('Y-m-d H:i:s')
         ]);
@@ -93,12 +95,14 @@ class RdsStorage implements StorageInterface
             $tableLog->addColumn(self::TEST_TAKER, "string", array("notnull" => true, "length" => 255));
             $tableLog->addColumn(self::EVENT, "string", array("notnull" => true, "length" => 255));
             $tableLog->addColumn(self::DELIVERY, "string", array("notnull" => true, "length" => 255));
+            $tableLog->addColumn(self::DELIVERY_EXECUTION, "string", array("notnull" => true, "length" => 255));
             $tableLog->addColumn(self::TIME, "datetime", array("notnull" => true));
 
             $tableLog->setPrimaryKey(array(self::ID));
             $tableLog->addIndex([self::TEST_TAKER], 'idx_test_taker');
             $tableLog->addIndex([self::TIME], 'idx_time');
             $tableLog->addIndex([self::DELIVERY], 'idx_delivery');
+            $tableLog->addIndex([self::DELIVERY_EXECUTION], 'idx_delivery_execution');
 
         } catch (SchemaException $e) {
             \common_Logger::i('Database Schema for TestTakerDeliveryActivityLog already up to date.');
@@ -153,13 +157,23 @@ class RdsStorage implements StorageInterface
         
         $sql = "SELECT COUNT(DISTINCT " . self::TEST_TAKER . ") AS count, " . self::TIME . " AS hour FROM " . self::TABLE_NAME
             . " WHERE " . self::DELIVERY . " = ? AND " . self::TIME . " >= ? "
-            . (count($excludedEvents) ? implode(' ', array_fill(0, count($excludedEvents), 'AND event != ?')) : '') 
+            
+            . (count($excludedEvents) 
+                ? "AND " . self::DELIVERY_EXECUTION . " NOT IN ( SELECT " . self::DELIVERY_EXECUTION . " FROM " . self::TABLE_NAME
+                    . " WHERE " . implode(' OR ', array_fill(0, count($excludedEvents), 'event = ?'))
+                    . " AND " . self::TIME . " >= ?"
+                . ")"
+                
+                : '') 
+            
             . " GROUP BY HOUR(" . self::TIME . "), DAY(" . self::TIME . ") ORDER BY " . self::TIME;
-
-        $parameters = [$deliveryUri, date('Y-m-d H:00:00', strtotime($dateRange))];
+        
+        $time = date('Y-m-d H:i:s', strtotime($dateRange));
+        $parameters = [$deliveryUri, $time];
         
         if (count($excludedEvents)) {
             $parameters = array_merge($parameters, $excludedEvents);
+            $parameters[] = $time;
         }
         
         $stmt = $this->getPersistence()->query($sql, $parameters);

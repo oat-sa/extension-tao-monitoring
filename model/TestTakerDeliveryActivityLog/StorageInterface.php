@@ -28,6 +28,7 @@ interface StorageInterface
     const ID = 'id';
     const TEST_TAKER = 'test_taker';
     const DELIVERY = 'delivery';
+    const DELIVERY_EXECUTION = 'delivery_execution';
     const EVENT = 'event';
     const TIME = 'action_time';
 
@@ -42,10 +43,11 @@ interface StorageInterface
      *
      * @param string $testTaker
      * @param string $delivery
+     * @param string $deliveryExecution
      * @param string $event
      * @return bool
      */
-    public function event($testTaker = '', $delivery = '', $event = '');
+    public function event($testTaker = '', $delivery = '', $deliveryExecution = '', $event = '');
 
     /**
      * Create storage

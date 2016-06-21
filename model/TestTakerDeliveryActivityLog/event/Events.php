@@ -27,7 +27,7 @@ use oat\taoDelivery\model\execution\DeliveryExecution;
 use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionCreated;
 use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionState;
 use oat\taoMonitoring\model\TestTakerDeliveryActivityLogInterface;
-use oat\taoMonitoring\model\TestTakerDeliveryLog\EventInterface;
+use oat\taoMonitoring\model\TestTakerDeliveryActivityLog\EventInterface;
 use oat\taoQtiTest\models\event\QtiMoveEvent;
 use taoDelivery_models_classes_execution_ServiceProxy;
 
@@ -82,9 +82,9 @@ class Events implements EventInterface
     
     private static function event(DeliveryExecution $deliveryExecution, $event)
     {
-        $testtaker = $deliveryExecution->getUserIdentifier();
-        $delivery = $deliveryExecution->getDelivery()->getUri();
+        $testTaker = $deliveryExecution->getUserIdentifier();
+        $delivery = $deliveryExecution->getDelivery();
         
-        self::service()->event($testtaker, $delivery, $event);
+        self::service()->event($testTaker, $delivery->getUri(), $deliveryExecution->getUri(), $event);
     }
 }
