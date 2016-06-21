@@ -3,6 +3,7 @@ use oat\tao\helpers\Template;
 ?>
 
 <link rel="stylesheet" href="<?= Template::css('delivery-execution.css') ?>" />
+<link rel="stylesheet" href="<?= Template::css('../js/lib/c3js/c3.css', 'tao') ?>" />
 
 <div class="flex-container-full">
     <header>
@@ -47,14 +48,25 @@ use oat\tao\helpers\Template;
                 </div>
             </progress>
             <span style="position: relative; left: 30px; top: -23px" title="<?= get_data("countExecutions") ?> <?= __('Executions') ?>"><?= get_data("countExecutions") ?></span>
-            <p style="width: 100%; top: -10px" data-value="<?= $limit ?>">0</p>
+            <p style="width: 100%; top: -5px" data-value="<?= $limit ?>">0</p>
+        </div>
+
+
+        <header>
+            <h3><?= __('Users activity') ?></h3>
+        </header>
+        <div class="row">
+            <div class="col-2">
+                <div class="connected-users">
+                    <b><?= get_data("connectedUsers") ?></b><br>
+                    <span><?= __('Connected Users') ?></span>
+                </div>
+            </div>
+            <div class="col-7">
+                <div id="barChar" data-delivery="<?= $deliveryUri ?>"></div>
+            </div>
         </div>
         
-    </div>
-    
-    <div class="connected-users">
-        <b><?= get_data("connectedUsers") ?></b><br>
-        <span><?= __('Connected Users') ?></span>
     </div>
 </div>
 

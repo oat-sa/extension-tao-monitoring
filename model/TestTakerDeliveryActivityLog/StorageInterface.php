@@ -15,7 +15,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  * Copyright (c) 2016  (original work) Open Assessment Technologies SA;
- * 
+ *
  * @author Alexander Zagovorichev <zagovorichev@1pt.com>
  */
 
@@ -36,7 +36,7 @@ interface StorageInterface
      * @param string
      */
     public function __construct($param = '');
-    
+
     /**
      * Create new log record
      *
@@ -48,22 +48,24 @@ interface StorageInterface
     public function event($testTaker = '', $delivery = '', $event = '');
 
     /**
-     * Removes outdated data from data base
-     * 
-     * @param $date_range
-     * @return mixed
-     */
-    public function cleanStorage($date_range = '1 WEEK');
-    
-    /**
      * Create storage
      * @return string (table name or file path)
      */
     public function createStorage();
-    
+
     /**
      * Destroy storage
      * @return bool
      */
     public function dropStorage();
+
+    /**
+     * Get last users activity by hours
+     *
+     * @param string $deliveryUri
+     * @param string $date_range
+     * @param bool $onlyActive
+     * @return array
+     */
+    public function getLastActivity($deliveryUri = '', $date_range = '-1 day', $onlyActive = false);
 }

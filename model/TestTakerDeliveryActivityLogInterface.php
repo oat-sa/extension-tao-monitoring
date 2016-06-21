@@ -15,7 +15,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  * Copyright (c) 2016  (original work) Open Assessment Technologies SA;
- * 
+ *
  * @author Alexander Zagovorichev <zagovorichev@1pt.com>
  */
 
@@ -28,12 +28,12 @@ use oat\taoMonitoring\model\TestTakerDeliveryActivityLog\StorageInterface;
 /**
  * Logging all test taker activity in delivery
  * and store this data about one last week
- * 
- * Usages: 
+ *
+ * Usages:
  *      for determine connected to delivery users
  *      for build 24 hours bar char
- * 
- * 
+ *
+ *
  * Interface TestTakerLogInterface
  * @package oat\taoMonitoring\model\Delivery
  * @author Alexander Zagovorichev <zagovorichev@1pt.com>
@@ -41,12 +41,21 @@ use oat\taoMonitoring\model\TestTakerDeliveryActivityLog\StorageInterface;
 interface TestTakerDeliveryActivityLogInterface
 {
     const SERVICE_ID = 'taoMonitoring/testTakerDeliveryActivityLog';
-    
+
     /**
      * Set storage for service data
-     * 
+     *
      * @param StorageInterface $storage
      * @return mixed
      */
     public function setStorage(StorageInterface $storage);
+
+    /**
+     * Load user activity in deliveries in last 24 hours, splitted by hours
+     * @param string $deliveryUri
+     * @param string $dateRange
+     * @param bool $onlyActive
+     * @return array
+     */
+    public function getLastActivity($deliveryUri = '', $dateRange = '-1 day', $onlyActive = false);
 }

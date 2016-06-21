@@ -36,7 +36,7 @@ class RdsStorage implements StorageInterface
      * @var string
      */
     private $persistence;
-    
+
     public function __construct($persistence = '')
     {
         $this->persistence = $persistence;
@@ -55,8 +55,14 @@ class RdsStorage implements StorageInterface
             self::TEST_TAKER => $testTaker,
             self::DELIVERY => $delivery,
             self::EVENT => $event,
-            self::TIME => time()
+            self::TIME => date('Y-m-d H:i:s')
         ]);
+
+        $id = $this->getPersistence()->lastInsertId(self::TABLE_NAME);
+        if ($id % 1000) {
+            //every 1000 inserts try to delete obsolete data from log
+            $this->cleanStorage();
+        }
 
         return $result === 1;
     }
@@ -82,12 +88,12 @@ class RdsStorage implements StorageInterface
         try {
             $tableLog = $schema->createTable(self::TABLE_NAME);
             $tableLog->addOption('engine', 'MyISAM');
-            
+
             $tableLog->addColumn(self::ID, "integer", array("notnull" => true, "autoincrement" => true));
             $tableLog->addColumn(self::TEST_TAKER, "string", array("notnull" => true, "length" => 255));
             $tableLog->addColumn(self::EVENT, "string", array("notnull" => true, "length" => 255));
             $tableLog->addColumn(self::DELIVERY, "string", array("notnull" => true, "length" => 255));
-            $tableLog->addColumn(self::TIME, "integer", array("notnull" => true));
+            $tableLog->addColumn(self::TIME, "timestamp", array("notnull" => true));
 
             $tableLog->setPrimaryKey(array(self::ID));
             $tableLog->addIndex([self::TEST_TAKER], 'idx_test_taker');
@@ -127,16 +133,36 @@ class RdsStorage implements StorageInterface
         }
     }
 
-    public function cleanStorage($date_range = '-1 week')
+    private function cleanStorage($dateRange = '-1 week')
     {
-        $sql = "DELETE FROM " . self::TABLE_NAME . " WHERE "
-            . self::TIME . " <= ?";
+        $sql = "DELETE FROM " . self::TABLE_NAME . " WHERE " . self::TIME . " <= ?";
 
-        $parameters = [strtotime($date_range)];
-        $stmt = $this->getPersistence()->query($sql, $parameters);
-        if (!$stmt || !($res = $stmt->rowCount())) {
-        }
+        $parameters = [date('Y-m-d H:i:s', strtotime($dateRange))];
+        $this->getPersistence()->query($sql, $parameters);
 
         return true;
+    }
+
+    public function getLastActivity($deliveryUri = '', $dateRange = '-1 day', $onlyActive = false)
+    {
+        
+        $excludedEvents = [];
+        if ($onlyActive) {
+            $excludedEvents = ['deliveryExecutionFinish'];
+        }
+        
+        $sql = "SELECT COUNT(DISTINCT " . self::TEST_TAKER . ") AS count, " . self::TIME . " AS hour FROM " . self::TABLE_NAME
+            . " WHERE " . self::DELIVERY . " = ? AND " . self::TIME . " >= ? "
+            . (count($excludedEvents) ? implode(' ', array_fill(0, count($excludedEvents), 'AND event != ?')) : '') 
+            . " GROUP BY HOUR(" . self::TIME . "), DAY(" . self::TIME . ") ORDER BY " . self::TIME;
+
+        $parameters = [$deliveryUri, date('Y-m-d H:00:00', strtotime($dateRange))];
+        
+        if (count($excludedEvents)) {
+            $parameters = array_merge($parameters, $excludedEvents);
+        }
+        
+        $stmt = $this->getPersistence()->query($sql, $parameters);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 }

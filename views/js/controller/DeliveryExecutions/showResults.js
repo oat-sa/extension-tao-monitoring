@@ -14,62 +14,65 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  * Copyright (c) 2016  (original work) Open Assessment Technologies SA;
- * 
+ *
  * @author Alexander Zagovorichev <zagovorichev@1pt.com>
  */
 
 define([
     'jquery',
-    'taoMonitoring/lib/chart'
-], function($, chart) {
+    'i18n',
+    'helpers',
+    'd3',
+    'c3'
+], function ($, __, helpers, d3, c3) {
     'use strict';
 
-    //The district controller
     return {
 
         /**
          * Controller entry point
          */
-        start : function start(){
-            
-            var $ctx = $('#barChar');
-            
-            var chart = new chart($ctx, {
-                type: 'bar',
+        start: function start() {
+
+            c3.generate({
+                bindto: '#barChar',
                 data: {
-                    labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
-                    datasets: [{
-                        label: '# of Votes',
-                        data: [12, 19, 3, 5, 2, 3],
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.2)',
-                            'rgba(54, 162, 235, 0.2)',
-                            'rgba(255, 206, 86, 0.2)',
-                            'rgba(75, 192, 192, 0.2)',
-                            'rgba(153, 102, 255, 0.2)',
-                            'rgba(255, 159, 64, 0.2)'
-                        ],
-                        borderColor: [
-                            'rgba(255,99,132,1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(153, 102, 255, 1)',
-                            'rgba(255, 159, 64, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
+                    x: 'hour',
+                    xFormat: '%Y-%m-%d %H:%M:%S',
+                    url: helpers._url('userActivity', 'DeliveryExecutions', 'taoMonitoring', {deliveryUri: $('#barChar').data('delivery')}),
+                    mimeType: 'json',
+                    keys: {
+                        value: ['hour', 'count']
+                    },
+                    type: 'bar',
+                    labels: true
                 },
-                options: {
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero:true
-                            }
-                        }]
+                axis: {
+                    y: {
+                        label: {
+                            text: __('Active users'),
+                            position: 'top'
+                        }
+                    },
+                    x: {
+                        label: {
+                            text: __('Hours'),
+                            position: 'bottom center'
+                        },
+                        type: 'timeseries',
+                        // if true, treat x value as localtime (Default)
+                        // if false, convert to UTC internally
+                        localtime: true,
+                        tick: {
+                            format: '%H.00'
+                        }
                     }
+                },
+                legend: {
+                    hide: true
                 }
             });
+
         }
     };
 });

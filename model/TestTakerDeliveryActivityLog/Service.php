@@ -54,4 +54,9 @@ class Service extends ConfigurableService
 
         return $this->storage;
     }
+    
+    public function getLastActivity($deliveryUri = '', $dateRange = '-1 day', $onlyActive = false)
+    {
+        return $this->storage()->getLastActivity($deliveryUri, $dateRange, $onlyActive);
+    }
 }

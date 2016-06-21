@@ -27,6 +27,7 @@ use core_kernel_classes_Resource;
 use oat\taoDelivery\model\AssignmentService;
 use oat\taoDeliveryRdf\model\DeliveryAssemblyService;
 use oat\taoFrontOffice\model\interfaces\DeliveryExecution;
+use oat\taoMonitoring\model\TestTakerDeliveryActivityLogInterface;
 use oat\taoOutcomeUi\model\ResultsService;
 use qtism\runtime\storage\binary\BinaryAssessmentTestSeeker;
 use tao_actions_SaSModule;
@@ -52,6 +53,11 @@ class DeliveryExecutions extends tao_actions_SaSModule
     private $executionService;
 
     /**
+     * @var TestTakerDeliveryActivityLogInterface
+     */
+    private $activityLogService;
+    
+    /**
      * constructor: initialize the service and the default data
      */
     public function __construct()
@@ -62,6 +68,7 @@ class DeliveryExecutions extends tao_actions_SaSModule
         $this->deliveryService = DeliveryAssemblyService::singleton();
         $this->assignmentService = $this->getServiceManager()->get(AssignmentService::CONFIG_ID);
         $this->executionService = \taoDelivery_models_classes_execution_ServiceProxy::singleton();
+        $this->activityLogService = $this->getServiceManager()->get(TestTakerDeliveryActivityLogInterface::SERVICE_ID);
         $this->defaultData();
     }
 
@@ -232,7 +239,14 @@ class DeliveryExecutions extends tao_actions_SaSModule
                 $this->setData('countExecutions', count($deliveryExecutions));
 
                 // count connected users
-                $this->setData('connectedUsers', $this->countConnectedUsers($deliveryExecutions));
+                $activeUsers = 0;
+                $activity = $this->activityLogService->getLastActivity($delivery->getUri(), '-30 minutes', true);
+                if (count($activity)) {
+                    $activeUsers = current($activity)['count'];
+                }
+                $this->setData('connectedUsers', $activeUsers);
+                
+                $this->setData('deliveryUri', $delivery->getUri());
 
                 $this->setData('model', $model);
 
@@ -249,17 +263,11 @@ class DeliveryExecutions extends tao_actions_SaSModule
             $this->setView('index.tpl');
         }
     }
-
-    private function countConnectedUsers($deliveryExecutions)
+    
+    public function userActivity()
     {
-
-        $activeUsers = [];
-        
-        foreach ($deliveryExecutions as $deliveryExecution) {
-            if ($deliveryExecution->getState()->getUri() === DeliveryExecution::STATE_ACTIVE) {
-                $activeUsers[] = $deliveryExecution->getUserIdentifier();
-            }
-        }
-        return count(array_unique($activeUsers));
+        $deliveryUri = $this->getRequestParameter('deliveryUri');
+        // for last 24 hours by default
+        $this->returnJson($this->activityLogService->getLastActivity($deliveryUri, '-1 day'), 200);
     }
 }
