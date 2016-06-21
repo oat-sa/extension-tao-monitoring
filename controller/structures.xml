@@ -8,7 +8,7 @@
             <section id="delivery_executions" name="Delivery Executions" url="/taoMonitoring/DeliveryExecutions/index">
                 <trees>
                     <tree name="Delivery Executions Monitoring library"
-                          className="Deliveries"
+                          className="Result"
                           dataUrl="/taoMonitoring/DeliveryExecutions/getOntologyData"
                           selectInstance="deliveryExecutionsMonitoring-index"
                             />

@@ -93,7 +93,7 @@ class RdsStorage implements StorageInterface
             $tableLog->addColumn(self::TEST_TAKER, "string", array("notnull" => true, "length" => 255));
             $tableLog->addColumn(self::EVENT, "string", array("notnull" => true, "length" => 255));
             $tableLog->addColumn(self::DELIVERY, "string", array("notnull" => true, "length" => 255));
-            $tableLog->addColumn(self::TIME, "timestamp", array("notnull" => true));
+            $tableLog->addColumn(self::TIME, "datetime", array("notnull" => true));
 
             $tableLog->setPrimaryKey(array(self::ID));
             $tableLog->addIndex([self::TEST_TAKER], 'idx_test_taker');
