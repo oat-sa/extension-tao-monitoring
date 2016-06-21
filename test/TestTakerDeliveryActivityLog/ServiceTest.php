@@ -37,7 +37,7 @@ class ServiceTest extends TaoPhpUnitTestRunner
         $this->service = new Service(['persistence' => 'default']);
 
         $storage = $this->prophesize(StorageInterface::class);
-        $storage->event(Argument::type('string'), Argument::type('string'), Argument::type('string'))
+        $storage->event(Argument::type('string'), Argument::type('string'), Argument::type('string'), Argument::type('string'))
             ->shouldBeCalledTimes(1)
             ->willReturn(true);
         $storage->getLastActivity(Argument::type('string'), Argument::type('string'), Argument::type('bool'))
@@ -46,7 +46,7 @@ class ServiceTest extends TaoPhpUnitTestRunner
 
         $this->service->setStorage($storage->reveal());
 
-        $this->service->event('tt1', 'delivery1', 'testEvent');
+        $this->service->event('tt1', 'delivery1', 'deliveryExecutionUri', 'testEvent');
         $this->service->getLastActivity('delivery1', '-1 day', true);
     }
 }
