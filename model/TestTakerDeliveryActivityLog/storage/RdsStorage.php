@@ -61,7 +61,7 @@ class RdsStorage implements StorageInterface
         ]);
 
         $id = $this->getPersistence()->lastInsertId(self::TABLE_NAME);
-        if ($id % 1000) {
+        if ( ($id % 1000) == 0 ) {
             //every 1000 inserts try to delete obsolete data from log
             $this->cleanStorage();
         }
