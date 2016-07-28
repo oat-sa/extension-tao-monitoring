@@ -52,7 +52,8 @@ return array(
             //'oat\\taoMonitoring\\scripts\\uninstall\\Delivery\\TestTakerLog',
         )
     ),
-    'routes' => array(
+	'update' => 'oat\\taoMonitoring\\scripts\\update\\Updater',
+	'routes' => array(
         'taoMonitoring' => 'oat\\taoMonitoring\\controller'
     ),    
 	'constants' => array(
