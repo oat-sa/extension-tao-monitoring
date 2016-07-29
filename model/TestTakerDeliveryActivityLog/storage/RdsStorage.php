@@ -155,7 +155,11 @@ class RdsStorage implements StorageInterface
             $excludedEvents = ['deliveryExecutionFinish'];
         }
         
-        $sql = "SELECT COUNT(DISTINCT " . self::TEST_TAKER . ") AS count, " . self::TIME . " AS hour FROM " . self::TABLE_NAME
+        $sql = "SELECT COUNT(DISTINCT " . self::TEST_TAKER . ") AS count"
+            . ", MAX(" . self::TIME . ") AS hour"
+            . ", EXTRACT(hour FROM " . self::TIME . ") AS act_hour"
+            . ", EXTRACT(day FROM " . self::TIME . ") AS act_day"
+            . " FROM " . self::TABLE_NAME
             . " WHERE " . self::DELIVERY . " = ? AND " . self::TIME . " >= ? "
             
             . (count($excludedEvents) 
@@ -166,7 +170,7 @@ class RdsStorage implements StorageInterface
                 
                 : '') 
             
-            . " GROUP BY HOUR(" . self::TIME . "), DAY(" . self::TIME . ") ORDER BY " . self::TIME;
+            . " GROUP BY act_hour, act_day ORDER BY act_hour";
         
         $time = date('Y-m-d H:i:s', strtotime($dateRange));
         $parameters = [$deliveryUri, $time];
