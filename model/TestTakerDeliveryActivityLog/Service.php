@@ -23,6 +23,9 @@ namespace oat\taoMonitoring\model\TestTakerDeliveryActivityLog;
 
 
 use oat\oatbox\service\ConfigurableService;
+use oat\oatbox\service\ServiceManager;
+use oat\taoMonitoring\model\DeliveryLog\DeliveryLogService;
+use oat\taoMonitoring\model\DeliveryLog\DeliveryLogStorageInterface;
 use oat\taoMonitoring\model\TestTakerDeliveryActivityLog\storage\RdsStorage;
 use oat\taoMonitoring\model\TestTakerDeliveryActivityLogInterface;
 
@@ -30,6 +33,11 @@ use oat\taoMonitoring\model\TestTakerDeliveryActivityLogInterface;
 class Service extends ConfigurableService
     implements TestTakerDeliveryActivityLogInterface
 {
+
+    /**
+     * @var DeliveryLogService
+     */
+    private $deliveryLogService;
 
     /**
      * @var StorageInterface
@@ -58,5 +66,36 @@ class Service extends ConfigurableService
     public function getLastActivity($deliveryUri = '', $dateRange = '-1 day', $onlyActive = false)
     {
         return $this->storage()->getLastActivity($deliveryUri, $dateRange, $onlyActive);
+    }
+
+    /**
+     * @return DeliveryLogService
+     */
+    public function getDeliveryLogService()
+    {
+        if (!$this->deliveryLogService) {
+            $this->deliveryLogService = ServiceManager::getServiceManager()->get(DeliveryLogService::SERVICE_ID);
+        }
+
+        return $this->deliveryLogService;
+    }
+
+    /**
+     * @param DeliveryLogService $deliveryLogService
+     */
+    public function setDeliveryLogService(DeliveryLogService $deliveryLogService)
+    {
+        $this->deliveryLogService = $deliveryLogService;
+    }
+
+    public function countDeliveryExecutions($deliveryUri = '')
+    {
+        $count = 0;
+        $log = $this->getDeliveryLogService()->getDeliveryLog($deliveryUri);
+        if ($log) {
+            $count = $log[DeliveryLogStorageInterface::NB_EXECUTIONS];
+        }
+
+        return $count;
     }
 }

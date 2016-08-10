@@ -110,18 +110,17 @@ class RdsStorageTestTest extends TaoPhpUnitTestRunner
     public function testCleaner()
     {
         $this->assertFalse($this->inArray(9999));
-        
-        $sql = "INSERT INTO " . RdsStorage::TABLE_NAME
-            . " SET " . RdsStorage::ID . "= ?, "
-            . RdsStorage::TEST_TAKER . "= ?, "
-            . RdsStorage::EVENT . "= ?, "
-            . RdsStorage::DELIVERY . "= ?, "
-            . RdsStorage::DELIVERY_EXECUTION . " = ?, "
-            . RdsStorage::TIME . "= ?";
 
-        $parameters = [9999, $this->tt1, 'test', 'dlv', 'dlv_e', date('Y-m-d H:i:s', strtotime('-1 month'))];
         $persistence = \common_persistence_Manager::getPersistence('default');
-        $persistence->exec($sql, $parameters);
+        $persistence->insert(RdsStorage::TABLE_NAME, [
+            RdsStorage::ID => 9999,
+            RdsStorage::TEST_TAKER => $this->tt1,
+            RdsStorage::EVENT => 'test',
+            RdsStorage::DELIVERY => 'dlv',
+            RdsStorage::DELIVERY_EXECUTION => 'dlv_e',
+            RdsStorage::TIME => date('Y-m-d H:i:s', strtotime('-1 month'))
+        ]);
+
 
         $this->assertTrue($this->inArray(9999));
         

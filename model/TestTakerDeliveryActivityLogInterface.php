@@ -69,4 +69,12 @@ interface TestTakerDeliveryActivityLogInterface
      * @return mixed
      */
     public function event($testTaker='', $delivery='', $deliveryExecution='', $event='');
+
+    /**
+     * Count of the delivery executions
+     *
+     * @param string $deliveryUri
+     * @return int
+     */
+    public function countDeliveryExecutions($deliveryUri = '');
 }

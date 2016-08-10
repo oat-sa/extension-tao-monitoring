@@ -60,7 +60,16 @@ class RdsStorage implements StorageInterface
             self::TIME => date('Y-m-d H:i:s')
         ]);
 
+
+        /*
+         * How I can count all executions of the delivery if I had to drop data?
+         * generate new aggregate storage for delivery?
+         *
+         * (issue because getDeliveryExecutionsByDelivery can't be used)
+         */
+
         $id = $this->getPersistence()->lastInsertId(self::TABLE_NAME);
+
         if ( ($id % 1000) == 0 ) {
             //every 1000 inserts try to delete obsolete data from log
             $this->cleanStorage();

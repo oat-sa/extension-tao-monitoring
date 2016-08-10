@@ -29,7 +29,8 @@ class RdsStorageTest extends AbstractStorage
 
     public function tearDown()
     {
-        $sql = "DELETE FROM " . RdsStorage::TABLE_NAME . " WHERE " . RdsStorage::TEST_TAKER_LOGIN . "=?"
+        $sql = "DELETE FROM " . RdsStorage::TABLE_NAME
+            . " WHERE " . RdsStorage::TEST_TAKER_LOGIN . "=?"
             . " OR " . RdsStorage::TEST_TAKER_LOGIN . "=?"
             . " OR " . RdsStorage::TEST_TAKER_LOGIN . "=?"
             . " OR " . RdsStorage::TEST_TAKER_LOGIN . "=?";

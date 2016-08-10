@@ -235,8 +235,7 @@ class DeliveryExecutions extends tao_actions_SaSModule
                 $this->setData('possibleExecutionsCount', $possibleExecutions);
 
                 // current execution count
-                $deliveryExecutions = $this->executionService->getExecutionsByDelivery($delivery);
-                $this->setData('countExecutions', count($deliveryExecutions));
+                $this->setData('countExecutions', $this->activityLogService->countDeliveryExecutions($delivery->getUri()));
 
                 // count connected users
                 $activeUsers = 0;

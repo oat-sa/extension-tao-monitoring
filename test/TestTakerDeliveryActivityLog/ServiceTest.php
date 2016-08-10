@@ -23,6 +23,8 @@ namespace oat\taoMonitoring\test\TestTakerDeliveryActivityLog;
 
 
 use oat\tao\test\TaoPhpUnitTestRunner;
+use oat\taoMonitoring\model\DeliveryLog\DeliveryLogService;
+use oat\taoMonitoring\model\DeliveryLog\DeliveryLogStorageInterface;
 use oat\taoMonitoring\model\TestTakerDeliveryActivityLog\Service;
 use oat\taoMonitoring\model\TestTakerDeliveryActivityLog\StorageInterface;
 use Prophecy\Argument;
@@ -34,19 +36,38 @@ class ServiceTest extends TaoPhpUnitTestRunner
     
     public function testService()
     {
-        $this->service = new Service(['persistence' => 'default']);
-
         $storage = $this->prophesize(StorageInterface::class);
         $storage->event(Argument::type('string'), Argument::type('string'), Argument::type('string'), Argument::type('string'))
             ->shouldBeCalledTimes(1)
             ->willReturn(true);
+
+        $arr = [['hour' => '2016-06-21 13:30:35', 'count' => 5], ['hour' => '2016-06-21 11:50:35', 'count' => 2]];
         $storage->getLastActivity(Argument::type('string'), Argument::type('string'), Argument::type('bool'))
             ->shouldBeCalledTimes(1)
-            ->willReturn([['hour' => '2016-06-21 13:30:35', 'count' => 5], ['hour' => '2016-06-21 11:50:35', 'count' => 2]]);
+            ->willReturn($arr);
 
+
+        $this->service = new Service(['persistence' => 'default']);
         $this->service->setStorage($storage->reveal());
 
-        $this->service->event('tt1', 'delivery1', 'deliveryExecutionUri', 'testEvent');
-        $this->service->getLastActivity('delivery1', '-1 day', true);
+        $this->assertNull($this->service->event('tt1', 'delivery1', 'deliveryExecutionUri', 'testEvent'));
+        $this->assertEquals($this->service->getLastActivity('delivery1', '-1 day', true), $arr);
+    }
+
+    public function testGetCountDeliveryExecutions()
+    {
+        $deliveryLog = $this->prophesize(DeliveryLogService::class);
+        $arr = [
+            DeliveryLogStorageInterface::DELIVERY => '#delivery',
+            DeliveryLogStorageInterface::NB_EXECUTIONS => 1,
+            DeliveryLogStorageInterface::NB_FINISHED => 0];
+        $deliveryLog->getDeliveryLog(Argument::type('string'))
+            ->shouldBeCalledTimes(1)
+            ->willReturn($arr);
+
+        $this->service = new Service(['persistence' => 'default']);
+        $this->service->setDeliveryLogService($deliveryLog->reveal());
+
+        $this->assertEquals($arr[DeliveryLogStorageInterface::NB_EXECUTIONS], $this->service->countDeliveryExecutions('#delivery'));
     }
 }
