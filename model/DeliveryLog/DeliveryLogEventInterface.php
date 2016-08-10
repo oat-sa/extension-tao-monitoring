@@ -30,7 +30,7 @@ interface DeliveryLogEventInterface
     /**
      * @param DeliveryLogService $service
      */
-    public function setService(DeliveryLogService $service);
+    public static function setService(DeliveryLogService $service);
 
     /**
      * @param DeliveryExecutionCreated $event

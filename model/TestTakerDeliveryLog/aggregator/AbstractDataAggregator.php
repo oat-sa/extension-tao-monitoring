@@ -84,7 +84,7 @@ abstract class AbstractDataAggregator implements DataAggregatorInterface
     {
         $implementation = $this->resultsService->getReadableImplementation($deliveryExecution->getDelivery());
         $this->resultsService->setImplementation($implementation);
-        $itemCallIds = $this->resultsService->getItemResultsFromDeliveryResult($deliveryExecution);
+        $itemCallIds = $this->resultsService->getItemResultsFromDeliveryResult($deliveryExecution->getIdentifier());
         return count($itemCallIds);
     }
 } 

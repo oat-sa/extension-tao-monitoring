@@ -46,7 +46,7 @@ class RegisterRdsTestTakerDeliveryLog extends \common_ext_action_InstallAction
         
         $this->appendEvents();
         
-        return new \common_report_Report(\common_report_Report::TYPE_SUCCESS, __('Registered delivery log for test taker'));
+        return new \common_report_Report(\common_report_Report::TYPE_SUCCESS, __('Registered test taker delivery log for test taker'));
     }
     
     private function appendEvents()

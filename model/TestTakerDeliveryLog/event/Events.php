@@ -74,12 +74,13 @@ class Events implements EventInterface
     {
         // reload all statistic for test taker
         if ($event->getContext() === QtiMoveEvent::CONTEXT_BEFORE) {
-            $userUri = new \core_kernel_classes_Resource(\common_session_SessionManager::getSession()->getUser()->getIdentifier());
-            self::updateTestTaker($userUri);
+            //$user = new \core_kernel_classes_Resource(\common_session_SessionManager::getSession()->getUser()->getIdentifier());
+            self::updateTestTaker(\common_session_SessionManager::getSession()->getUser()->getIdentifier());
         }
     }
 
     private static function updateTestTaker($userUri = '') {
+
         $aggregator = new TestTakerDataAggregator(
             ResultsService::singleton(),
             taoDelivery_models_classes_execution_ServiceProxy::singleton(),

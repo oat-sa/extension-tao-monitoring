@@ -75,7 +75,7 @@ class Events implements EventInterface
     {
         if ($event->getContext() === QtiMoveEvent::CONTEXT_BEFORE) {
             $executionService = taoDelivery_models_classes_execution_ServiceProxy::singleton();
-            $deliveryExecution = $executionService->getDeliveryExecution($event->getSession()->key());
+            $deliveryExecution = $executionService->getDeliveryExecution($event->getSession()->getSessionId());
             self::event($deliveryExecution, self::EVENT_MOVE);
         }
     }
@@ -85,6 +85,6 @@ class Events implements EventInterface
         $testTaker = $deliveryExecution->getUserIdentifier();
         $delivery = $deliveryExecution->getDelivery();
         
-        self::service()->event($testTaker, $delivery->getUri(), $deliveryExecution->getUri(), $event);
+        self::service()->event($testTaker, $delivery->getUri(), $deliveryExecution->getIdentifier(), $event);
     }
 }
