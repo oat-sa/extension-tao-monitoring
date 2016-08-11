@@ -43,6 +43,7 @@ return array(
         'php' => array(
             'oat\\taoMonitoring\\scripts\\install\\RegisterRdsTestTakerDeliveryLog',
             'oat\\taoMonitoring\\scripts\\install\\RegisterRdsTestTakerDeliveryActivityLog',
+            \oat\taoMonitoring\scripts\install\RegisterRdsDeliveryLog::class
         )
     ),
     'uninstall' => array(
