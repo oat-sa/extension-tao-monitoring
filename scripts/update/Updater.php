@@ -24,7 +24,9 @@ namespace oat\taoMonitoring\scripts\update;
 
 use \common_ext_ExtensionUpdater;
 use oat\oatbox\service\ServiceNotFoundException;
+use oat\taoMonitoring\model\DeliveryLog\DeliveryLogService;
 use oat\taoMonitoring\model\TestTakerDeliveryActivityLog\Service;
+use oat\taoMonitoring\scripts\install\RegisterRdsDeliveryLog;
 use oat\taoMonitoring\scripts\install\RegisterRdsTestTakerDeliveryActivityLog;
 
 
@@ -46,7 +48,15 @@ class Updater extends common_ext_ExtensionUpdater {
                 $action->setServiceLocator($this->getServiceManager());
                 $action->__invoke(array('default'));
             }
-            
+
+            try {
+                $this->getServiceManager()->get(DeliveryLogService::SERVICE_ID);
+            } catch (ServiceNotFoundException $e) {
+                $action = new RegisterRdsDeliveryLog();
+                $action->setServiceLocator($this->getServiceManager());
+                $action->__invoke(array('default'));
+            }
+
             $this->setVersion('0.0.2');
         }
     }
