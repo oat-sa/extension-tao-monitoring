@@ -41,17 +41,13 @@ class Updater extends common_ext_ExtensionUpdater {
         
         if ($this->isVersion('0.0.1')) {
 
-            try {
-                $this->getServiceManager()->get(Service::SERVICE_ID);
-            } catch (ServiceNotFoundException $e) {
+            if (!$this->getServiceManager()->has(Service::SERVICE_ID)) {
                 $action = new RegisterRdsTestTakerDeliveryActivityLog();
                 $action->setServiceLocator($this->getServiceManager());
                 $action->__invoke(array('default'));
             }
 
-            try {
-                $this->getServiceManager()->get(DeliveryLogService::SERVICE_ID);
-            } catch (ServiceNotFoundException $e) {
+            if (!$this->getServiceManager()->has(DeliveryLogService::SERVICE_ID)) {
                 $action = new RegisterRdsDeliveryLog();
                 $action->setServiceLocator($this->getServiceManager());
                 $action->__invoke(array('default'));
