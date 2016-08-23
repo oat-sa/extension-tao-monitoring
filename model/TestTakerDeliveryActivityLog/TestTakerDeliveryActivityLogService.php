@@ -30,7 +30,7 @@ use oat\taoMonitoring\model\TestTakerDeliveryActivityLog\storage\RdsStorage;
 use oat\taoMonitoring\model\TestTakerDeliveryActivityLogInterface;
 
 
-class Service extends ConfigurableService
+class TestTakerDeliveryActivityLogService extends ConfigurableService
     implements TestTakerDeliveryActivityLogInterface
 {
 

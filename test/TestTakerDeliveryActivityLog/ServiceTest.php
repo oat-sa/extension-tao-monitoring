@@ -25,7 +25,7 @@ namespace oat\taoMonitoring\test\TestTakerDeliveryActivityLog;
 use oat\tao\test\TaoPhpUnitTestRunner;
 use oat\taoMonitoring\model\DeliveryLog\DeliveryLogService;
 use oat\taoMonitoring\model\DeliveryLog\DeliveryLogStorageInterface;
-use oat\taoMonitoring\model\TestTakerDeliveryActivityLog\Service;
+use oat\taoMonitoring\model\TestTakerDeliveryActivityLog\TestTakerDeliveryActivityLogService;
 use oat\taoMonitoring\model\TestTakerDeliveryActivityLog\StorageInterface;
 use Prophecy\Argument;
 
@@ -47,7 +47,7 @@ class ServiceTest extends TaoPhpUnitTestRunner
             ->willReturn($arr);
 
 
-        $this->service = new Service(['persistence' => 'default']);
+        $this->service = new TestTakerDeliveryActivityLogService(['persistence' => 'default']);
         $this->service->setStorage($storage->reveal());
 
         $this->assertNull($this->service->event('tt1', 'delivery1', 'deliveryExecutionUri', 'testEvent'));
@@ -65,7 +65,7 @@ class ServiceTest extends TaoPhpUnitTestRunner
             ->shouldBeCalledTimes(1)
             ->willReturn($arr);
 
-        $this->service = new Service(['persistence' => 'default']);
+        $this->service = new TestTakerDeliveryActivityLogService(['persistence' => 'default']);
         $this->service->setDeliveryLogService($deliveryLog->reveal());
 
         $this->assertEquals($arr[DeliveryLogStorageInterface::NB_EXECUTIONS], $this->service->countDeliveryExecutions('#delivery'));

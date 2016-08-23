@@ -63,6 +63,9 @@ abstract class AbstractAggregator extends TaoPhpUnitTestRunner
     {
         /** @var \core_kernel_classes_Resource delivery */
         $this->delivery = $this->prophesize('\core_kernel_classes_Resource');
+        $this->delivery->exists()
+            ->shouldBeCalledTimes($shouldBeCalledTimes['delivery->exists'])
+            ->willReturn(true);
 
         /** @var \core_kernel_classes_Resource $stateFinished */
         $stateFinished = $this->prophesize('\core_kernel_classes_Resource');

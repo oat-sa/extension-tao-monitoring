@@ -87,6 +87,7 @@ class ByDeliveryTest extends AbstractAggregator
     public function testGetAllData()
     {
         $this->prepare([
+            'delivery->exists' => 16,
             'stateFinished->getUri' => 12,
             'statePaused->getUri' => 4,
             'deliveryExecution->getStartTime' => 0,

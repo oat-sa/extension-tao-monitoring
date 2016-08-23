@@ -23,13 +23,11 @@ namespace oat\taoMonitoring\model\TestTakerDeliveryLog\event;
 
 
 use oat\oatbox\service\ServiceManager;
-use oat\tao\helpers\UserHelper;
 use oat\taoDelivery\model\execution\DeliveryExecution;
 use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionCreated;
 use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionState;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\aggregator\TestTakerDataAggregator;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\EventInterface;
-use oat\taoMonitoring\model\TestTakerDeliveryLog\StorageInterface;
 use oat\taoMonitoring\model\TestTakerDeliveryLogInterface;
 use oat\taoOutcomeUi\model\ResultsService;
 use oat\taoQtiTest\models\event\QtiMoveEvent;
@@ -81,12 +79,19 @@ class Events implements EventInterface
 
     private static function updateTestTaker($userUri = '') {
 
-        $aggregator = new TestTakerDataAggregator(
-            ResultsService::singleton(),
-            taoDelivery_models_classes_execution_ServiceProxy::singleton(),
-            $userUri
-        );
+        try {
 
-        self::service()->updateTestTaker($aggregator);
+            $aggregator = new TestTakerDataAggregator(
+                ResultsService::singleton(),
+                taoDelivery_models_classes_execution_ServiceProxy::singleton(),
+                $userUri
+            );
+
+            self::service()->updateTestTaker($aggregator);
+
+        } catch (\Exception $e) {
+            // failure in event shouldn't stop execution
+            \common_Logger::e('Failed to update TestTakerDeliveryLog data "' . $e->getMessage() . '"');
+        }
     }
 }

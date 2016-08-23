@@ -54,13 +54,23 @@ class DeliveryLogEvent implements DeliveryLogEventInterface
 
     public static function deliveryExecutionCreated(DeliveryExecutionCreated $event)
     {
-        self::service()->addExecution($event->getDeliveryExecution()->getDelivery()->getUri());
+        try {
+            self::service()->addExecution($event->getDeliveryExecution()->getDelivery()->getUri());
+        } catch (\Exception $e) {
+            // failure in event should not stop execution
+            \common_Logger::e('Failed to processing data for log DeliveryLog (deliveryExecutionCreated) "' . $e->getMessage() . '"');
+        }
     }
 
     public static function deliveryExecutionState(DeliveryExecutionState $event)
     {
-        if ($event->getState() === DeliveryExecution::STATE_FINISHIED) {
-            self::service()->addFinishedExecution($event->getDeliveryExecution()->getDelivery()->getUri());
+        try {
+            if ($event->getState() === DeliveryExecution::STATE_FINISHIED) {
+                self::service()->addFinishedExecution($event->getDeliveryExecution()->getDelivery()->getUri());
+            }
+        } catch (\Exception $e) {
+            // failure in event should not stop execution
+            \common_Logger::e('Failed to processing data for log DeliveryLog (deliveryExecutionState) "' . $e->getMessage() . '"');
         }
     }
 }

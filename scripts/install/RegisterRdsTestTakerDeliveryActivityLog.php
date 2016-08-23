@@ -22,9 +22,13 @@
 namespace oat\taoMonitoring\scripts\install;
 
 
-use oat\oatbox\event\EventManager;
-use oat\taoMonitoring\model\TestTakerDeliveryActivityLog\Service;
+use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionCreated;
+use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionState;
+use oat\taoMonitoring\model\TestTakerDeliveryActivityLog\EventsHandler;
 use oat\taoMonitoring\model\TestTakerDeliveryActivityLog\storage\RdsStorage;
+use oat\taoMonitoring\model\TestTakerDeliveryActivityLog\TestTakerDeliveryActivityLogService;
+use oat\taoMonitoring\model\TestTakerDeliveryActivityLogInterface;
+use oat\taoQtiTest\models\event\QtiMoveEvent;
 
 /**
  * Class RegisterRdsTestTakerDeliveryActivityLog
@@ -37,40 +41,24 @@ class RegisterRdsTestTakerDeliveryActivityLog extends \common_ext_action_Install
     {
         $persistenceId = count($params) > 0 ? reset($params) : 'default';
 
-        /** Register new service */
-        $this->getServiceManager()->register(Service::SERVICE_ID, new Service([RdsStorage::OPTION_PERSISTENCE => $persistenceId]));
-
         /** @var RdsStorage $storage */
         $storage = new RdsStorage( $persistenceId );
         $storage->createStorage();
-        
-        $this->appendEvents();
-        
-        return new \common_report_Report(\common_report_Report::TYPE_SUCCESS, __('Registered delivery activity log for test taker'));
-    }
-    
-    private function appendEvents()
-    {
-        $eventManager = $this->getServiceManager()->get(EventManager::CONFIG_ID);
+
+        //Service
+        $this->registerService(TestTakerDeliveryActivityLogInterface::SERVICE_ID, new TestTakerDeliveryActivityLogService([RdsStorage::OPTION_PERSISTENCE => $persistenceId]));
+
+
+        // Events
 
         // count executions
-        $eventManager->attach(
-            'oat\\taoDelivery\\models\\classes\\execution\\event\\DeliveryExecutionCreated',
-            array('\\oat\\taoMonitoring\\model\\TestTakerDeliveryActivityLog\\event\\Events', 'deliveryExecutionCreated')
-        );
-
+        $this->registerEvent(DeliveryExecutionCreated::class, [EventsHandler::class, 'deliveryExecutionCreated']);
         // finished executions
-        $eventManager->attach(
-            'oat\\taoDelivery\\models\\classes\\execution\\event\\DeliveryExecutionState',
-            array('\\oat\\taoMonitoring\\model\\TestTakerDeliveryActivityLog\\event\\Events', 'deliveryExecutionState')
-        );
-
+        $this->registerEvent(DeliveryExecutionState::class, [EventsHandler::class, 'deliveryExecutionState']);
         // catch switch items
-        $eventManager->attach(
-            'oat\\taoQtiTest\\models\\event\\QtiMoveEvent',
-            array('\\oat\\taoMonitoring\\model\\TestTakerDeliveryActivityLog\\event\\Events', 'qtiMoveEvent')
-        );
+        $this->registerEvent(QtiMoveEvent::class, [EventsHandler::class, 'qtiMoveEvent']);
 
-        $this->getServiceManager()->register(EventManager::CONFIG_ID, $eventManager);
+
+        return new \common_report_Report(\common_report_Report::TYPE_SUCCESS, __('Registered delivery activity log for test taker'));
     }
 }

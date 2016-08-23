@@ -82,9 +82,15 @@ abstract class AbstractDataAggregator implements DataAggregatorInterface
 
     private function countFinishedItems(DeliveryExecution $deliveryExecution)
     {
-        $implementation = $this->resultsService->getReadableImplementation($deliveryExecution->getDelivery());
-        $this->resultsService->setImplementation($implementation);
-        $itemCallIds = $this->resultsService->getItemResultsFromDeliveryResult($deliveryExecution->getIdentifier());
-        return count($itemCallIds);
+        $result = 0;
+        // if delivery was deleted, don't count it
+        $delivery = $deliveryExecution->getDelivery();
+        if ($delivery->exists()) {
+            $implementation = $this->resultsService->getReadableImplementation($delivery);
+            $this->resultsService->setImplementation($implementation);
+            $itemCallIds = $this->resultsService->getItemResultsFromDeliveryResult($deliveryExecution->getIdentifier());
+            $result = count($itemCallIds);
+        }
+        return $result;
     }
 } 

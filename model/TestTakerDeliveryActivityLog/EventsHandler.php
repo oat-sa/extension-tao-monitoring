@@ -19,7 +19,7 @@
  * @author Alexander Zagovorichev <zagovorichev@1pt.com>
  */
 
-namespace oat\taoMonitoring\model\TestTakerDeliveryActivityLog\event;
+namespace oat\taoMonitoring\model\TestTakerDeliveryActivityLog;
 
 
 use oat\oatbox\service\ServiceManager;
@@ -27,17 +27,12 @@ use oat\taoDelivery\model\execution\DeliveryExecution;
 use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionCreated;
 use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionState;
 use oat\taoMonitoring\model\TestTakerDeliveryActivityLogInterface;
-use oat\taoMonitoring\model\TestTakerDeliveryActivityLog\EventInterface;
 use oat\taoQtiTest\models\event\QtiMoveEvent;
 use taoDelivery_models_classes_execution_ServiceProxy;
 
 
-class Events implements EventInterface
+class EventsHandler implements EventsHandlerInterface
 {
-    const EVENT_CREATE = 'deliveryExecutionCreate';
-    const EVENT_FINISH = 'deliveryExecutionFinish';
-    const EVENT_MOVE = 'itemMove';
-    
     /**
      * @var TestTakerDeliveryActivityLogInterface
      */
@@ -61,13 +56,13 @@ class Events implements EventInterface
     
     public static function deliveryExecutionCreated(DeliveryExecutionCreated $event)
     {
-        self::event($event->getDeliveryExecution(), self::EVENT_CREATE);
+        self::event($event->getDeliveryExecution(), $event->getName());
     }
 
     public static function deliveryExecutionState(DeliveryExecutionState $event)
     {
         if ($event->getState() === DeliveryExecution::STATE_FINISHIED) {
-            self::event($event->getDeliveryExecution(), self::EVENT_FINISH);
+            self::event($event->getDeliveryExecution(), $event->getName());
         }
     }
     
@@ -76,15 +71,20 @@ class Events implements EventInterface
         if ($event->getContext() === QtiMoveEvent::CONTEXT_BEFORE) {
             $executionService = taoDelivery_models_classes_execution_ServiceProxy::singleton();
             $deliveryExecution = $executionService->getDeliveryExecution($event->getSession()->getSessionId());
-            self::event($deliveryExecution, self::EVENT_MOVE);
+            self::event($deliveryExecution, $event->getName());
         }
     }
     
     private static function event(DeliveryExecution $deliveryExecution, $event)
     {
-        $testTaker = $deliveryExecution->getUserIdentifier();
-        $delivery = $deliveryExecution->getDelivery();
-        
-        self::service()->event($testTaker, $delivery->getUri(), $deliveryExecution->getIdentifier(), $event);
+        try {
+            $testTaker = $deliveryExecution->getUserIdentifier();
+            $delivery = $deliveryExecution->getDelivery();
+
+            self::service()->event($testTaker, $delivery->getUri(), $deliveryExecution->getIdentifier(), $event);
+        } catch (\Exception $e) {
+            // failure in event should not stop execution
+            \common_Logger::e('Failed to processing data for log TestTakerDeliveryActivityLog "' . $e->getMessage() . '"');
+        }
     }
 }

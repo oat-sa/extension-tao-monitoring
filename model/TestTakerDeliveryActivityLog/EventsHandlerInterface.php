@@ -33,7 +33,7 @@ use oat\taoQtiTest\models\event\QtiMoveEvent;
  * Interface EventInterface
  * @package oat\taoMonitoring\model\TestTakerDeliveryActivityLog
  */
-interface EventInterface
+interface EventsHandlerInterface
 {
     /**
      * execution started
