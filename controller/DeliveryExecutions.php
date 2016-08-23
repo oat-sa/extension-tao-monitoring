@@ -26,10 +26,8 @@ use common_exception_IsAjaxAction;
 use core_kernel_classes_Resource;
 use oat\taoDelivery\model\AssignmentService;
 use oat\taoDeliveryRdf\model\DeliveryAssemblyService;
-use oat\taoFrontOffice\model\interfaces\DeliveryExecution;
 use oat\taoMonitoring\model\TestTakerDeliveryActivityLogInterface;
 use oat\taoOutcomeUi\model\ResultsService;
-use qtism\runtime\storage\binary\BinaryAssessmentTestSeeker;
 use tao_actions_SaSModule;
 use tao_helpers_Request;
 use tao_helpers_Uri;
@@ -234,8 +232,8 @@ class DeliveryExecutions extends tao_actions_SaSModule
 
                 $this->setData('possibleExecutionsCount', $possibleExecutions);
 
-                // current execution count
-                $this->setData('countExecutions', $this->activityLogService->countDeliveryExecutions($delivery->getUri()));
+                $countExecutions = $this->activityLogService->countDeliveryExecutions($delivery->getUri());
+                $this->setData('countExecutions', $countExecutions);
 
                 // count connected users
                 $activeUsers = 0;
@@ -243,13 +241,25 @@ class DeliveryExecutions extends tao_actions_SaSModule
                 if (count($activity)) {
                     $activeUsers = current($activity)['count'];
                 }
-                $this->setData('connectedUsers', $activeUsers);
-                
-                $this->setData('deliveryUri', $delivery->getUri());
 
+                $this->setData('connectedUsers', $activeUsers);
+                $this->setData('deliveryUri', $delivery->getUri());
                 $this->setData('model', $model);
 
+                $possible = $possibleExecutions ? $possibleExecutions : $countExecutions * 2;
+                $limit = $possibleExecutions ? $possibleExecutions . ' ' . __('Total Expected') : __('Unlimited');
+
+                $percent = 0;
+                if ($possible) {
+                    $percent = 100 * $countExecutions / $possible;
+                }
+
+                $this->setData('possible', $possible);
+                $this->setData('limit', $limit);
+                $this->setData('percent', $percent);
+
                 $this->setView('DeliveryExecutions' . DIRECTORY_SEPARATOR . 'index.tpl');
+
             } catch (\common_exception_Error $e) {
                 $this->setData('type', 'error');
                 $this->setData('error', $e->getMessage());

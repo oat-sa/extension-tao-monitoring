@@ -23,7 +23,8 @@ define([
     'i18n',
     'helpers',
     'd3',
-    'c3'
+    'c3',
+    'css!taoMonitoringCss/delivery-execution.css'
 ], function ($, __, helpers, d3, c3) {
     'use strict';
 

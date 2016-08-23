@@ -2,7 +2,6 @@
 use oat\tao\helpers\Template;
 ?>
 
-<link rel="stylesheet" href="<?= Template::css('delivery-execution.css') ?>" />
 <link rel="stylesheet" href="<?= Template::css('../js/lib/c3js/c3.css', 'tao') ?>" />
 
 <div class="flex-container-full">
@@ -31,26 +30,15 @@ use oat\tao\helpers\Template;
             <h3><?= __('Submitted tests') ?></h3>
         </header>
         
-        <?php
-        $possible = get_data("possibleExecutionsCount") ? get_data("possibleExecutionsCount") : get_data("countExecutions") * 2;
-        $limit = get_data("possibleExecutionsCount") ? get_data("possibleExecutionsCount") . ' ' . __('Total Expected') : __('Unlimited');
-        
-        $percent = 0;
-        if ($possible) {
-            $percent = 100 * get_data("countExecutions") / $possible;
-        }
-        ?>
-        
         <div class="delivery-executions-progress">
-            <progress max="<?= $possible ?>" value="<?= get_data("countExecutions") ?>" class="pb-de" title="<?= get_data("countExecutions") ?> <?= __('Executions') ?>">
+            <progress max="<?= get_data('possible') ?>" value="<?= get_data("countExecutions") ?>" class="pb-de" title="<?= get_data("countExecutions") ?> <?= __('Executions') ?>">
                 <div class="progress-bar">
-                    <span style="width: <?= $percent?>%"><?= $limit ?></span>
+                    <span style="width: <?= get_data('percent') ?>%"><?= get_data('limit') ?></span>
                 </div>
             </progress>
             <span style="position: relative; left: 30px; top: -23px" title="<?= get_data("countExecutions") ?> <?= __('Executions') ?>"><?= get_data("countExecutions") ?></span>
-            <p style="width: 100%; top: -5px" data-value="<?= $limit ?>">0</p>
+            <p style="width: 100%; top: -5px" data-value="<?= get_data('limit') ?>">0</p>
         </div>
-
 
         <header>
             <h3><?= __('Users activity') ?></h3>
@@ -63,7 +51,7 @@ use oat\tao\helpers\Template;
                 </div>
             </div>
             <div class="col-7">
-                <div id="barChar" data-delivery="<?= $deliveryUri ?>"></div>
+                <div id="barChar" data-delivery="<?= get_data('deliveryUri') ?>"></div>
             </div>
         </div>
         
