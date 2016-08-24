@@ -92,6 +92,7 @@ class Events implements EventInterface
         } catch (\Exception $e) {
             // failure in event shouldn't stop execution
             \common_Logger::e('Failed to update TestTakerDeliveryLog data "' . $e->getMessage() . '"');
+            \common_Logger::i($e->getTraceAsString());
         }
     }
 }

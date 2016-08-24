@@ -169,16 +169,20 @@ class RdsStorage implements StorageInterface
     
     public function replace(array $data)
     {
-        $sql = "UPDATE " . self::TABLE_NAME . " SET "
-            . self::NB_ITEM . " = ?, "
-            . self::NB_EXECUTIONS . " = ?, "
-            . self::NB_FINISHED . " = ? "
-            . "WHERE " . self::TEST_TAKER_LOGIN . "= ?"
-        ;
 
-        $parameters = [$data[self::NB_ITEM], $data[self::NB_EXECUTIONS], $data[self::NB_FINISHED], $data[self::TEST_TAKER_LOGIN]];
-        $stmt = $this->getPersistence()->query($sql, $parameters);
-        if (!$stmt || !($res = $stmt->rowCount())) {
+        $row = $this->getRow($data[self::TEST_TAKER_LOGIN]);
+
+        if ($row && count($row)) {
+            $sql = "UPDATE " . self::TABLE_NAME . " SET "
+                . self::NB_ITEM . " = ?, "
+                . self::NB_EXECUTIONS . " = ?, "
+                . self::NB_FINISHED . " = ? "
+                . "WHERE " . self::TEST_TAKER_LOGIN . "= ?"
+            ;
+
+            $parameters = [$data[self::NB_ITEM], $data[self::NB_EXECUTIONS], $data[self::NB_FINISHED], $data[self::TEST_TAKER_LOGIN]];
+            $res = $this->getPersistence()->query($sql, $parameters);
+        } else {
             $res = $this->getPersistence()->insert(self::TABLE_NAME, [
                 self::TEST_TAKER_LOGIN => $data[self::TEST_TAKER_LOGIN],
                 self::NB_ITEM => $data[self::NB_ITEM],
