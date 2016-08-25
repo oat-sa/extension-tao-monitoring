@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE structures SYSTEM "../../tao/doc/structures.dtd">
+<structures>
+    <structure id="monitoring" name="Monitoring" level="6" group="main">
+        <description>View and format the collected monitoring data.</description>
+        <icon id="icon-preview" src=""/>
+        <sections>
+            <section id="delivery_executions" name="Delivery Executions" url="/taoMonitoring/DeliveryExecutions/index">
+                <trees>
+                    <tree name="Delivery Executions Monitoring library"
+                          className="Result"
+                          dataUrl="/taoMonitoring/DeliveryExecutions/getOntologyData"
+                          selectInstance="deliveryExecutionsMonitoring-index"
+                            />
+                </trees>
+                <actions>
+                    <action id="deliveryExecutionsMonitoring-index" name="Delivery Executions Monitoring" url="/taoMonitoring/DeliveryExecutions/index" group="content"
+                            context="instance">
+                        <icon id="icon-result-small"/>
+                    </action>
+                </actions>
+            </section>
+        </sections>
+    </structure>
+</structures>

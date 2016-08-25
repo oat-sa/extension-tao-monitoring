@@ -23,7 +23,6 @@ namespace oat\taoMonitoring\model\TestTakerDeliveryLog;
 
 
 use oat\oatbox\service\ConfigurableService;
-use oat\taoMonitoring\model\TestTakerDeliveryLog\Storage;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\storage\RdsStorage;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\storage\TmpStorage;
 use oat\taoMonitoring\model\TestTakerDeliveryLogInterface;
@@ -36,12 +35,14 @@ class Service extends ConfigurableService
      * @var StorageInterface
      */
     private $storage;
-    
+
     public function updateTestTaker(DataAggregatorInterface $aggregator)
     {
+
         // recount statistics for test taker
         $statistics = current($aggregator->getSlice());
         $this->storage()->replace($statistics);
+
     }
 
     public function setStorage(StorageInterface $storage)
@@ -52,8 +53,8 @@ class Service extends ConfigurableService
     private function storage()
     {
         if (!isset($this->storage)) {
-            $this->storage = $this->hasOption(TmpStorage::OPTION_TMP_FILE) 
-                ? new TmpStorage($this->getOption(TmpStorage::OPTION_TMP_FILE)) 
+            $this->storage = $this->hasOption(TmpStorage::OPTION_TMP_FILE)
+                ? new TmpStorage($this->getOption(TmpStorage::OPTION_TMP_FILE))
                 : new RdsStorage($this->getOption(RdsStorage::OPTION_PERSISTENCE));
         }
 

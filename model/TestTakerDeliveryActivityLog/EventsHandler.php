@@ -19,80 +19,72 @@
  * @author Alexander Zagovorichev <zagovorichev@1pt.com>
  */
 
-namespace oat\taoMonitoring\model\TestTakerDeliveryLog\event;
+namespace oat\taoMonitoring\model\TestTakerDeliveryActivityLog;
 
 
 use oat\oatbox\service\ServiceManager;
 use oat\taoDelivery\model\execution\DeliveryExecution;
 use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionCreated;
 use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionState;
-use oat\taoMonitoring\model\TestTakerDeliveryLog\aggregator\TestTakerDataAggregator;
-use oat\taoMonitoring\model\TestTakerDeliveryLog\EventInterface;
-use oat\taoMonitoring\model\TestTakerDeliveryLogInterface;
-use oat\taoOutcomeUi\model\ResultsService;
+use oat\taoMonitoring\model\TestTakerDeliveryActivityLogInterface;
 use oat\taoQtiTest\models\event\QtiMoveEvent;
 use taoDelivery_models_classes_execution_ServiceProxy;
 
-class Events implements EventInterface
+
+class EventsHandler implements EventsHandlerInterface
 {
     /**
-     * @var TestTakerDeliveryLogInterface
+     * @var TestTakerDeliveryActivityLogInterface
      */
     private static $service;
     
-    public static function setService(TestTakerDeliveryLogInterface $service)
+    public static function setService(TestTakerDeliveryActivityLogInterface $service)
     {
         self::$service = $service;
     }
     
     /**
-     * @return TestTakerDeliveryLogInterface
+     * @return TestTakerDeliveryActivityLogInterface
      */
     private static function service()
     {
         if (!isset(self::$service)) {
-            self::setService( ServiceManager::getServiceManager()->get(TestTakerDeliveryLogInterface::SERVICE_ID) ); 
+            self::setService( ServiceManager::getServiceManager()->get(TestTakerDeliveryActivityLogInterface::SERVICE_ID) ); 
         }
         return self::$service;
     }
     
     public static function deliveryExecutionCreated(DeliveryExecutionCreated $event)
     {
-        self::updateTestTaker($event->getDeliveryExecution()->getUserIdentifier());
+        self::event($event->getDeliveryExecution(), $event->getName());
     }
 
     public static function deliveryExecutionState(DeliveryExecutionState $event)
     {
         if ($event->getState() === DeliveryExecution::STATE_FINISHIED) {
-            self::updateTestTaker($event->getDeliveryExecution()->getUserIdentifier());
+            self::event($event->getDeliveryExecution(), $event->getName());
         }
     }
     
     public static function qtiMoveEvent(QtiMoveEvent $event)
     {
-        // reload all statistic for test taker
         if ($event->getContext() === QtiMoveEvent::CONTEXT_BEFORE) {
-            //$user = new \core_kernel_classes_Resource(\common_session_SessionManager::getSession()->getUser()->getIdentifier());
-            self::updateTestTaker(\common_session_SessionManager::getSession()->getUser()->getIdentifier());
+            $executionService = taoDelivery_models_classes_execution_ServiceProxy::singleton();
+            $deliveryExecution = $executionService->getDeliveryExecution($event->getSession()->getSessionId());
+            self::event($deliveryExecution, $event->getName());
         }
     }
-
-    private static function updateTestTaker($userUri = '') {
-
+    
+    private static function event(DeliveryExecution $deliveryExecution, $event)
+    {
         try {
+            $testTaker = $deliveryExecution->getUserIdentifier();
+            $delivery = $deliveryExecution->getDelivery();
 
-            $aggregator = new TestTakerDataAggregator(
-                ResultsService::singleton(),
-                taoDelivery_models_classes_execution_ServiceProxy::singleton(),
-                $userUri
-            );
-
-            self::service()->updateTestTaker($aggregator);
-
+            self::service()->event($testTaker, $delivery->getUri(), $deliveryExecution->getIdentifier(), $event);
         } catch (\Exception $e) {
-            // failure in event shouldn't stop execution
-            \common_Logger::e('Failed to update TestTakerDeliveryLog data "' . $e->getMessage() . '"');
-            \common_Logger::i($e->getTraceAsString());
+            // failure in event should not stop execution
+            \common_Logger::e('Failed to processing data for log TestTakerDeliveryActivityLog "' . $e->getMessage() . '"');
         }
     }
 }
