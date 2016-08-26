@@ -23,14 +23,17 @@ namespace oat\taoMonitoring\scripts\install;
 
 
 use oat\oatbox\event\EventManager;
-use oat\taoMonitoring\model\TestTakerDeliveryLog\Service;
-use oat\taoMonitoring\model\TestTakerDeliveryLog\storage\RdsStorage;
+use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionCreated;
+use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionState;
+use oat\taoMonitoring\model\DeliveryLog\DeliveryLogService;
+use oat\taoMonitoring\model\DeliveryLog\event\DeliveryLogEvent;
+use oat\taoMonitoring\model\DeliveryLog\storage\DeliveryLogRdsStorage;
 
 /**
  * Class RegisterRdsTestTakerDeliveryLog
  * @package oat\taoMonitoring\scripts\install
  */
-class RegisterRdsTestTakerDeliveryLog extends \common_ext_action_InstallAction
+class RegisterRdsDeliveryLog extends \common_ext_action_InstallAction
 {
     
     public function __invoke($params)
@@ -38,15 +41,15 @@ class RegisterRdsTestTakerDeliveryLog extends \common_ext_action_InstallAction
         $persistenceId = count($params) > 0 ? reset($params) : 'default';
 
         /** Register new service */
-        $this->getServiceManager()->register(Service::SERVICE_ID, new Service([RdsStorage::OPTION_PERSISTENCE => $persistenceId]));
+        $this->getServiceManager()->register(DeliveryLogService::SERVICE_ID, new DeliveryLogService([DeliveryLogRdsStorage::OPTION_PERSISTENCE => $persistenceId]));
 
-        /** @var RdsStorage $storage */
-        $storage = new RdsStorage( $persistenceId );
+        /** @var DeliveryLogRdsStorage $storage */
+        $storage = new DeliveryLogRdsStorage( $persistenceId );
         $storage->createStorage();
         
         $this->appendEvents();
         
-        return new \common_report_Report(\common_report_Report::TYPE_SUCCESS, __('Registered test taker delivery log for test taker'));
+        return new \common_report_Report(\common_report_Report::TYPE_SUCCESS, __('Registered delivery log for test taker'));
     }
     
     private function appendEvents()
@@ -55,20 +58,14 @@ class RegisterRdsTestTakerDeliveryLog extends \common_ext_action_InstallAction
 
         // count executions
         $eventManager->attach(
-            'oat\\taoDelivery\\models\\classes\\execution\\event\\DeliveryExecutionCreated',
-            array('\\oat\\taoMonitoring\\model\\TestTakerDeliveryLog\\event\\Events', 'deliveryExecutionCreated')
+            DeliveryExecutionCreated::class,
+            array(DeliveryLogEvent::class, 'deliveryExecutionCreated')
         );
 
         // finished executions
         $eventManager->attach(
-            'oat\\taoDelivery\\models\\classes\\execution\\event\\DeliveryExecutionState',
-            array('\\oat\\taoMonitoring\\model\\TestTakerDeliveryLog\\event\\Events', 'deliveryExecutionState')
-        );
-
-        // catch switch items - on switching recount all statistic for testtaker
-        $eventManager->attach(
-            'oat\\taoQtiTest\\models\\event\\QtiMoveEvent',
-            array('\\oat\\taoMonitoring\\model\\TestTakerDeliveryLog\\event\\Events', 'qtiMoveEvent')
+            DeliveryExecutionState::class,
+            array(DeliveryLogEvent::class, 'deliveryExecutionState')
         );
 
         $this->getServiceManager()->register(EventManager::CONFIG_ID, $eventManager);

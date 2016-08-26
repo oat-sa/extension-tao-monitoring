@@ -24,11 +24,11 @@ return array(
 	'label' => 'Statistics and aggregated data',
 	'description' => 'Extension for monitoring of the tao events. Fast access to statistics data',
     'license' => 'GPL-2.0',
-    'version' => '0.0.1',
+    'version' => '0.0.2',
 	'author' => 'Open Assessment Technologies SA',
 	'requires' => array(
         'generis' => '>=2.15.0',
-		'tao' => '>=2.15.0',
+		'tao' => '>=4.3.0',
         'taoDelivery' => '>=3.0.0',
         'taoDeliveryRdf' => '>=1.1.0',
         'taoOutcomeUi' => '>=2.7.2',
@@ -42,6 +42,8 @@ return array(
     'install' => array(
         'php' => array(
             'oat\\taoMonitoring\\scripts\\install\\RegisterRdsTestTakerDeliveryLog',
+            'oat\\taoMonitoring\\scripts\\install\\RegisterRdsTestTakerDeliveryActivityLog',
+            \oat\taoMonitoring\scripts\install\RegisterRdsDeliveryLog::class
         )
     ),
     'uninstall' => array(
@@ -51,7 +53,8 @@ return array(
             //'oat\\taoMonitoring\\scripts\\uninstall\\Delivery\\TestTakerLog',
         )
     ),
-    'routes' => array(
+	'update' => 'oat\\taoMonitoring\\scripts\\update\\Updater',
+	'routes' => array(
         'taoMonitoring' => 'oat\\taoMonitoring\\controller'
     ),    
 	'constants' => array(

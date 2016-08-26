@@ -63,6 +63,9 @@ abstract class AbstractAggregator extends TaoPhpUnitTestRunner
     {
         /** @var \core_kernel_classes_Resource delivery */
         $this->delivery = $this->prophesize('\core_kernel_classes_Resource');
+        $this->delivery->exists()
+            ->shouldBeCalledTimes($shouldBeCalledTimes['delivery->exists'])
+            ->willReturn(true);
 
         /** @var \core_kernel_classes_Resource $stateFinished */
         $stateFinished = $this->prophesize('\core_kernel_classes_Resource');
@@ -89,6 +92,9 @@ abstract class AbstractAggregator extends TaoPhpUnitTestRunner
         $this->deliveryExecution->getState()
             ->shouldBeCalledTimes($shouldBeCalledTimes['deliveryExecution->getState'])
             ->willReturn($stateFinished->reveal());
+        $this->deliveryExecution->getIdentifier()
+            ->shouldBeCalledTimes($shouldBeCalledTimes['deliveryExecution->getIdentifier'])
+            ->willReturn('#resultIdentifier');
 
         /** @var DeliveryExecution $deliveryExecution2 */
         $this->deliveryExecution2 = $this->prophesize('\oat\taoDelivery\models\classes\execution\DeliveryExecution');
@@ -101,6 +107,9 @@ abstract class AbstractAggregator extends TaoPhpUnitTestRunner
         $this->deliveryExecution2->getState()
             ->shouldBeCalledTimes($shouldBeCalledTimes['deliveryExecution2->getState'])
             ->willReturn($statePaused->reveal());
+        $this->deliveryExecution2->getIdentifier()
+            ->shouldBeCalledTimes($shouldBeCalledTimes['deliveryExecution2->getIdentifier'])
+            ->willReturn('#resultIdentifier2');
 
         /** @var \oat\taoResultServer\models\classes\ResultManagement $resultManagement */
         $resultManagement = $this->prophesize('\oat\taoResultServer\models\classes\ResultManagement');
@@ -112,8 +121,7 @@ abstract class AbstractAggregator extends TaoPhpUnitTestRunner
             ->willReturn($resultManagement->reveal());
         $this->resultsService->setImplementation(Argument::type('\oat\taoResultServer\models\classes\ResultManagement'))
             ->shouldBeCalledTimes($shouldBeCalledTimes['resultsService->setImplementation']);
-        
-        $this->resultsService->getItemResultsFromDeliveryResult(Argument::type('\oat\taoDelivery\models\classes\execution\DeliveryExecution'))
+        $this->resultsService->getItemResultsFromDeliveryResult(Argument::type('string'))
             ->shouldBeCalledTimes($shouldBeCalledTimes['resultsService->getItemResultsFromDeliveryResult'])
             ->willReturn([1, 2, 3]);
 

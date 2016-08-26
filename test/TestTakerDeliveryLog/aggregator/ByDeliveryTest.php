@@ -56,6 +56,7 @@ class ByDeliveryTest extends AbstractAggregator
                 $this->deliveryExecution->reveal(),
                 $this->deliveryExecution2->reveal(),
             ]);
+
         $this->executionService->implementsMonitoring()
             ->shouldBeCalledTimes($shouldBeCalledTimes['executionService->implementsMonitoring'])
             ->willReturn(true);
@@ -86,15 +87,18 @@ class ByDeliveryTest extends AbstractAggregator
     public function testGetAllData()
     {
         $this->prepare([
+            'delivery->exists' => 16,
             'stateFinished->getUri' => 12,
             'statePaused->getUri' => 4,
             'deliveryExecution->getStartTime' => 0,
             'deliveryExecution->getUserIdentifier' => 12,
             'deliveryExecution->getDelivery' => 12,
             'deliveryExecution->getState' => 12,
+            'deliveryExecution->getIdentifier' => 12,
             'deliveryExecution2->getUserIdentifier' => 4,
             'deliveryExecution2->getState' => 4,
             'deliveryExecution2->getDelivery' => 4,
+            'deliveryExecution2->getIdentifier' => 4,
             'resultsService->getReadableImplementation' => 16,
             'resultsService->setImplementation' => 16,
             'resultsService->getItemResultsFromDeliveryResult' => 16,

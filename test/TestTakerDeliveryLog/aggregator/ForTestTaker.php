@@ -28,10 +28,6 @@ use Prophecy\Argument;
 
 class ForTestTaker extends AbstractAggregator
 {
-    /**
-     * @var \core_kernel_classes_Resource
-     */
-    private $testTaker;
 
     /**
      * @param array $shouldBeCalledTimes
