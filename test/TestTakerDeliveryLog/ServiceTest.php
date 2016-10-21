@@ -26,7 +26,6 @@ use oat\tao\test\TaoPhpUnitTestRunner;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\Service;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\storage\LocalStorage;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\StorageInterface;
-use Prophecy\Argument;
 
 /**
  * Class ServiceTest
@@ -58,7 +57,7 @@ class ServiceTest extends TaoPhpUnitTestRunner
         $login = 'tt1';
         $this->assertFalse($this->storage->getRow($login));
         
-        $testData = [StorageInterface::TEST_TAKER_LOGIN => $login, StorageInterface::NB_ITEM => 4, StorageInterface::NB_EXECUTIONS => 34, StorageInterface::NB_FINISHED => 2];
+        $testData = [StorageInterface::TEST_TAKER_LOGIN => $login, StorageInterface::NB_EXECUTIONS => 34, StorageInterface::NB_FINISHED => 2];
         
         $aggregator = $this->prophesize('\oat\taoMonitoring\model\TestTakerDeliveryLog\DataAggregatorInterface');
         $aggregator->getSlice()

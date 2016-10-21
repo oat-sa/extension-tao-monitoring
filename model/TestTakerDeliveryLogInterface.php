@@ -36,6 +36,16 @@ interface TestTakerDeliveryLogInterface
     const SERVICE_ID = 'taoMonitoring/testTakerDeliveryLog';
 
     /**
+     * Increment test taker event
+     * (create row if not exists)
+     *
+     * @param string $testTakerLogin
+     * @param string $nb_event
+     * @return bool
+     */
+    public function logEvent($testTakerLogin = '', $nb_event = '');
+
+    /**
      * Update all statistics for test taker
      * [We have aggregated statistics only (count of  the items), so I don't know how many times test taker complete one item]
      *

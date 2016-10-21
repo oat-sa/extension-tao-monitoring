@@ -24,21 +24,10 @@ namespace oat\taoMonitoring\model\TestTakerDeliveryLog\aggregator;
 
 use oat\taoDelivery\model\execution\DeliveryExecution;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\DataAggregatorInterface;
-use oat\taoOutcomeUi\model\ResultsService;
+use oat\taoMonitoring\model\TestTakerDeliveryLog\StorageInterface;
 
 abstract class AbstractDataAggregator implements DataAggregatorInterface
 {
-
-    /**
-     * @var ResultsService
-     */
-    protected $resultsService;
-
-    public function __construct(ResultsService $resultsService)
-    {
-        $this->resultsService = $resultsService;
-
-    }
 
     /**
      * Aggregate data from delivery executions
@@ -60,37 +49,21 @@ abstract class AbstractDataAggregator implements DataAggregatorInterface
                 $login = current($user->getPropertyValues(PROPERTY_USER_LOGIN));
 
                 $aggregateData[$userId] = [
-                    'test_taker' => $login,
-                    'nb_item' => 0,
-                    'nb_executions' => 0,
-                    'nb_finished' => 0
+                    StorageInterface::TEST_TAKER_LOGIN => $login,
+                    StorageInterface::NB_EXECUTIONS => 0,
+                    StorageInterface::NB_FINISHED => 0
                 ];
             }
 
             $rowResult = &$aggregateData[$userId];
-            $rowResult['nb_executions']++;
+            $rowResult[StorageInterface::NB_EXECUTIONS]++;
 
             if ($deliveryExecution->getState()->getUri() === DeliveryExecution::STATE_FINISHIED) {
-                $rowResult['nb_finished']++;
+                $rowResult[StorageInterface::NB_FINISHED]++;
             }
-
-            $rowResult['nb_item'] += $this->countFinishedItems($deliveryExecution);
         }
 
         return $aggregateData;
     }
 
-    private function countFinishedItems(DeliveryExecution $deliveryExecution)
-    {
-        $result = 0;
-        // if delivery was deleted, don't count it
-        $delivery = $deliveryExecution->getDelivery();
-        if ($delivery->exists()) {
-            $implementation = $this->resultsService->getReadableImplementation($delivery);
-            $this->resultsService->setImplementation($implementation);
-            $itemCallIds = $this->resultsService->getItemResultsFromDeliveryResult($deliveryExecution->getIdentifier());
-            $result = count($itemCallIds);
-        }
-        return $result;
-    }
 } 

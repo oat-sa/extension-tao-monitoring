@@ -46,14 +46,17 @@ class DeliveryDataAggregator extends AbstractDataAggregator
      */
     private $deliveryAssemblyService;
 
+    /**
+     * @var ResultsService
+     */
+    private $resultsService;
+
     public function __construct(
         ResultsService $resultsService,
         taoDelivery_models_classes_execution_ServiceProxy $executionService,
         DeliveryAssemblyService $deliveryAssemblyService)
     {
-        
-        parent::__construct($resultsService);
-        
+        $this->resultsService = $resultsService;
         $this->executionService = $executionService;
         $this->deliveryAssemblyService = $deliveryAssemblyService;
     }

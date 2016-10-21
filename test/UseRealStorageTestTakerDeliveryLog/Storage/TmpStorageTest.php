@@ -38,7 +38,6 @@ class TmpStorageTest extends AbstractStorage
         $this->assertFalse($storage->getRow($this->login));
 
         $storage->createRow($this->login);
-        $storage->incrementField($this->login, StorageInterface::NB_ITEM);
 
         // check file storage
         $storage2 = new TmpStorage($path);
@@ -46,7 +45,6 @@ class TmpStorageTest extends AbstractStorage
 
         $this->assertEquals([[
             StorageInterface::TEST_TAKER_LOGIN => $this->login,
-            StorageInterface::NB_ITEM => 0,
             StorageInterface::NB_EXECUTIONS => 0,
             StorageInterface::NB_FINISHED => 0]], $storage2->getSlice());
         

@@ -79,7 +79,6 @@ class ForTestTaker extends AbstractAggregator
 
         $data = $aggregator->getSlice(0, 20);
         $this->assertEquals(['#UserId' => [
-            StorageInterface::NB_ITEM => 36,
             StorageInterface::NB_EXECUTIONS => 12,
             StorageInterface::NB_FINISHED => 9,
             StorageInterface::TEST_TAKER_LOGIN => false]]

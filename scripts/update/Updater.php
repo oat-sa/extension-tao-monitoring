@@ -23,10 +23,12 @@ namespace oat\taoMonitoring\scripts\update;
 
 
 use \common_ext_ExtensionUpdater;
+use oat\oatbox\event\EventManager;
 use oat\taoMonitoring\model\DeliveryLog\DeliveryLogService;
 use oat\taoMonitoring\model\TestTakerDeliveryActivityLog\TestTakerDeliveryActivityLogService;
 use oat\taoMonitoring\scripts\install\RegisterRdsDeliveryLog;
 use oat\taoMonitoring\scripts\install\RegisterRdsTestTakerDeliveryActivityLog;
+use oat\taoMonitoring\scripts\update\v0_1_0\DropNBItemColumnFromTtDeliveryLog;
 
 
 class Updater extends common_ext_ExtensionUpdater {
@@ -53,6 +55,27 @@ class Updater extends common_ext_ExtensionUpdater {
             }
 
             $this->setVersion('0.0.2');
+        }
+
+        $this->skip('0.0.2', '0.1.0');
+
+        if ($this->isVersion('0.0.2')) {
+
+            // delete NB_ITEM from the monitoring of the test takers deliveries
+            $eventManager = $this->getServiceManager()->get(EventManager::CONFIG_ID);
+
+            // Detach switch items - on switching recount all statistic for testTaker
+            $eventManager->detach(
+                'oat\\taoQtiTest\\models\\event\\QtiMoveEvent',
+                array('\\oat\\taoMonitoring\\model\\TestTakerDeliveryLog\\event\\Events', 'qtiMoveEvent')
+            );
+            $this->getServiceManager()->register(EventManager::CONFIG_ID, $eventManager);
+
+            // delete from storage
+            $action = new DropNBItemColumnFromTtDeliveryLog();
+            $action([]);
+
+            $this->setVersion('0.1.0');
         }
     }
 }

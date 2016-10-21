@@ -36,7 +36,6 @@ class LocalStorage implements StorageInterface
 
         array_push($this->storage, [
             StorageInterface::TEST_TAKER_LOGIN => $login,
-            StorageInterface::NB_ITEM => 0,
             StorageInterface::NB_EXECUTIONS => 0,
             StorageInterface::NB_FINISHED => 0,
         ]);
@@ -89,7 +88,7 @@ class LocalStorage implements StorageInterface
             foreach ($this->storage as $sKey => $sRow) {
 
                 if ($sRow[StorageInterface::TEST_TAKER_LOGIN] == $dRow[StorageInterface::TEST_TAKER_LOGIN]) {
-                    foreach ([StorageInterface::NB_ITEM, StorageInterface::NB_EXECUTIONS, StorageInterface::NB_FINISHED] as $item) {
+                    foreach ([StorageInterface::NB_EXECUTIONS, StorageInterface::NB_FINISHED] as $item) {
                         $this->storage[$sKey][$item] += $dRow[$item];
                     }
                     continue 2;

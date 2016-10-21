@@ -51,7 +51,6 @@ class RdsStorage implements StorageInterface
     {
         $result = $this->getPersistence()->insert(RdsStorage::TABLE_NAME, [
             self::TEST_TAKER_LOGIN => $login,
-            self::NB_ITEM => 0,
             self::NB_EXECUTIONS => 0,
             self::NB_FINISHED => 0,
         ]);
@@ -114,7 +113,6 @@ class RdsStorage implements StorageInterface
             $tableLog = $schema->createTable(self::TABLE_NAME);
             $tableLog->addOption('engine', 'MyISAM');
             $tableLog->addColumn(self::TEST_TAKER_LOGIN, "string", array("notnull" => true, "length" => 255));
-            $tableLog->addColumn(self::NB_ITEM, "integer");
             $tableLog->addColumn(self::NB_EXECUTIONS, "integer");
             $tableLog->addColumn(self::NB_FINISHED, "integer");
 
@@ -174,18 +172,16 @@ class RdsStorage implements StorageInterface
 
         if ($row && count($row)) {
             $sql = "UPDATE " . self::TABLE_NAME . " SET "
-                . self::NB_ITEM . " = ?, "
                 . self::NB_EXECUTIONS . " = ?, "
                 . self::NB_FINISHED . " = ? "
                 . "WHERE " . self::TEST_TAKER_LOGIN . "= ?"
             ;
 
-            $parameters = [$data[self::NB_ITEM], $data[self::NB_EXECUTIONS], $data[self::NB_FINISHED], $data[self::TEST_TAKER_LOGIN]];
+            $parameters = [$data[self::NB_EXECUTIONS], $data[self::NB_FINISHED], $data[self::TEST_TAKER_LOGIN]];
             $res = $this->getPersistence()->query($sql, $parameters);
         } else {
             $res = $this->getPersistence()->insert(self::TABLE_NAME, [
                 self::TEST_TAKER_LOGIN => $data[self::TEST_TAKER_LOGIN],
-                self::NB_ITEM => $data[self::NB_ITEM],
                 self::NB_EXECUTIONS => $data[self::NB_EXECUTIONS],
                 self::NB_FINISHED => $data[self::NB_FINISHED],
             ]);

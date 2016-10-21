@@ -23,15 +23,13 @@ namespace oat\taoMonitoring\model\TestTakerDeliveryLog\event;
 
 
 use oat\oatbox\service\ServiceManager;
+use oat\tao\helpers\UserHelper;
 use oat\taoDelivery\model\execution\DeliveryExecution;
 use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionCreated;
 use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionState;
-use oat\taoMonitoring\model\TestTakerDeliveryLog\aggregator\TestTakerDataAggregator;
 use oat\taoMonitoring\model\TestTakerDeliveryLog\EventInterface;
+use oat\taoMonitoring\model\TestTakerDeliveryLog\StorageInterface;
 use oat\taoMonitoring\model\TestTakerDeliveryLogInterface;
-use oat\taoOutcomeUi\model\ResultsService;
-use oat\taoQtiTest\models\event\QtiMoveEvent;
-use taoDelivery_models_classes_execution_ServiceProxy;
 
 class Events implements EventInterface
 {
@@ -55,44 +53,31 @@ class Events implements EventInterface
         }
         return self::$service;
     }
-    
+
     public static function deliveryExecutionCreated(DeliveryExecutionCreated $event)
     {
-        self::updateTestTaker($event->getDeliveryExecution()->getUserIdentifier());
+        $login = self::userLoginFromDeliveryExecution( $event->getDeliveryExecution() );
+        self::service()->logEvent($login, StorageInterface::NB_EXECUTIONS);
     }
 
     public static function deliveryExecutionState(DeliveryExecutionState $event)
     {
         if ($event->getState() === DeliveryExecution::STATE_FINISHIED) {
-            self::updateTestTaker($event->getDeliveryExecution()->getUserIdentifier());
+            $login = self::userLoginFromDeliveryExecution( $event->getDeliveryExecution() );
+            self::service()->logEvent($login, StorageInterface::NB_FINISHED);
         }
     }
-    
-    public static function qtiMoveEvent(QtiMoveEvent $event)
+
+    /**
+     * @param DeliveryExecution $deliveryExecution
+     * @return string
+     */
+    private static function userLoginFromDeliveryExecution(DeliveryExecution $deliveryExecution)
     {
-        // reload all statistic for test taker
-        if ($event->getContext() === QtiMoveEvent::CONTEXT_BEFORE) {
-            //$user = new \core_kernel_classes_Resource(\common_session_SessionManager::getSession()->getUser()->getIdentifier());
-            self::updateTestTaker(\common_session_SessionManager::getSession()->getUser()->getIdentifier());
-        }
+        $userId = $deliveryExecution->getUserIdentifier();
+        $user = UserHelper::getUser($userId);
+        $login = UserHelper::getUserLogin($user);
+        return $login;
     }
 
-    private static function updateTestTaker($userUri = '') {
-
-        try {
-
-            $aggregator = new TestTakerDataAggregator(
-                ResultsService::singleton(),
-                taoDelivery_models_classes_execution_ServiceProxy::singleton(),
-                $userUri
-            );
-
-            self::service()->updateTestTaker($aggregator);
-
-        } catch (\Exception $e) {
-            // failure in event shouldn't stop execution
-            \common_Logger::e('Failed to update TestTakerDeliveryLog data "' . $e->getMessage() . '"');
-            \common_Logger::i($e->getTraceAsString());
-        }
-    }
 }

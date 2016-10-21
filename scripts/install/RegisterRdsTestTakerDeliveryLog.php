@@ -65,12 +65,6 @@ class RegisterRdsTestTakerDeliveryLog extends \common_ext_action_InstallAction
             array('\\oat\\taoMonitoring\\model\\TestTakerDeliveryLog\\event\\Events', 'deliveryExecutionState')
         );
 
-        // catch switch items - on switching recount all statistic for testtaker
-        $eventManager->attach(
-            'oat\\taoQtiTest\\models\\event\\QtiMoveEvent',
-            array('\\oat\\taoMonitoring\\model\\TestTakerDeliveryLog\\event\\Events', 'qtiMoveEvent')
-        );
-
         $this->getServiceManager()->register(EventManager::CONFIG_ID, $eventManager);
     }
 }

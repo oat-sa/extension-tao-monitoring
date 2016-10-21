@@ -24,7 +24,6 @@ namespace oat\taoMonitoring\model\TestTakerDeliveryLog;
 
 use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionCreated;
 use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionState;
-use oat\taoQtiTest\models\event\QtiMoveEvent;
 
 interface EventInterface
 {
@@ -41,11 +40,4 @@ interface EventInterface
      * @return mixed
      */
     public static function deliveryExecutionState(DeliveryExecutionState $event);
-
-    /**
-     * for count of the finished items
-     * @param QtiMoveEvent $event
-     * @return mixed
-     */
-    public static function qtiMoveEvent(QtiMoveEvent $event);
 }

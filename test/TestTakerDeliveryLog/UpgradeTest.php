@@ -49,7 +49,6 @@ class UpgradeTest extends TaoPhpUnitTestRunner
         $fiveHdrs = [];
         for ($i = 0; $i < 500; $i++) {
             $fiveHdrs[] = [
-                StorageInterface::NB_ITEM => 12,
                 StorageInterface::NB_EXECUTIONS => 4,
                 StorageInterface::NB_FINISHED => 3,
                 StorageInterface::TEST_TAKER_LOGIN => $i . ' Tt'
@@ -111,7 +110,6 @@ class UpgradeTest extends TaoPhpUnitTestRunner
 
         $row = $regularStorage->getRow($login);
         $this->assertEquals([
-            StorageInterface::NB_ITEM => 24,
             StorageInterface::NB_EXECUTIONS => 8,
             StorageInterface::NB_FINISHED => 6,
             StorageInterface::TEST_TAKER_LOGIN => $login], $row);
@@ -137,11 +135,8 @@ class UpgradeTest extends TaoPhpUnitTestRunner
         $regularStorage->incrementField($login, StorageInterface::NB_EXECUTIONS);
         $regularStorage->incrementField($login, StorageInterface::NB_EXECUTIONS);
         $regularStorage->incrementField($login, StorageInterface::NB_EXECUTIONS);
-        $regularStorage->incrementField($login, StorageInterface::NB_ITEM);
-        $regularStorage->incrementField($login, StorageInterface::NB_ITEM);
         $this->assertEquals([
             StorageInterface::TEST_TAKER_LOGIN => '499 Tt',
-            StorageInterface::NB_ITEM => 2,
             StorageInterface::NB_EXECUTIONS => 3,
             StorageInterface::NB_FINISHED => 0,
         ], $regularStorage->getRow($login));
@@ -151,12 +146,10 @@ class UpgradeTest extends TaoPhpUnitTestRunner
         $tmpStorage->createStorage();
         $tmpStorage->createRow($login);
         $tmpStorage->incrementField($login, StorageInterface::NB_EXECUTIONS);
-        $tmpStorage->incrementField($login, StorageInterface::NB_ITEM);
         $tmpStorage->incrementField($login, StorageInterface::NB_FINISHED);
         $tmpStorage->createRow('another user');
         $this->assertEquals([
             StorageInterface::TEST_TAKER_LOGIN => '499 Tt',
-            StorageInterface::NB_ITEM => 1,
             StorageInterface::NB_EXECUTIONS => 1,
             StorageInterface::NB_FINISHED => 1,
         ], $tmpStorage->getRow($login));

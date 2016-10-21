@@ -22,15 +22,12 @@
 namespace oat\taoMonitoring\model\TestTakerDeliveryLog;
 
 
-use oat\taoMonitoring\model\TestTakerDeliveryLogInterface;
-
 interface StorageInterface extends DataAggregatorInterface
 {
     /** Fields */
     // test taker login
     const TEST_TAKER_LOGIN = 'test_taker';
     // events
-    const NB_ITEM = 'nb_item';
     const NB_EXECUTIONS = 'nb_executions';
     const NB_FINISHED = 'nb_finished';
 
@@ -84,7 +81,6 @@ interface StorageInterface extends DataAggregatorInterface
      * # If test taker exists - add data to storage
      *  [
      *    'test_taker' => int,
-     *    'nb_item' => int,
      *    'nb_executions' => int,
      *    'nb_finished' => int,
      *  ]
