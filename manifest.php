@@ -33,7 +33,6 @@ return array(
         'taoDeliveryRdf' => '>=1.1.0',
         'taoOutcomeUi' => '>=2.7.2',
         'taoQtiTest' => '>=2.16.2',
-        
     ),
 	'managementRole' => 'http://www.tao.lu/Ontologies/generis.rdf#taoMonitoringManager',
     'acl' => array(
@@ -41,16 +40,8 @@ return array(
     ),
     'install' => array(
         'php' => array(
-            'oat\\taoMonitoring\\scripts\\install\\RegisterRdsTestTakerDeliveryLog',
             'oat\\taoMonitoring\\scripts\\install\\RegisterRdsTestTakerDeliveryActivityLog',
             \oat\taoMonitoring\scripts\install\RegisterRdsDeliveryLog::class
-        )
-    ),
-    'uninstall' => array(
-        'php' => array(
-			//doesn't work for now
-            //__DIR__.DIRECTORY_SEPARATOR.'scripts'.DIRECTORY_SEPARATOR.'uninstall'.DIRECTORY_SEPARATOR.'RdsTestTakerDeliveryLog.php',
-            //'oat\\taoMonitoring\\scripts\\uninstall\\Delivery\\TestTakerLog',
         )
     ),
 	'update' => 'oat\\taoMonitoring\\scripts\\update\\Updater',
