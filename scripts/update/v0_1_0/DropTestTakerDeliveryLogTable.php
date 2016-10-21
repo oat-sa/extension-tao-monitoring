@@ -15,12 +15,30 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  * Copyright (c) 2016  (original work) Open Assessment Technologies SA;
- * 
+ *
  * @author Alexander Zagovorichev <zagovorichev@1pt.com>
  */
 
-require_once dirname(__FILE__). '/../tao/includes/class.Bootstrap.php';
+namespace oat\taoMonitoring\scripts\update\v0_1_0;
 
-$bootStrap = new BootStrap('taoMonitoring');
-$bootStrap->start();
-$bootStrap->dispatch();
+
+use oat\oatbox\action\Action;
+
+class DropTestTakerDeliveryLogTable implements Action
+{
+    const TABLE_NAME = 'monitoring_testtaker_deliveries';
+
+    public function __invoke($params)
+    {
+        $sql = 'DROP TABLE "' . self::TABLE_NAME . '"';
+        try{
+            $dbWrapper = \core_kernel_classes_DbWrapper::singleton();
+            $dbWrapper->exec($sql);
+        }
+        catch (\PDOException $e){
+            return new \common_report_Report(\common_report_Report::TYPE_ERROR, "An error occured while removing table '".self::TABLE_NAME."' " . $e->getMessage());
+        }
+
+        return new \common_report_Report(\common_report_Report::TYPE_SUCCESS, self::TABLE_NAME . " was successfully removed");
+    }
+}

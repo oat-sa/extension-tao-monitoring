@@ -23,11 +23,12 @@ namespace oat\taoMonitoring\scripts\update;
 
 
 use \common_ext_ExtensionUpdater;
+use oat\oatbox\event\EventManager;
 use oat\taoMonitoring\model\DeliveryLog\DeliveryLogService;
 use oat\taoMonitoring\model\TestTakerDeliveryActivityLog\TestTakerDeliveryActivityLogService;
 use oat\taoMonitoring\scripts\install\RegisterRdsDeliveryLog;
 use oat\taoMonitoring\scripts\install\RegisterRdsTestTakerDeliveryActivityLog;
-
+use oat\taoMonitoring\scripts\update\v0_1_0\DropTestTakerDeliveryLogTable;
 
 class Updater extends common_ext_ExtensionUpdater {
 
@@ -53,6 +54,40 @@ class Updater extends common_ext_ExtensionUpdater {
             }
 
             $this->setVersion('0.0.2');
+        }
+
+        if ($this->isVersion('0.0.2')) {
+
+            $eventManager = $this->getServiceManager()->get(EventManager::CONFIG_ID);
+
+            // Detach switch items - on switching recount all statistic for testTaker
+            $eventManager->detach(
+                'oat\\taoQtiTest\\models\\event\\QtiMoveEvent',
+                array('\\oat\\taoMonitoring\\model\\TestTakerDeliveryLog\\event\\Events', 'qtiMoveEvent')
+            );
+
+            // count executions
+            $eventManager->detach(
+                'oat\\taoDelivery\\models\\classes\\execution\\event\\DeliveryExecutionCreated',
+                array('\\oat\\taoMonitoring\\model\\TestTakerDeliveryLog\\event\\Events', 'deliveryExecutionCreated')
+            );
+
+            // finished executions
+            $eventManager->detach(
+                'oat\\taoDelivery\\models\\classes\\execution\\event\\DeliveryExecutionState',
+                array('\\oat\\taoMonitoring\\model\\TestTakerDeliveryLog\\event\\Events', 'deliveryExecutionState')
+            );
+
+            $this->getServiceManager()->register(EventManager::CONFIG_ID, $eventManager);
+
+
+            $this->getServiceManager()->unregister('taoMonitoring/testTakerDeliveryLog');
+
+            // delete from storage
+            $action = new DropTestTakerDeliveryLogTable();
+            $action([]);
+
+            $this->setVersion('0.1.0');
         }
     }
 }
