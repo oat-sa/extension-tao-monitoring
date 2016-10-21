@@ -58,7 +58,6 @@ class Updater extends common_ext_ExtensionUpdater {
 
         if ($this->isVersion('0.0.2')) {
 
-            // delete NB_ITEM from the monitoring of the test takers deliveries
             $eventManager = $this->getServiceManager()->get(EventManager::CONFIG_ID);
 
             // Detach switch items - on switching recount all statistic for testTaker
@@ -80,6 +79,9 @@ class Updater extends common_ext_ExtensionUpdater {
             );
 
             $this->getServiceManager()->register(EventManager::CONFIG_ID, $eventManager);
+
+
+            $this->getServiceManager()->unregister('taoMonitoring/testTakerDeliveryLog');
 
             // delete from storage
             $action = new DropTestTakerDeliveryLogTable();
