@@ -87,7 +87,7 @@ class Updater extends common_ext_ExtensionUpdater {
             $action = new DropTestTakerDeliveryLogTable();
             $action([]);
 
-            $this->setVersion('0.1.0');
+            $this->setVersion('0.2.0');
         }
     }
 }
