@@ -279,6 +279,15 @@ class DeliveryExecutions extends tao_actions_SaSModule
         // for last 24 hours by default
         $currentHour = date('G');
         $yesterday = mktime($currentHour, 0, 0, date('n'), date('j')-1, date('Y'));
-        $this->returnJson($this->activityLogService->getLastActivity($deliveryUri, date('Y-m-d H:i:s', $yesterday)), 200);
+
+        $activity = $this->activityLogService->getLastActivity($deliveryUri, date('Y-m-d H:i:s', $yesterday));
+
+        // switch all time to hour:59:59 (to align chart bar)
+        $activity = array_map(function($val){
+            $val['hour'] = date('Y-m-d H:59:59', strtotime($val['hour']));
+            return $val;
+        }, $activity);
+
+        $this->returnJson($activity, 200);
     }
 }

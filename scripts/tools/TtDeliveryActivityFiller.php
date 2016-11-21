@@ -29,6 +29,7 @@ use oat\taoMonitoring\model\TestTakerDeliveryActivityLog\TestTakerDeliveryActivi
 /**
  * Load fake data into the storage, for easiest testing and developing
  *
+ * php index.php "\oat\taoMonitoring\scripts\tools\TtDeliveryActivityFiller" delivery-uri=
  * Class MonitoringFiller
  * @package oat\taoMonitoring\scripts\tools
  */
