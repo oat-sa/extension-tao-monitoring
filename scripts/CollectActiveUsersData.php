@@ -4,6 +4,8 @@ namespace oat\taoMonitoring\scripts;
 
 use oat\oatbox\action\Action;
 use common_report_Report as Report;
+use oat\oatbox\filesystem\File;
+use oat\oatbox\filesystem\FileSystemService;
 use oat\oatbox\service\ServiceManager;
 use oat\taoDelivery\model\AssignmentService;
 use oat\taoDeliveryRdf\model\DeliveryAssemblyService;
@@ -38,18 +40,17 @@ class CollectActiveUsersData implements Action
         }
 
         if ($data) {
-            // Save generated data to a JSON file
-            $dir = FILES_PATH . 'taoMonitoring/';
-            if (!file_exists($dir)) {
-                mkdir($dir, 0755);
-            }
+            // Upload generated data to AWS S3 as a JSON file
+            /** @var File $file */
+            $file = ServiceManager::getServiceManager()
+                ->get(FileSystemService::SERVICE_ID)
+                ->getDirectory('taoAwsS3')
+                ->getFile(date('Y_m_d') .'/monitoring/'. gethostname() .'/active_users_data_'. date('His') .'.json');
 
-            $fileName = $dir . 'active_users_data.json';
-
-            if (file_put_contents($fileName, json_encode($data)) !== false) {
-                $report->add(Report::createSuccess('Data successfully saved into ' . $fileName));
+            if ($file->write(json_encode($data)) !== false) {
+                $report->add(Report::createSuccess('Data successfully saved into ' . $file->getPrefix()));
             } else {
-                $report->add(Report::createFailure('Writing data into ' . $fileName . ' has been failed.'));
+                $report->add(Report::createFailure('Writing data into ' . $file->getPrefix() . ' has been failed.'));
             }
         } else {
             $report->add(Report::createInfo('There was not any data to save.'));
