@@ -44,7 +44,7 @@ class CollectActiveUsersData implements Action
             /** @var File $file */
             $file = ServiceManager::getServiceManager()
                 ->get(FileSystemService::SERVICE_ID)
-                ->getDirectory('taoAwsS3')
+                ->getDirectory('taoMonitoring')
                 ->getFile(date('Y_m_d') .'/monitoring/'. gethostname() .'/active_users_data_'. date('His') .'.json');
 
             if ($file->write(json_encode($data)) !== false) {
