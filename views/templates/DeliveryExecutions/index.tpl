@@ -27,7 +27,7 @@ use oat\tao\helpers\Template;
     
     <div class="data-container-wrapper flex-container-remainer">
         <header>
-            <h3><?= __('Submitted tests') ?></h3>
+            <h3><?= __('Started tests') ?></h3>
         </header>
         
         <div class="delivery-executions-progress">
