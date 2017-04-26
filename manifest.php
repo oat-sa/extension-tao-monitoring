@@ -24,11 +24,11 @@ return array(
 	'label' => 'Statistics and aggregated data',
 	'description' => 'Extension for monitoring of the tao events. Fast access to statistics data',
     'license' => 'GPL-2.0',
-    'version' => '0.3.1',
+    'version' => '1.0.0',
 	'author' => 'Open Assessment Technologies SA',
 	'requires' => array(
         'generis' => '>=2.15.0',
-		'tao' => '>=4.3.0',
+		'tao' => '>=9.0.0',
         'taoDelivery' => '>=3.0.0',
         'taoDeliveryRdf' => '>=1.1.0',
         'taoOutcomeUi' => '>=2.7.2',
@@ -53,10 +53,7 @@ return array(
 	    "DIR_VIEWS" => dirname(__FILE__).DIRECTORY_SEPARATOR."views".DIRECTORY_SEPARATOR,
 	    
 		#BASE URL (usually the domain root)
-		'BASE_URL' => ROOT_URL.'taoMonitoring/',
-	    
-	    #BASE WWW required by JS
-	    'BASE_WWW' => ROOT_URL.'taoMonitoring/views/'
+		'BASE_URL' => ROOT_URL.'taoMonitoring/'
 	),
     'extra' => array(
         'structures' => dirname(__FILE__).DIRECTORY_SEPARATOR.'controller'.DIRECTORY_SEPARATOR.'structures.xml',
