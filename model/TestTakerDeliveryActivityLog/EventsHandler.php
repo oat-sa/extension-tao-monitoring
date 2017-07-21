@@ -23,12 +23,12 @@ namespace oat\taoMonitoring\model\TestTakerDeliveryActivityLog;
 
 
 use oat\oatbox\service\ServiceManager;
-use oat\taoDelivery\model\execution\DeliveryExecution;
+use oat\taoDelivery\model\execution\DeliveryExecutionInterface;
 use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionCreated;
 use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionState;
 use oat\taoMonitoring\model\TestTakerDeliveryActivityLogInterface;
 use oat\taoQtiTest\models\event\QtiMoveEvent;
-use taoDelivery_models_classes_execution_ServiceProxy;
+use oat\taoDelivery\model\execution\ServiceProxy;
 
 
 class EventsHandler implements EventsHandlerInterface
@@ -61,7 +61,7 @@ class EventsHandler implements EventsHandlerInterface
 
     public static function deliveryExecutionState(DeliveryExecutionState $event)
     {
-        if ($event->getState() === DeliveryExecution::STATE_FINISHIED) {
+        if ($event->getState() === DeliveryExecutionInterface::STATE_FINISHIED) {
             self::event($event->getDeliveryExecution(), $event->getName());
         }
     }
@@ -69,13 +69,13 @@ class EventsHandler implements EventsHandlerInterface
     public static function qtiMoveEvent(QtiMoveEvent $event)
     {
         if ($event->getContext() === QtiMoveEvent::CONTEXT_BEFORE) {
-            $executionService = taoDelivery_models_classes_execution_ServiceProxy::singleton();
+            $executionService = ServiceProxy::singleton();
             $deliveryExecution = $executionService->getDeliveryExecution($event->getSession()->getSessionId());
             self::event($deliveryExecution, $event->getName());
         }
     }
     
-    private static function event(DeliveryExecution $deliveryExecution, $event)
+    private static function event(DeliveryExecutionInterface $deliveryExecution, $event)
     {
         try {
             $testTaker = $deliveryExecution->getUserIdentifier();

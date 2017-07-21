@@ -23,7 +23,7 @@ namespace oat\taoMonitoring\model\DeliveryLog\event;
 
 
 use oat\oatbox\service\ServiceManager;
-use oat\taoDelivery\model\execution\DeliveryExecution;
+use oat\taoDelivery\model\execution\DeliveryExecutionInterface;
 use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionCreated;
 use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionState;
 use oat\taoMonitoring\model\DeliveryLog\DeliveryLogEventInterface;
@@ -65,7 +65,7 @@ class DeliveryLogEvent implements DeliveryLogEventInterface
     public static function deliveryExecutionState(DeliveryExecutionState $event)
     {
         try {
-            if ($event->getState() === DeliveryExecution::STATE_FINISHIED) {
+            if ($event->getState() === DeliveryExecutionInterface::STATE_FINISHIED) {
                 self::service()->addFinishedExecution($event->getDeliveryExecution()->getDelivery()->getUri());
             }
         } catch (\Exception $e) {
