@@ -28,6 +28,7 @@ use oat\taoDelivery\model\AssignmentService;
 use oat\taoDeliveryRdf\model\DeliveryAssemblyService;
 use oat\taoMonitoring\model\TestTakerDeliveryActivityLogInterface;
 use oat\taoOutcomeUi\model\ResultsService;
+use oat\taoDelivery\model\execution\ServiceProxy;
 use tao_actions_SaSModule;
 use tao_helpers_Request;
 use tao_helpers_Uri;
@@ -46,7 +47,7 @@ class DeliveryExecutions extends tao_actions_SaSModule
     private $assignmentService;
 
     /**
-     * @var \taoDelivery_models_classes_execution_ServiceProxy
+     * @var ServiceProxy
      */
     private $executionService;
 
@@ -65,7 +66,7 @@ class DeliveryExecutions extends tao_actions_SaSModule
         $this->service = ResultsService::singleton();
         $this->deliveryService = DeliveryAssemblyService::singleton();
         $this->assignmentService = $this->getServiceManager()->get(AssignmentService::CONFIG_ID);
-        $this->executionService = \taoDelivery_models_classes_execution_ServiceProxy::singleton();
+        $this->executionService = ServiceProxy::singleton();
         $this->activityLogService = $this->getServiceManager()->get(TestTakerDeliveryActivityLogInterface::SERVICE_ID);
         $this->defaultData();
     }
