@@ -9,6 +9,7 @@ use oat\oatbox\filesystem\FileSystemService;
 use oat\oatbox\service\ServiceManager;
 use oat\taoDelivery\model\AssignmentService;
 use oat\taoDeliveryRdf\model\DeliveryAssemblyService;
+use oat\taoDeliveryRdf\model\DeliveryContainerService;
 use oat\taoMonitoring\model\TestTakerDeliveryActivityLogInterface;
 
 class CollectActiveUsersData implements Action
@@ -70,9 +71,9 @@ class CollectActiveUsersData implements Action
             'uri' => $delivery->getUri()
         ];
 
-        $maxExec = current($delivery->getPropertyValues(new \core_kernel_classes_Property(TAO_DELIVERY_MAXEXEC_PROP)));
-        $startExec = current($delivery->getPropertyValues(new \core_kernel_classes_Property(TAO_DELIVERY_START_PROP)));
-        $endExec = current($delivery->getPropertyValues(new \core_kernel_classes_Property(TAO_DELIVERY_END_PROP)));
+        $maxExec = current($delivery->getPropertyValues(new \core_kernel_classes_Property(DeliveryContainerService::MAX_EXEC_PROP)));
+        $startExec = current($delivery->getPropertyValues(new \core_kernel_classes_Property(DeliveryContainerService::START_PROP)));
+        $endExec = current($delivery->getPropertyValues(new \core_kernel_classes_Property(DeliveryContainerService::END_PROP)));
 
         $data['status'] = ($startExec && $endExec && ($startExec >= time() || $endExec <= time())) ? __('Closed') : __('Open');
 
