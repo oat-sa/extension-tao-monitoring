@@ -191,14 +191,14 @@ class DeliveryExecutions extends tao_actions_SaSModule
 
 
                 $deliveryProps = $delivery->getPropertiesValues(array(
-                    new \core_kernel_classes_Property(DeliveryContainerService::MAX_EXEC_PROP),
-                    new \core_kernel_classes_Property(DeliveryContainerService::START_PROP),
-                    new \core_kernel_classes_Property(DeliveryContainerService::END_PROP),
+                    new \core_kernel_classes_Property(DeliveryContainerService::PROPERTY_MAX_EXEC),
+                    new \core_kernel_classes_Property(DeliveryContainerService::PROPERTY_START),
+                    new \core_kernel_classes_Property(DeliveryContainerService::PROPERTY_END),
                 ));
 
-                $propMaxExec = current($deliveryProps[DeliveryContainerService::MAX_EXEC_PROP]);
-                $propStartExec = current($deliveryProps[DeliveryContainerService::START_PROP]);
-                $propEndExec = current($deliveryProps[DeliveryContainerService::END_PROP]);
+                $propMaxExec = current($deliveryProps[DeliveryContainerService::PROPERTY_MAX_EXEC]);
+                $propStartExec = current($deliveryProps[DeliveryContainerService::PROPERTY_START]);
+                $propEndExec = current($deliveryProps[DeliveryContainerService::PROPERTY_END]);
 
                 $allowedExecutions = (!(is_object($propMaxExec)) or ($propMaxExec == "")) ? 0 : (int)$propMaxExec->literal;
 

@@ -71,9 +71,9 @@ class CollectActiveUsersData implements Action
             'uri' => $delivery->getUri()
         ];
 
-        $maxExec = current($delivery->getPropertyValues(new \core_kernel_classes_Property(DeliveryContainerService::MAX_EXEC_PROP)));
-        $startExec = current($delivery->getPropertyValues(new \core_kernel_classes_Property(DeliveryContainerService::START_PROP)));
-        $endExec = current($delivery->getPropertyValues(new \core_kernel_classes_Property(DeliveryContainerService::END_PROP)));
+        $maxExec = current($delivery->getPropertyValues(new \core_kernel_classes_Property(DeliveryContainerService::PROPERTY_MAX_EXEC)));
+        $startExec = current($delivery->getPropertyValues(new \core_kernel_classes_Property(DeliveryContainerService::PROPERTY_START)));
+        $endExec = current($delivery->getPropertyValues(new \core_kernel_classes_Property(DeliveryContainerService::PROPERTY_END)));
 
         $data['status'] = ($startExec && $endExec && ($startExec >= time() || $endExec <= time())) ? __('Closed') : __('Open');
 
