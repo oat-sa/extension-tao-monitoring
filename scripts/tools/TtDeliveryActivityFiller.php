@@ -145,6 +145,8 @@ class TtDeliveryActivityFiller implements Action
 
     private function getPersistence()
     {
-        return \common_persistence_Manager::getPersistence('default');
+        $method = new \ReflectionMethod(RdsStorage::class, 'getPersistence');
+        $method->setAccessible(true);
+        return $method->invoke(new RdsStorage());
     }
 }
