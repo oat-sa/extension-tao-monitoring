@@ -22,6 +22,7 @@
 namespace oat\taoMonitoring\scripts\install;
 
 
+use oat\oatbox\service\ServiceNotFoundException;
 use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionCreated;
 use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionState;
 use oat\taoMonitoring\model\TestTakerDeliveryActivityLog\EventsHandler;
@@ -41,12 +42,24 @@ class RegisterRdsTestTakerDeliveryActivityLog extends \common_ext_action_Install
     {
         $persistenceId = count($params) > 0 ? reset($params) : 'default';
 
+        try {
+            $service = $this->getServiceManager()->get(TestTakerDeliveryActivityLogInterface::SERVICE_ID);
+        } catch (ServiceNotFoundException $exception) {
+            $service = new TestTakerDeliveryActivityLogService(array(
+                RdsStorage::OPTION_PERSISTENCE => $persistenceId,
+            ));
+            $service->setServiceManager($this->getServiceManager());
+        }
+
+        $persistence = $service->getOption(RdsStorage::OPTION_PERSISTENCE);
+
+
         /** @var RdsStorage $storage */
-        $storage = new RdsStorage( $persistenceId );
+        $storage = new RdsStorage( $persistence );
         $storage->createStorage();
 
         //Service
-        $this->registerService(TestTakerDeliveryActivityLogInterface::SERVICE_ID, new TestTakerDeliveryActivityLogService([RdsStorage::OPTION_PERSISTENCE => $persistenceId]));
+        $this->registerService(TestTakerDeliveryActivityLogInterface::SERVICE_ID, $service);
 
 
         // Events
