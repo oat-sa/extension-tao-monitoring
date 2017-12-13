@@ -26,6 +26,7 @@ use common_exception_IsAjaxAction;
 use core_kernel_classes_Resource;
 use oat\taoDelivery\model\AssignmentService;
 use oat\taoDeliveryRdf\model\DeliveryAssemblyService;
+use oat\taoDeliveryRdf\model\DeliveryContainerService;
 use oat\taoMonitoring\model\TestTakerDeliveryActivityLogInterface;
 use oat\taoOutcomeUi\model\ResultsService;
 use oat\taoDelivery\model\execution\ServiceProxy;
@@ -190,14 +191,14 @@ class DeliveryExecutions extends tao_actions_SaSModule
 
 
                 $deliveryProps = $delivery->getPropertiesValues(array(
-                    new \core_kernel_classes_Property(TAO_DELIVERY_MAXEXEC_PROP),
-                    new \core_kernel_classes_Property(TAO_DELIVERY_START_PROP),
-                    new \core_kernel_classes_Property(TAO_DELIVERY_END_PROP),
+                    new \core_kernel_classes_Property(DeliveryContainerService::PROPERTY_MAX_EXEC),
+                    new \core_kernel_classes_Property(DeliveryContainerService::PROPERTY_START),
+                    new \core_kernel_classes_Property(DeliveryContainerService::PROPERTY_END),
                 ));
 
-                $propMaxExec = current($deliveryProps[TAO_DELIVERY_MAXEXEC_PROP]);
-                $propStartExec = current($deliveryProps[TAO_DELIVERY_START_PROP]);
-                $propEndExec = current($deliveryProps[TAO_DELIVERY_END_PROP]);
+                $propMaxExec = current($deliveryProps[DeliveryContainerService::PROPERTY_MAX_EXEC]);
+                $propStartExec = current($deliveryProps[DeliveryContainerService::PROPERTY_START]);
+                $propEndExec = current($deliveryProps[DeliveryContainerService::PROPERTY_END]);
 
                 $allowedExecutions = (!(is_object($propMaxExec)) or ($propMaxExec == "")) ? 0 : (int)$propMaxExec->literal;
 
