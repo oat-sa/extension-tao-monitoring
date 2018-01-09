@@ -11,6 +11,7 @@
                           className="Result"
                           dataUrl="/taoMonitoring/DeliveryExecutions/getOntologyData"
                           selectInstance="deliveryExecutionsMonitoring-index"
+                          rootNode="http://www.tao.lu/Ontologies/TAODelivery.rdf#AssembledDelivery"
                             />
                 </trees>
                 <actions>
