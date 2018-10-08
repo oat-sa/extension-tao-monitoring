@@ -15,7 +15,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  * Copyright (c) 2016  (original work) Open Assessment Technologies SA;
- * 
+ *
  * @author Alexander Zagovorichev <zagovorichev@1pt.com>
  */
 
@@ -38,7 +38,7 @@ class Updater extends common_ext_ExtensionUpdater {
      */
     public function update($initialVersion)
     {
-        
+
         if ($this->isVersion('0.0.1')) {
 
             if (!$this->getServiceManager()->has(TestTakerDeliveryActivityLogService::SERVICE_ID)) {
@@ -90,6 +90,6 @@ class Updater extends common_ext_ExtensionUpdater {
             $this->setVersion('0.1.0');
         }
 
-        $this->skip('0.1.0', '1.1.4');
+        $this->skip('0.1.0', '2.0.0');
     }
 }
