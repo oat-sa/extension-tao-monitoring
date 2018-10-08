@@ -1,57 +1,43 @@
+/**
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; under version 2
+ * of the License (non-upgradable).
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * Copyright (c) 2014-2018 (original work) Open Assessment Technologies SA;
+ */
+
+/**
+ * configure the extension bundles
+ * @author Bertrand Chevrier <bertrand@taotesting.com>
+ */
 module.exports = function(grunt) {
     'use strict';
 
-    var requirejs   = grunt.config('requirejs') || {};
-    var clean       = grunt.config('clean') || {};
-    var copy        = grunt.config('copy') || {};
-
-    var root        = grunt.option('root');
-    var libs        = grunt.option('mainlibs');
-    var ext         = require(root + '/tao/views/build/tasks/helpers/extensions')(grunt, root);
-    var out         = 'output';
-
-    var paths = {
-        'tao' : root + '/tao/views/js',
-        'taoMonitoring' : root + '/taoMonitoring/views/js',
-        'taoMonitoringCss' : root + '/taoMonitoring/views/css'
-    };
-
-    /**
-     * Remove bundled and bundling files
-     */
-    clean.taomonitoringbundle = [out];
-
-    /**
-     * Compile tao files into a bundle
-     */
-    requirejs.taomonitoringbundle = {
-        options: {
-            baseUrl : '../js',
-            dir : out,
-            mainConfigFile : './config/requirejs.build.js',
-            paths : paths,
-            modules : [{
-                name: 'taoMonitoring/controller/routes',
-                include : ext.getExtensionsControllers(['taoMonitoring']),
-                exclude : ['mathJax'].concat(libs)
-            }]
+    grunt.config.merge({
+        bundle : {
+            taomonitoring : {
+                options : {
+                    extension : 'taoMonitoring',
+                    outputDir : 'loader',
+                    bundles : [{
+                        name : 'taoMonitoring',
+                        default : true,
+                    }]
+                }
+            }
         }
-    };
-
-    /**
-     * copy the bundles to the right place
-     */
-    copy.taomonitoringbundle = {
-        files: [
-            { src: [ out + '/taoMonitoring/controller/routes.js'],  dest: root + '/taoMonitoring/views/js/controllers.min.js' },
-            { src: [ out + '/taoMonitoring/controller/routes.js.map'],  dest: root + '/taoMonitoring/views/js/controllers.min.js.map' }
-        ]
-    };
-
-    grunt.config('clean', clean);
-    grunt.config('copy', copy);
-    grunt.config('requirejs', requirejs);
+    });
 
     // bundle task
-    grunt.registerTask('taomonitoringbundle', ['clean:taomonitoringbundle', 'requirejs:taomonitoringbundle', 'copy:taomonitoringbundle']);
+    grunt.registerTask('taomonitoringbundle', ['bundle:taomonitoring']);
 };
