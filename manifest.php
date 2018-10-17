@@ -32,7 +32,7 @@ return array(
         'taoDelivery'    => '>=11.0.0',
         'taoDeliveryRdf' => '>=6.0.0',
         'taoOutcomeUi'   => '>=7.0.0',
-        'taoQtiTest'     => '>=28.0.0',
+        'taoQtiTest'     => '>=29.0.0',
     ),
 	'managementRole' => 'http://www.tao.lu/Ontologies/generis.rdf#taoMonitoringManager',
     'acl' => array(
