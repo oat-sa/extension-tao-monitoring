@@ -27,7 +27,7 @@ use oat\taoMonitoring\model\LoginQueueLog\InstantActionQueueLogStorageInterface;
 
 class InstantActionQueueLogRdsStorage implements InstantActionQueueLogStorageInterface
 {
-    const TABLE_NAME = 'monitoring_login_queue';
+    const TABLE_NAME = 'monitoring_instant_action_queue';
     const OPTION_PERSISTENCE = 'persistence';
 
     /**
