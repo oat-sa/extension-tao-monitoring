@@ -26,10 +26,10 @@ use oat\oatbox\service\ServiceManager;
 use oat\taoDelivery\model\execution\DeliveryExecutionInterface;
 use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionCreated;
 use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionState;
+use oat\taoMonitoring\model\MonitoringPlugService;
 use oat\taoMonitoring\model\TestTakerDeliveryActivityLogInterface;
 use oat\taoQtiTest\models\event\QtiMoveEvent;
 use oat\taoDelivery\model\execution\ServiceProxy;
-
 
 class EventsHandler implements EventsHandlerInterface
 {
@@ -37,6 +37,11 @@ class EventsHandler implements EventsHandlerInterface
      * @var TestTakerDeliveryActivityLogInterface
      */
     private static $service;
+
+    /**
+     * @var bool
+     */
+    private static $active;
     
     public static function setService(TestTakerDeliveryActivityLogInterface $service)
     {
@@ -49,18 +54,40 @@ class EventsHandler implements EventsHandlerInterface
     private static function service()
     {
         if (!isset(self::$service)) {
-            self::setService( ServiceManager::getServiceManager()->get(TestTakerDeliveryActivityLogInterface::SERVICE_ID) ); 
+            /** @var TestTakerDeliveryActivityLogInterface $ttDeliveryActivityLog */
+            $ttDeliveryActivityLog = ServiceManager::getServiceManager()->get(TestTakerDeliveryActivityLogInterface::SERVICE_ID);
+            self::setService( $ttDeliveryActivityLog );
         }
         return self::$service;
     }
-    
+
+    /**
+     * Getting state of the service (it should be active to be able to work)
+     * @return boolean
+     */
+    private static function isServiceActive()
+    {
+        if (!isset(self::$active)) {
+            self::$active = self::getServiceManager()
+                ->get(MonitoringPlugService::SERVICE_ID)
+                ->isServiceActive(TestTakerDeliveryActivityLogInterface::SERVICE_ID);
+        }
+        return self::$active;
+    }
+
     public static function deliveryExecutionCreated(DeliveryExecutionCreated $event)
     {
+        if (!self::isServiceActive()) {
+            return;
+        }
         self::event($event->getDeliveryExecution(), $event->getName());
     }
 
     public static function deliveryExecutionState(DeliveryExecutionState $event)
     {
+        if (!self::isServiceActive()) {
+            return;
+        }
         if ($event->getState() === DeliveryExecutionInterface::STATE_FINISHIED) {
             self::event($event->getDeliveryExecution(), $event->getName());
         }
@@ -68,6 +95,9 @@ class EventsHandler implements EventsHandlerInterface
     
     public static function qtiMoveEvent(QtiMoveEvent $event)
     {
+        if (!self::isServiceActive()) {
+            return;
+        }
         if ($event->getContext() === QtiMoveEvent::CONTEXT_BEFORE) {
             $executionService = ServiceProxy::singleton();
             $deliveryExecution = $executionService->getDeliveryExecution($event->getSession()->getSessionId());
@@ -77,6 +107,9 @@ class EventsHandler implements EventsHandlerInterface
     
     private static function event(DeliveryExecutionInterface $deliveryExecution, $event)
     {
+        if (!self::isServiceActive()) {
+            return;
+        }
         try {
             $testTaker = $deliveryExecution->getUserIdentifier();
             $delivery = $deliveryExecution->getDelivery();
@@ -86,5 +119,10 @@ class EventsHandler implements EventsHandlerInterface
             // failure in event should not stop execution
             \common_Logger::e('Failed to processing data for log TestTakerDeliveryActivityLog "' . $e->getMessage() . '"');
         }
+    }
+
+    public static function getServiceManager()
+    {
+        return ServiceManager::getServiceManager();
     }
 }
