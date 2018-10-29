@@ -21,20 +21,20 @@
 
 return array(
     'name' => 'taoMonitoring',
-	'label' => 'Statistics and aggregated data',
-	'description' => 'Extension for monitoring of the tao events. Fast access to statistics data',
+    'label' => 'Statistics and aggregated data',
+    'description' => 'Extension for monitoring of the tao events. Fast access to statistics data',
     'license' => 'GPL-2.0',
-    'version' => '2.0.0',
-	'author' => 'Open Assessment Technologies SA',
-	'requires' => array(
+    'version' => '2.0.1',
+    'author' => 'Open Assessment Technologies SA',
+    'requires' => array(
         'generis'        => '>=2.15.0',
-		'tao'            => '>=21.0.0',
+        'tao'            => '>=21.0.0',
         'taoDelivery'    => '>=11.0.0',
         'taoDeliveryRdf' => '>=6.0.0',
         'taoOutcomeUi'   => '>=7.0.0',
         'taoQtiTest'     => '>=29.0.0',
     ),
-	'managementRole' => 'http://www.tao.lu/Ontologies/generis.rdf#taoMonitoringManager',
+    'managementRole' => 'http://www.tao.lu/Ontologies/generis.rdf#taoMonitoringManager',
     'acl' => array(
         array('grant', 'http://www.tao.lu/Ontologies/generis.rdf#taoMonitoringManager', array('ext'=>'taoMonitoring')),
     ),
@@ -44,17 +44,17 @@ return array(
             \oat\taoMonitoring\scripts\install\RegisterRdsDeliveryLog::class
         )
     ),
-	'update' => 'oat\\taoMonitoring\\scripts\\update\\Updater',
-	'routes' => array(
+    'update' => 'oat\\taoMonitoring\\scripts\\update\\Updater',
+    'routes' => array(
         'taoMonitoring' => 'oat\\taoMonitoring\\controller'
     ),
-	'constants' => array(
-	    # views directory
-	    "DIR_VIEWS" => dirname(__FILE__).DIRECTORY_SEPARATOR."views".DIRECTORY_SEPARATOR,
+    'constants' => array(
+        # views directory
+        "DIR_VIEWS" => dirname(__FILE__).DIRECTORY_SEPARATOR."views".DIRECTORY_SEPARATOR,
 
-		#BASE URL (usually the domain root)
-		'BASE_URL' => ROOT_URL.'taoMonitoring/'
-	),
+        #BASE URL (usually the domain root)
+        'BASE_URL' => ROOT_URL.'taoMonitoring/'
+    ),
     'extra' => array(
         'structures' => dirname(__FILE__).DIRECTORY_SEPARATOR.'controller'.DIRECTORY_SEPARATOR.'structures.xml',
     )

@@ -28,13 +28,13 @@ use oat\taoMonitoring\model\DeliveryLog\DeliveryLogService;
 use oat\taoMonitoring\model\TestTakerDeliveryActivityLog\TestTakerDeliveryActivityLogService;
 use oat\taoMonitoring\scripts\install\RegisterRdsDeliveryLog;
 use oat\taoMonitoring\scripts\install\RegisterRdsTestTakerDeliveryActivityLog;
-use oat\taoMonitoring\scripts\update\v0_1_0\DropTestTakerDeliveryLogTable;
 
 class Updater extends common_ext_ExtensionUpdater {
 
     /**
-     * @param string $initialVersion
-     * @return string string
+     * @param $initialVersion
+     * @return string|void
+     * @throws \common_Exception
      */
     public function update($initialVersion)
     {
@@ -58,7 +58,8 @@ class Updater extends common_ext_ExtensionUpdater {
 
         if ($this->isVersion('0.0.2')) {
 
-            $eventManager = $this->getServiceManager()->get(EventManager::CONFIG_ID);
+            /** @var EventManager $eventManager */
+            $eventManager = $this->getServiceManager()->get(EventManager::SERVICE_ID);
 
             // Detach switch items - on switching recount all statistic for testTaker
             $eventManager->detach(
@@ -78,18 +79,15 @@ class Updater extends common_ext_ExtensionUpdater {
                 array('\\oat\\taoMonitoring\\model\\TestTakerDeliveryLog\\event\\Events', 'deliveryExecutionState')
             );
 
-            $this->getServiceManager()->register(EventManager::CONFIG_ID, $eventManager);
+            $this->getServiceManager()->register(EventManager::SERVICE_ID, $eventManager);
 
 
             $this->getServiceManager()->unregister('taoMonitoring/testTakerDeliveryLog');
 
-            // delete from storage
-            $action = new DropTestTakerDeliveryLogTable();
-            $action([]);
-
+            $this->addReport(\common_report_Report::createInfo('Delete the table `monitoring_testtaker_deliveries` directly to clean the storage'));
             $this->setVersion('0.1.0');
         }
 
-        $this->skip('0.1.0', '2.0.0');
+        $this->skip('0.1.0', '2.0.1');
     }
 }
