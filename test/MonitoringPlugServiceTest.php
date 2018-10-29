@@ -33,12 +33,18 @@ class MonitoringPlugServiceTest extends \PHPUnit_Framework_TestCase
 
     public function setUp(){
         $this->service = new MonitoringPlugService([
-            'services' => []
+            'services' => [
+                'RegisteredService'
+            ]
         ]);
     }
 
     public function testIsServiceActive()
     {
-        $this->service->isServiceActive('');
+        self::assertFalse($this->service->isServiceActive(''));
+        self::assertFalse($this->service->isServiceActive('false'));
+        self::assertFalse($this->service->isServiceActive());
+        self::assertFalse($this->service->isServiceActive(false));
+        self::assertTrue($this->service->isServiceActive('RegisteredService'));
     }
 }
