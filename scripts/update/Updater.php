@@ -100,10 +100,18 @@ class Updater extends common_ext_ExtensionUpdater {
 
             $this->getServiceManager()->register(MonitoringPlugService::SERVICE_ID, new MonitoringPlugService([
                 'services' => [
+                    // restore previous active services to not break behaviour
                     DeliveryLogService::SERVICE_ID,
                     TestTakerDeliveryActivityLogInterface::SERVICE_ID,
                 ]
             ]));
+
+            $this->addReport(\common_report_Report::createInfo('Check that configuration for the MonitoringPlugService is correct and content the services that needed by the environment'));
+
+            $this->setVersion('2.1.0');
+        }
+
+        if ($this->isVersion('2.1.0')) {
 
             $this->getServiceManager()->register(InstantActionQueueLogService::SERVICE_ID, new InstantActionQueueLogService([InstantActionQueueLogRdsStorage::OPTION_PERSISTENCE => 'default']));
 
@@ -113,7 +121,7 @@ class Updater extends common_ext_ExtensionUpdater {
 
             $this->logNotice('Run scripts/tools/CreateInstantActionQueueRds.php to create new storage');
 
-            $this->setVersion('2.1.0');
+            $this->setVersion('2.2.0');
         }
     }
 }

@@ -38,15 +38,9 @@ class DeliveryLogEvent implements DeliveryLogEventInterface
     private static $service;
 
     /**
-     * Getting state of the service (it should be active to be able to work)
-     * @return boolean
+     * @var bool
      */
-    public static function isServiceActive()
-    {
-        return self::getServiceManager()
-            ->get(MonitoringPlugService::SERVICE_ID)
-            ->isServiceActive(DeliveryLogService::SERVICE_ID);
-    }
+    private static $active;
 
     public static function setService(DeliveryLogService $service)
     {
@@ -59,9 +53,25 @@ class DeliveryLogEvent implements DeliveryLogEventInterface
     private static function service()
     {
         if (!isset(self::$service)) {
-            self::setService(self::getServiceManager()->get(DeliveryLogService::SERVICE_ID) );
+            /** @var DeliveryLogService $service */
+            $service = ServiceManager::getServiceManager()->get(DeliveryLogService::SERVICE_ID);
+            self::setService($service);
         }
         return self::$service;
+    }
+
+    /**
+     * Getting state of the service (it should be active to work)
+     * @return boolean
+     */
+    private static function isServiceActive()
+    {
+        if (!isset(self::$active)) {
+            self::$active = self::getServiceManager()
+                ->get(MonitoringPlugService::SERVICE_ID)
+                ->isServiceActive(DeliveryLogService::SERVICE_ID);
+        }
+        return self::$active;
     }
 
     public static function deliveryExecutionCreated(DeliveryExecutionCreated $event)

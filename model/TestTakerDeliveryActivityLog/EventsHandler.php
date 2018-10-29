@@ -31,14 +31,18 @@ use oat\taoMonitoring\model\TestTakerDeliveryActivityLogInterface;
 use oat\taoQtiTest\models\event\QtiMoveEvent;
 use oat\taoDelivery\model\execution\ServiceProxy;
 
-
 class EventsHandler implements EventsHandlerInterface
 {
     /**
      * @var TestTakerDeliveryActivityLogInterface
      */
     private static $service;
-    
+
+    /**
+     * @var bool
+     */
+    private static $active;
+
     public static function setService(TestTakerDeliveryActivityLogInterface $service)
     {
         self::$service = $service;
@@ -50,7 +54,9 @@ class EventsHandler implements EventsHandlerInterface
     private static function service()
     {
         if (!isset(self::$service)) {
-            self::setService( self::getServiceManager()->get(TestTakerDeliveryActivityLogInterface::SERVICE_ID) );
+            /** @var TestTakerDeliveryActivityLogInterface $ttDeliveryActivityLog */
+            $ttDeliveryActivityLog = ServiceManager::getServiceManager()->get(TestTakerDeliveryActivityLogInterface::SERVICE_ID);
+            self::setService( $ttDeliveryActivityLog );
         }
         return self::$service;
     }
@@ -59,11 +65,14 @@ class EventsHandler implements EventsHandlerInterface
      * Getting state of the service (it should be active to be able to work)
      * @return boolean
      */
-    public static function isServiceActive()
+    private static function isServiceActive()
     {
-        return self::getServiceManager()
-            ->get(MonitoringPlugService::SERVICE_ID)
-            ->isServiceActive(TestTakerDeliveryActivityLogInterface::SERVICE_ID);
+        if (!isset(self::$active)) {
+            self::$active = self::getServiceManager()
+                ->get(MonitoringPlugService::SERVICE_ID)
+                ->isServiceActive(TestTakerDeliveryActivityLogInterface::SERVICE_ID);
+        }
+        return self::$active;
     }
 
     public static function deliveryExecutionCreated(DeliveryExecutionCreated $event)
@@ -98,6 +107,9 @@ class EventsHandler implements EventsHandlerInterface
     
     private static function event(DeliveryExecutionInterface $deliveryExecution, $event)
     {
+        if (!self::isServiceActive()) {
+            return;
+        }
         try {
             $testTaker = $deliveryExecution->getUserIdentifier();
             $delivery = $deliveryExecution->getDelivery();

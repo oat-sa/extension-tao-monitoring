@@ -18,32 +18,33 @@
  *
  * @author Alexander Zagovorichev <zagovorichev@1pt.com>
  */
+namespace oat\taoMonitoring\test;
 
-namespace oat\taoMonitoring\model;
 
+use oat\taoMonitoring\model\MonitoringPlugService;
 
-use oat\oatbox\service\ConfigurableService;
-
-/**
- * Service to control state of the monitoring (turn on / turn off)
- *
- * Active services of the statistics stored as a configurable properties of this service
- * # we can't store such data to anywhere else, because of performance issue
- * ## for example storing in the DB will add extra 'SELECT' query to getting state of service
- *
- * Class MonitoringPlugService
- * @package oat\taoMonitoring\model
- */
-class MonitoringPlugService extends ConfigurableService
+class MonitoringPlugServiceTest extends \PHPUnit_Framework_TestCase
 {
-    const SERVICE_ID = 'taoMonitoring/MonitoringPlugService';
 
     /**
-     * @param string $serviceId
-     * @return bool
+     * @var MonitoringPlugService
      */
-    public function isServiceActive($serviceId = '')
+    private $service;
+
+    public function setUp(){
+        $this->service = new MonitoringPlugService([
+            'services' => [
+                'RegisteredService'
+            ]
+        ]);
+    }
+
+    public function testIsServiceActive()
     {
-        return in_array($serviceId, $this->getOption('services'));
+        self::assertFalse($this->service->isServiceActive(''));
+        self::assertFalse($this->service->isServiceActive('false'));
+        self::assertFalse($this->service->isServiceActive());
+        self::assertFalse($this->service->isServiceActive(false));
+        self::assertTrue($this->service->isServiceActive('RegisteredService'));
     }
 }
