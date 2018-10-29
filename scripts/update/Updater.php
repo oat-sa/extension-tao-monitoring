@@ -15,7 +15,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  * Copyright (c) 2016  (original work) Open Assessment Technologies SA;
- * 
+ *
  * @author Alexander Zagovorichev <zagovorichev@1pt.com>
  */
 
@@ -34,7 +34,6 @@ use oat\taoMonitoring\model\TestTakerDeliveryActivityLog\TestTakerDeliveryActivi
 use oat\taoMonitoring\model\TestTakerDeliveryActivityLogInterface;
 use oat\taoMonitoring\scripts\install\RegisterRdsDeliveryLog;
 use oat\taoMonitoring\scripts\install\RegisterRdsTestTakerDeliveryActivityLog;
-use oat\taoMonitoring\scripts\update\v0_1_0\DropTestTakerDeliveryLogTable;
 
 class Updater extends common_ext_ExtensionUpdater {
 
@@ -45,7 +44,7 @@ class Updater extends common_ext_ExtensionUpdater {
      */
     public function update($initialVersion)
     {
-        
+
         if ($this->isVersion('0.0.1')) {
 
             if (!$this->getServiceManager()->has(TestTakerDeliveryActivityLogService::SERVICE_ID)) {
@@ -65,7 +64,8 @@ class Updater extends common_ext_ExtensionUpdater {
 
         if ($this->isVersion('0.0.2')) {
 
-            $eventManager = $this->getServiceManager()->get(EventManager::CONFIG_ID);
+            /** @var EventManager $eventManager */
+            $eventManager = $this->getServiceManager()->get(EventManager::SERVICE_ID);
 
             // Detach switch items - on switching recount all statistic for testTaker
             $eventManager->detach(
@@ -85,22 +85,18 @@ class Updater extends common_ext_ExtensionUpdater {
                 array('\\oat\\taoMonitoring\\model\\TestTakerDeliveryLog\\event\\Events', 'deliveryExecutionState')
             );
 
-            $this->getServiceManager()->register(EventManager::CONFIG_ID, $eventManager);
+            $this->getServiceManager()->register(EventManager::SERVICE_ID, $eventManager);
 
 
             $this->getServiceManager()->unregister('taoMonitoring/testTakerDeliveryLog');
 
-            // delete from storage
-            $action = new DropTestTakerDeliveryLogTable();
-            $action([]);
-
+            $this->addReport(\common_report_Report::createInfo('Delete the table `monitoring_testtaker_deliveries` directly to clean the storage'));
             $this->setVersion('0.1.0');
         }
 
-        $this->skip('0.1.0', '1.1.4');
+        $this->skip('0.1.0', '2.0.1');
 
-        if ($this->isVersion('1.1.4')) {
-
+        if ($this->isVersion('2.0.1')) {
 
             $this->getServiceManager()->register(MonitoringPlugService::SERVICE_ID, new MonitoringPlugService([
                 'services' => [
@@ -117,7 +113,7 @@ class Updater extends common_ext_ExtensionUpdater {
 
             $this->logNotice('Run scripts/tools/CreateInstantActionQueueRds.php to create new storage');
 
-            $this->setVersion('1.2.0');
+            $this->setVersion('2.1.0');
         }
     }
 }
