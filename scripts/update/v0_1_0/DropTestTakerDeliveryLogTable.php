@@ -24,6 +24,8 @@ namespace oat\taoMonitoring\scripts\update\v0_1_0;
 
 use oat\oatbox\action\Action;
 
+
+// todo delete that redundant action in the new PR
 class DropTestTakerDeliveryLogTable implements Action
 {
     const TABLE_NAME = 'monitoring_testtaker_deliveries';

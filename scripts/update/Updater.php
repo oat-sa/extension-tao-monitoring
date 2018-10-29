@@ -24,8 +24,14 @@ namespace oat\taoMonitoring\scripts\update;
 
 use \common_ext_ExtensionUpdater;
 use oat\oatbox\event\EventManager;
+use oat\tao\model\actionQueue\event\InstantActionOnQueueEvent;
 use oat\taoMonitoring\model\DeliveryLog\DeliveryLogService;
+use oat\taoMonitoring\model\LoginQueueLog\event\InstantActionQueueLogEvent;
+use oat\taoMonitoring\model\LoginQueueLog\InstantActionQueueLogService;
+use oat\taoMonitoring\model\LoginQueueLog\storage\InstantActionQueueLogRdsStorage;
+use oat\taoMonitoring\model\MonitoringPlugService;
 use oat\taoMonitoring\model\TestTakerDeliveryActivityLog\TestTakerDeliveryActivityLogService;
+use oat\taoMonitoring\model\TestTakerDeliveryActivityLogInterface;
 use oat\taoMonitoring\scripts\install\RegisterRdsDeliveryLog;
 use oat\taoMonitoring\scripts\install\RegisterRdsTestTakerDeliveryActivityLog;
 use oat\taoMonitoring\scripts\update\v0_1_0\DropTestTakerDeliveryLogTable;
@@ -33,8 +39,9 @@ use oat\taoMonitoring\scripts\update\v0_1_0\DropTestTakerDeliveryLogTable;
 class Updater extends common_ext_ExtensionUpdater {
 
     /**
-     * @param string $initialVersion
-     * @return string string
+     * @param $initialVersion
+     * @return string|void
+     * @throws \common_Exception
      */
     public function update($initialVersion)
     {
@@ -91,5 +98,26 @@ class Updater extends common_ext_ExtensionUpdater {
         }
 
         $this->skip('0.1.0', '1.1.4');
+
+        if ($this->isVersion('1.1.4')) {
+
+
+            $this->getServiceManager()->register(MonitoringPlugService::SERVICE_ID, new MonitoringPlugService([
+                'services' => [
+                    DeliveryLogService::SERVICE_ID,
+                    TestTakerDeliveryActivityLogInterface::SERVICE_ID,
+                ]
+            ]));
+
+            $this->getServiceManager()->register(InstantActionQueueLogService::SERVICE_ID, new InstantActionQueueLogService([InstantActionQueueLogRdsStorage::OPTION_PERSISTENCE => 'default']));
+
+            $eventManager = $this->getServiceManager()->get(EventManager::SERVICE_ID);
+            $eventManager->attach(InstantActionOnQueueEvent::class, array(InstantActionQueueLogEvent::class, 'queued'));
+            $this->getServiceManager()->register(EventManager::SERVICE_ID, $eventManager);
+
+            $this->logNotice('Run scripts/tools/CreateInstantActionQueueRds.php to create new storage');
+
+            $this->setVersion('1.2.0');
+        }
     }
 }
