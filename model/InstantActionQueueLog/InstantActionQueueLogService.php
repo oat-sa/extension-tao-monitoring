@@ -19,12 +19,12 @@
  * @author Alexander Zagovorichev <zagovorichev@1pt.com>
  */
 
-namespace oat\taoMonitoring\model\LoginQueueLog;
+namespace oat\taoMonitoring\model\InstantActionQueueLog;
 
 
 use oat\oatbox\service\ConfigurableService;
 use oat\tao\model\actionQueue\event\InstantActionOnQueueEvent;
-use oat\taoMonitoring\model\LoginQueueLog\storage\InstantActionQueueLogRdsStorage;
+use oat\taoMonitoring\model\InstantActionQueueLog\storage\InstantActionQueueLogRdsStorage;
 
 class InstantActionQueueLogService extends ConfigurableService
 {
@@ -47,14 +47,17 @@ class InstantActionQueueLogService extends ConfigurableService
 
     public function saveEvent(InstantActionOnQueueEvent $event)
     {
+        $resourceId = '';
+        if (method_exists($event->getQueuedAction(), 'getDelivery')) {
+            $resourceId = $event->getQueuedAction()->getDelivery()->getUri();
+        }
+
         $this->storage()->saveAction([
-            InstantActionQueueLogStorageInterface::PARAM_ACTION => $event->getAction(),
+            InstantActionQueueLogStorageInterface::PARAM_ACTION_TYPE => $event->getActionType(),
             InstantActionQueueLogStorageInterface::PARAM_ACTION_TIME => time(),
             InstantActionQueueLogStorageInterface::PARAM_USER_ID => $event->getUser()->getIdentifier(),
             InstantActionQueueLogStorageInterface::PARAM_QUEUE_KEY => $event->getInstantQueueKey(),
-            InstantActionQueueLogStorageInterface::PARAM_RESOURCE_ID => $event->getResource()->getUri(),
+            InstantActionQueueLogStorageInterface::PARAM_RESOURCE_ID => $resourceId,
         ]);
     }
-
-
 }

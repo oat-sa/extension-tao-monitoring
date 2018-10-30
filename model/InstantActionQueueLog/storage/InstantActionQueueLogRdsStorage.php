@@ -19,11 +19,11 @@
  * @author Alexander Zagovorichev <zagovorichev@1pt.com>
  */
 
-namespace oat\taoMonitoring\model\LoginQueueLog\storage;
+namespace oat\taoMonitoring\model\InstantActionQueueLog\storage;
 
 
 use Doctrine\DBAL\Schema\SchemaException;
-use oat\taoMonitoring\model\LoginQueueLog\InstantActionQueueLogStorageInterface;
+use oat\taoMonitoring\model\InstantActionQueueLog\InstantActionQueueLogStorageInterface;
 
 class InstantActionQueueLogRdsStorage implements InstantActionQueueLogStorageInterface
 {
@@ -97,10 +97,10 @@ class InstantActionQueueLogRdsStorage implements InstantActionQueueLogStorageInt
             $tableLog->addColumn(self::PARAM_QUEUE_KEY, "string", array("notnull" => true, "length" => 255));
             $tableLog->addColumn(self::PARAM_USER_ID, "string", array("notnull" => true, "length" => 255));
             $tableLog->addColumn(self::PARAM_RESOURCE_ID, "string", array("notnull" => true, "length" => 255));
-            $tableLog->addColumn(self::PARAM_ACTION, "text", array("notnull" => true));
+            $tableLog->addColumn(self::PARAM_ACTION_TYPE, "text", array("notnull" => true));
             $tableLog->addColumn(self::PARAM_ACTION_TIME, "integer", array("unsigned" => true));
 
-            $tableLog->setPrimaryKey(array(self::PARAM_QUEUE_KEY));
+            $tableLog->addIndex([self::PARAM_QUEUE_KEY], self::TABLE_NAME . 'IDX_queue_key');
             $tableLog->addIndex([self::PARAM_USER_ID], self::TABLE_NAME .'IDX_user_id');
             $tableLog->addIndex([self::PARAM_ACTION_TIME], self::TABLE_NAME .'IDX_action_time');
 

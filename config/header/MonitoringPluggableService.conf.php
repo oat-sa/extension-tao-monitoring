@@ -5,5 +5,5 @@
  *
  * \oat\taoMonitoring\model\DeliveryLog\DeliveryLogService::SERVICE_ID,
  * \oat\taoMonitoring\model\TestTakerDeliveryActivityLogInterface::SERVICE_ID,
- * \oat\taoMonitoring\model\LoginQueueLog\LoginQueueLogService::SERVICE_ID,
+ * \oat\taoMonitoring\model\InstantActionQueueLog\LoginQueueLogService::SERVICE_ID,
  */

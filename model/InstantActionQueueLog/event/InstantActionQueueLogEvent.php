@@ -19,12 +19,12 @@
  * @author Alexander Zagovorichev <zagovorichev@1pt.com>
  */
 
-namespace oat\taoMonitoring\model\LoginQueueLog\event;
+namespace oat\taoMonitoring\model\InstantActionQueueLog\event;
 
 
 use oat\oatbox\service\ServiceManager;
 use oat\tao\model\actionQueue\event\InstantActionOnQueueEvent;
-use oat\taoMonitoring\model\LoginQueueLog\InstantActionQueueLogService;
+use oat\taoMonitoring\model\InstantActionQueueLog\InstantActionQueueLogService;
 use oat\taoMonitoring\model\MonitoringPlugService;
 
 class InstantActionQueueLogEvent

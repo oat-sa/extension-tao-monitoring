@@ -24,8 +24,12 @@ namespace oat\taoMonitoring\scripts\tools;
 
 use oat\oatbox\extension\script\ScriptAction;
 use common_report_Report as Report;
-use oat\taoMonitoring\model\LoginQueueLog\storage\InstantActionQueueLogRdsStorage;
+use oat\taoMonitoring\model\InstantActionQueueLog\storage\InstantActionQueueLogRdsStorage;
 
+/**
+ * Class CreateInstantActionQueueRds
+ * @package oat\taoMonitoring\scripts\tools
+ */
 class CreateInstantActionQueueRds extends ScriptAction
 {
     protected function provideDescription()

@@ -25,9 +25,9 @@ namespace oat\taoMonitoring\scripts\install;
 use oat\oatbox\event\EventManager;
 use oat\oatbox\extension\InstallAction;
 use oat\tao\model\actionQueue\event\InstantActionOnQueueEvent;
-use oat\taoMonitoring\model\LoginQueueLog\event\InstantActionQueueLogEvent;
-use oat\taoMonitoring\model\LoginQueueLog\InstantActionQueueLogService;
-use oat\taoMonitoring\model\LoginQueueLog\storage\InstantActionQueueLogRdsStorage;
+use oat\taoMonitoring\model\InstantActionQueueLog\event\InstantActionQueueLogEvent;
+use oat\taoMonitoring\model\InstantActionQueueLog\InstantActionQueueLogService;
+use oat\taoMonitoring\model\InstantActionQueueLog\storage\InstantActionQueueLogRdsStorage;
 
 class RegisterInstantActionQueueLog extends InstallAction
 {

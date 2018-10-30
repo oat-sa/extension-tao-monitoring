@@ -19,7 +19,7 @@
  * @author Alexander Zagovorichev <zagovorichev@1pt.com>
  */
 
-namespace oat\taoMonitoring\model\LoginQueueLog;
+namespace oat\taoMonitoring\model\InstantActionQueueLog;
 
 
 interface InstantActionQueueLogStorageInterface
@@ -27,7 +27,7 @@ interface InstantActionQueueLogStorageInterface
 
     const PARAM_QUEUE_KEY = 'queue_key';
     const PARAM_USER_ID = 'user_id';
-    const PARAM_ACTION = 'action'; // queue, dequeue
+    const PARAM_ACTION_TYPE = 'action_type'; // queue, dequeue
     const PARAM_ACTION_TIME = 'action_time';
     const PARAM_RESOURCE_ID = 'resource_id';
 
