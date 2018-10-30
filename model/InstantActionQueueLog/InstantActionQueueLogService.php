@@ -52,11 +52,13 @@ class InstantActionQueueLogService extends ConfigurableService
             $resourceId = $event->getQueuedAction()->getDelivery()->getUri();
         }
 
+        $queueKey = $event->getInstantQueueKey() . '_' . session_id();
+
         $this->storage()->saveAction([
             InstantActionQueueLogStorageInterface::PARAM_ACTION_TYPE => $event->getActionType(),
             InstantActionQueueLogStorageInterface::PARAM_ACTION_TIME => time(),
             InstantActionQueueLogStorageInterface::PARAM_USER_ID => $event->getUser()->getIdentifier(),
-            InstantActionQueueLogStorageInterface::PARAM_QUEUE_KEY => $event->getInstantQueueKey(),
+            InstantActionQueueLogStorageInterface::PARAM_QUEUE_KEY => $queueKey,
             InstantActionQueueLogStorageInterface::PARAM_RESOURCE_ID => $resourceId,
         ]);
     }

@@ -40,13 +40,17 @@ class InstantActionQueueLogEvent
             ->isServiceActive(InstantActionQueueLogService::SERVICE_ID);
     }
 
+    /**
+     * @param InstantActionOnQueueEvent $event
+     */
     public static function queued(InstantActionOnQueueEvent $event)
     {
+        /** @var InstantActionQueueLogService $service */
         $service = self::getServiceManager()->get(InstantActionQueueLogService::SERVICE_ID);
         $service->saveEvent($event);
     }
 
-    public static function getServiceManager()
+    private static function getServiceManager()
     {
         return ServiceManager::getServiceManager();
     }
