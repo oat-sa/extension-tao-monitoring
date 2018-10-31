@@ -54,30 +54,11 @@ class InstantActionQueueLogRdsStorage implements InstantActionQueueLogStorageInt
     }
 
     /**
-     * @return \common_persistence_SqlPersistence
+     * @return \common_persistence_SqlPersistence| \common_persistence_Persistence
      */
-    private function getPersistence()
+    protected function getPersistence()
     {
         return \common_persistence_Manager::getPersistence($this->persistence);
-    }
-
-    /**
-     * @param string $deliveryUri
-     * @return mixed
-     * @throws \common_Exception
-     */
-    public function getRow($deliveryUri = '')
-    {
-        if (!$deliveryUri) {
-            throw new \common_Exception('DeliveryLogRdsStorage should have deliveryUri');
-        }
-
-        $sql = "SELECT * FROM " . self::TABLE_NAME ." WHERE " . self::DELIVERY . "=? ";
-
-        $parameters = [$deliveryUri];
-        $stmt = $this->getPersistence()->query($sql, $parameters);
-
-        return current($stmt->fetchAll(\PDO::FETCH_ASSOC));
     }
 
     /**
