@@ -24,7 +24,11 @@ namespace oat\taoMonitoring\scripts\update;
 
 use \common_ext_ExtensionUpdater;
 use oat\oatbox\event\EventManager;
+use oat\tao\model\actionQueue\event\InstantActionOnQueueEvent;
 use oat\taoMonitoring\model\DeliveryLog\DeliveryLogService;
+use oat\taoMonitoring\model\InstantActionQueueLog\event\InstantActionQueueLogEvent;
+use oat\taoMonitoring\model\InstantActionQueueLog\InstantActionQueueLogService;
+use oat\taoMonitoring\model\InstantActionQueueLog\storage\InstantActionQueueLogRdsStorage;
 use oat\taoMonitoring\model\MonitoringPlugService;
 use oat\taoMonitoring\model\TestTakerDeliveryActivityLog\TestTakerDeliveryActivityLogService;
 use oat\taoMonitoring\model\TestTakerDeliveryActivityLogInterface;
@@ -105,6 +109,19 @@ class Updater extends common_ext_ExtensionUpdater {
             $this->addReport(\common_report_Report::createInfo('Check that configuration for the MonitoringPlugService is correct and content the services that needed by the environment'));
 
             $this->setVersion('2.1.0');
+        }
+
+        if ($this->isVersion('2.1.0')) {
+
+            $this->getServiceManager()->register(InstantActionQueueLogService::SERVICE_ID, new InstantActionQueueLogService([InstantActionQueueLogRdsStorage::OPTION_PERSISTENCE => 'default']));
+
+            $eventManager = $this->getServiceManager()->get(EventManager::SERVICE_ID);
+            $eventManager->attach(InstantActionOnQueueEvent::class, array(InstantActionQueueLogEvent::class, 'queued'));
+            $this->getServiceManager()->register(EventManager::SERVICE_ID, $eventManager);
+
+            $this->logNotice('Run scripts/tools/CreateInstantActionQueueRds.php to create new storage');
+
+            $this->setVersion('2.2.0');
         }
     }
 }

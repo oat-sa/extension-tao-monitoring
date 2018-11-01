@@ -42,7 +42,7 @@ class EventsHandler implements EventsHandlerInterface
      * @var bool
      */
     private static $active;
-    
+
     public static function setService(TestTakerDeliveryActivityLogInterface $service)
     {
         self::$service = $service;
