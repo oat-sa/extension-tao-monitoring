@@ -28,6 +28,7 @@ use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionCreated;
 use oat\taoDelivery\models\classes\execution\event\DeliveryExecutionState;
 use oat\taoMonitoring\model\DeliveryLog\DeliveryLogEventInterface;
 use oat\taoMonitoring\model\DeliveryLog\DeliveryLogService;
+use oat\taoMonitoring\model\MonitoringPlugService;
 
 class DeliveryLogEvent implements DeliveryLogEventInterface
 {
@@ -35,6 +36,11 @@ class DeliveryLogEvent implements DeliveryLogEventInterface
      * @var DeliveryLogService
      */
     private static $service;
+
+    /**
+     * @var bool
+     */
+    private static $active;
 
     public static function setService(DeliveryLogService $service)
     {
@@ -47,13 +53,32 @@ class DeliveryLogEvent implements DeliveryLogEventInterface
     private static function service()
     {
         if (!isset(self::$service)) {
-            self::setService( ServiceManager::getServiceManager()->get(DeliveryLogService::SERVICE_ID) );
+            /** @var DeliveryLogService $service */
+            $service = ServiceManager::getServiceManager()->get(DeliveryLogService::SERVICE_ID);
+            self::setService($service);
         }
         return self::$service;
     }
 
+    /**
+     * Getting state of the service (it should be active to work)
+     * @return boolean
+     */
+    private static function isServiceActive()
+    {
+        if (!isset(self::$active)) {
+            self::$active = self::getServiceManager()
+                ->get(MonitoringPlugService::SERVICE_ID)
+                ->isServiceActive(DeliveryLogService::SERVICE_ID);
+        }
+        return self::$active;
+    }
+
     public static function deliveryExecutionCreated(DeliveryExecutionCreated $event)
     {
+        if (!self::isServiceActive()) {
+            return;
+        }
         try {
             self::service()->addExecution($event->getDeliveryExecution()->getDelivery()->getUri());
         } catch (\Exception $e) {
@@ -64,6 +89,9 @@ class DeliveryLogEvent implements DeliveryLogEventInterface
 
     public static function deliveryExecutionState(DeliveryExecutionState $event)
     {
+        if (!self::isServiceActive()) {
+            return;
+        }
         try {
             if ($event->getState() === DeliveryExecutionInterface::STATE_FINISHIED) {
                 self::service()->addFinishedExecution($event->getDeliveryExecution()->getDelivery()->getUri());
@@ -72,5 +100,10 @@ class DeliveryLogEvent implements DeliveryLogEventInterface
             // failure in event should not stop execution
             \common_Logger::e('Failed to processing data for log DeliveryLog (deliveryExecutionState) "' . $e->getMessage() . '"');
         }
+    }
+
+    public static function getServiceManager()
+    {
+        return ServiceManager::getServiceManager();
     }
 }

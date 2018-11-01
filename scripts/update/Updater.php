@@ -25,7 +25,9 @@ namespace oat\taoMonitoring\scripts\update;
 use \common_ext_ExtensionUpdater;
 use oat\oatbox\event\EventManager;
 use oat\taoMonitoring\model\DeliveryLog\DeliveryLogService;
+use oat\taoMonitoring\model\MonitoringPlugService;
 use oat\taoMonitoring\model\TestTakerDeliveryActivityLog\TestTakerDeliveryActivityLogService;
+use oat\taoMonitoring\model\TestTakerDeliveryActivityLogInterface;
 use oat\taoMonitoring\scripts\install\RegisterRdsDeliveryLog;
 use oat\taoMonitoring\scripts\install\RegisterRdsTestTakerDeliveryActivityLog;
 
@@ -89,5 +91,20 @@ class Updater extends common_ext_ExtensionUpdater {
         }
 
         $this->skip('0.1.0', '2.0.1');
+
+        if ($this->isVersion('2.0.1')) {
+
+            $this->getServiceManager()->register(MonitoringPlugService::SERVICE_ID, new MonitoringPlugService([
+                'services' => [
+                    // restore previous active services to not break behaviour
+                    DeliveryLogService::SERVICE_ID,
+                    TestTakerDeliveryActivityLogInterface::SERVICE_ID,
+                ]
+            ]));
+
+            $this->addReport(\common_report_Report::createInfo('Check that configuration for the MonitoringPlugService is correct and content the services that needed by the environment'));
+
+            $this->setVersion('2.1.0');
+        }
     }
 }
