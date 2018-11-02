@@ -1,3 +1,4 @@
+<?php
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -13,31 +14,32 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2014-2018 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2018  (original work) Open Assessment Technologies SA;
+ *
+ * @author Alexander Zagovorichev <zagovorichev@1pt.com>
  */
 
-/**
- * configure the extension bundles
- * @author Bertrand Chevrier <bertrand@taotesting.com>
- */
-module.exports = function(grunt) {
-    'use strict';
+namespace oat\taoMonitoring\model\InstantActionQueueLog;
 
-    grunt.config.merge({
-        bundle : {
-            taomonitoring : {
-                options : {
-                    extension : 'taoMonitoring',
-                    outputDir : 'loader',
-                    bundles : [{
-                        name : 'taoMonitoring',
-                        default : true,
-                    }]
-                }
-            }
-        }
-    });
 
-    // bundle task
-    grunt.registerTask('taomonitoringbundle', ['bundle:taomonitoring']);
-};
+interface InstantActionQueueLogStorageInterface
+{
+
+    const PARAM_QUEUE_KEY = 'queue_key';
+    const PARAM_USER_ID = 'user_id';
+    const PARAM_ACTION_TYPE = 'action_type'; // queue, dequeue
+    const PARAM_ACTION_TIME = 'action_time';
+    const PARAM_RESOURCE_ID = 'resource_id';
+
+    /**
+     * Create storage
+     * @return string (table name or file path)
+     */
+    public function createStorage();
+
+    /**
+     * Destroy storage
+     * @return bool
+     */
+    public function dropStorage();
+}
