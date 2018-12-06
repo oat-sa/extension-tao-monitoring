@@ -123,5 +123,21 @@ class Updater extends common_ext_ExtensionUpdater {
 
             $this->setVersion('2.2.0');
         }
+
+        if ($this->isVersion('2.2.0')) {
+            // installator didn't work in the previous version of the updater
+            if (!$this->getServiceManager()->has(InstantActionQueueLogService::SERVICE_ID) ) {
+                $this->getServiceManager()->register(InstantActionQueueLogService::SERVICE_ID,
+                    new InstantActionQueueLogService([InstantActionQueueLogRdsStorage::OPTION_PERSISTENCE => 'default']));
+
+                $eventManager = $this->getServiceManager()->get(EventManager::SERVICE_ID);
+                $eventManager->attach(InstantActionOnQueueEvent::class,
+                    array(InstantActionQueueLogEvent::class, 'queued'));
+                $this->getServiceManager()->register(EventManager::SERVICE_ID, $eventManager);
+
+                $this->logNotice('Run scripts/tools/CreateInstantActionQueueRds.php to create new storage');
+            }
+            $this->setVersion('2.2.1');
+        }
     }
 }
