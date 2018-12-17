@@ -135,9 +135,17 @@ class Updater extends common_ext_ExtensionUpdater {
                     array(InstantActionQueueLogEvent::class, 'queued'));
                 $this->getServiceManager()->register(EventManager::SERVICE_ID, $eventManager);
 
-                $this->logNotice('Run scripts/tools/CreateInstantActionQueueRds.php to create new storage');
+                $storage = new InstantActionQueueLogRdsStorage( 'default' );
+                $storage->createStorage();
             }
             $this->setVersion('2.2.1');
+        }
+
+        if ($this->isVersion('2.2.1')) {
+            // fixed previous broken updater when storage should be created by hand
+            $storage = new InstantActionQueueLogRdsStorage( 'default' );
+            $storage->createStorage();
+            $this->setVersion('2.2.2');
         }
     }
 }
