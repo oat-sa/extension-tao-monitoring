@@ -24,10 +24,10 @@ return array(
     'label' => 'Statistics and aggregated data',
     'description' => 'Extension for monitoring of the tao events. Fast access to statistics data',
     'license' => 'GPL-2.0',
-    'version' => '2.2.3',
+    'version' => '3.0.0',
     'author' => 'Open Assessment Technologies SA',
     'requires' => array(
-        'generis'        => '>=2.15.0',
+        'generis'        => '>=12.5.0',
         'tao'            => '>=21.0.0',
         'taoDelivery'    => '>=11.0.0',
         'taoDeliveryRdf' => '>=6.0.0',
