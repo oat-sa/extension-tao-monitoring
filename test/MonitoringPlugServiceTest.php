@@ -22,8 +22,9 @@ namespace oat\taoMonitoring\test;
 
 
 use oat\taoMonitoring\model\MonitoringPlugService;
+use oat\generis\test\TestCase;
 
-class MonitoringPlugServiceTest extends \PHPUnit_Framework_TestCase
+class MonitoringPlugServiceTest extends TestCase
 {
 
     /**
