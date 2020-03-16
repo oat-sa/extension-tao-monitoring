@@ -24,7 +24,7 @@ return array(
     'label' => 'Statistics and aggregated data',
     'description' => 'Extension for monitoring of the tao events. Fast access to statistics data',
     'license' => 'GPL-2.0',
-    'version' => '3.0.0',
+    'version' => '3.1.0',
     'author' => 'Open Assessment Technologies SA',
     'requires' => array(
         'generis'        => '>=12.5.0',
