@@ -42,7 +42,7 @@ class DeliveryLogRdsStorageTest extends TaoPhpUnitTestRunner
      */
     private $storage;
 
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
 

@@ -43,7 +43,7 @@ class RdsStorageTestTest extends TaoPhpUnitTestRunner
      */
     private $storage;
 
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
 
@@ -56,7 +56,7 @@ class RdsStorageTestTest extends TaoPhpUnitTestRunner
         $persistence->exec($sql, $parameters);
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         // for tests if not exists
         $this->storage = new RdsStorage('default');
@@ -123,7 +123,7 @@ class RdsStorageTestTest extends TaoPhpUnitTestRunner
 
 
         $this->assertTrue($this->inArray(9999));
-        
+
         $class = new \ReflectionClass(RdsStorage::class);
         $cleanMethod = $class->getMethod('cleanStorage');
         $cleanMethod->setAccessible(true);
