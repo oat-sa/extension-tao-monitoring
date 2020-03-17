@@ -147,7 +147,7 @@ class Updater extends common_ext_ExtensionUpdater {
             $storage->createStorage();
             $this->setVersion('2.2.2');
         }
-        
-        $this->skip('2.2.2', '3.0.0');
+
+        $this->skip('2.2.2', '3.1.0');
     }
 }
