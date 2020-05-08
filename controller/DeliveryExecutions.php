@@ -122,8 +122,6 @@ class DeliveryExecutions extends tao_actions_SaSModule
         //generate the tree from the given parameters
         $tree = $this->getClassService()->toTree($clazz, $options);
 
-        $tree = $this->addPermissions($tree);
-
         function sortTree(&$tree)
         {
             usort($tree, function ($a, $b) {
