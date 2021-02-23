@@ -24,16 +24,7 @@ return array(
     'label' => 'Statistics and aggregated data',
     'description' => 'Extension for monitoring of the tao events. Fast access to statistics data',
     'license' => 'GPL-2.0',
-    'version' => '3.2.0',
     'author' => 'Open Assessment Technologies SA',
-    'requires' => array(
-        'generis'        => '>=12.15.0',
-        'tao'            => '>=21.0.0',
-        'taoDelivery'    => '>=11.0.0',
-        'taoDeliveryRdf' => '>=6.0.0',
-        'taoOutcomeUi'   => '>=7.0.0',
-        'taoQtiTest'     => '>=29.0.0',
-    ),
     'managementRole' => 'http://www.tao.lu/Ontologies/generis.rdf#taoMonitoringManager',
     'acl' => array(
         array('grant', 'http://www.tao.lu/Ontologies/generis.rdf#taoMonitoringManager', array('ext'=>'taoMonitoring')),
